@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { RiCopperCoinFill } from "react-icons/ri";
 
 export const metadata: Metadata = {
   title: "CryptoFolio",
@@ -30,11 +29,7 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
       <body>
-        <header className="">
-          <RiCopperCoinFill size={28} style={{ color: "black" }} />
-          <span>CryptoFolio</span>
-        </header>
-        {children}
+        <main>{children}</main>
       </body>
     </html>
   );
