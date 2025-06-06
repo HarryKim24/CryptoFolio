@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Navbar from "@/components/nav/Navbar";
 
 export const metadata: Metadata = {
   title: "CryptoFolio",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
       <body>
+        <Navbar />
         <main>{children}</main>
       </body>
     </html>
