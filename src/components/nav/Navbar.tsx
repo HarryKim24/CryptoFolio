@@ -51,7 +51,7 @@ export default function Navbar() {
           />
         </button>
 
-        <ul className="hidden xs:flex gap-4 text-lg font-extrabold text-neutral-100">
+        <ul className="hidden xs:flex gap-4 text-md font-extrabold text-neutral-100">
           {[
             { href: "/chart/BTC", label: "차트" },
             { href: "/portfolio", label: "포트폴리오" },
@@ -82,7 +82,7 @@ export default function Navbar() {
               { href: "/settings", label: "설정" },
               { href: "/login", label: "로그인" },
             ].map(({ href, label }) => (
-              <li key={href} className="flex items-center text-xl h-8 px-2">
+              <li key={href} className="flex items-center text-lg h-8 px-2">
                 <Link href={href} onClick={() => setIsOpen(false)}>
                   {label}
                 </Link>
