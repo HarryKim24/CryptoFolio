@@ -10,13 +10,13 @@ const config: Config = {
     },
     extend: {
       colors: {
-        primary: "#0c0c1f",
-        secondary: "#140b29",
+        primary: "#0b0a1a",
+        secondary: "#1b1443",
+        accent: "#fac263",
       },
       backgroundImage: {
-        "nav-gradient": "linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.1), rgba(255,255,255,0.1))",
-        "main-gradient": "linear-gradient(to bottom, #0c0c1f, #140b29, #0c0c1f)",
-        "text-yellow-gradient": "linear-gradient(45deg, #fef08a 10%, #fef9c3 50%, #fef08a 90%)",
+        "main-gradient": "linear-gradient(to bottom, #0b0a1a, #1b1443, #0b0a1a)",
+        "second-gradient": "linear-gradient(90deg, #f59e85, #f8b36e, #fac263, #f8b36e, #f59e85)",
       },
       fontFamily: {
         sans: ['"Noto Sans"', "sans-serif"],

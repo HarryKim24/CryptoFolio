@@ -30,10 +30,10 @@ export default function RootLayout({
       <head>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
-      <body className="bg-gradient-to-b from-[#0d0d0d] to-[#1a1a1a] text-white">
+      <body>
         <SessionClientLayout>
           <Navbar />
-          <main className="pt-16 px-4">{children}</main>
+          <main>{children}</main>
         </SessionClientLayout>
       </body>
     </html>

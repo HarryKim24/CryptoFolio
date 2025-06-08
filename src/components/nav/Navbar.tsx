@@ -5,7 +5,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar() {
+const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
 
@@ -34,11 +34,11 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full px-6 backdrop-blur-md bg-nav-gradient shadow-sm z-50">
+    <nav className="fixed top-0 left-0 w-full px-6 backdrop-blur-md bg-transparent shadow-sm z-50">
       <div className="mx-auto h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="text-xl font-extrabold bg-text-yellow-gradient bg-clip-text text-transparent"
+          className="text-xl font-extrabold bg-second-gradient bg-clip-text text-transparent"
         >
           CryptoFolio
         </Link>
@@ -83,7 +83,7 @@ export default function Navbar() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.5 }}
-            className="xs:hidden absolute top-full right-0 w-2/3 max-w-xs h-screen bg-main-gradient shadow-lg flex flex-col justify-start gap-6 text-lg font-extrabold text-neutral-100 pt-24 px-6 z-40"
+            className="xs:hidden absolute top-full right-0 w-2/3 max-w-xs h-screen shadow-lg flex flex-col justify-start gap-6 text-lg font-extrabold text-neutral-100 pt-24 px-6 z-40 backdrop-blur-md bg-main-gradient"
           >
             {menuItems.map(({ href, label }) => (
               <li key={href} className="flex items-center text-lg h-8 px-2">
@@ -105,3 +105,5 @@ export default function Navbar() {
     </nav>
   );
 }
+
+export default Navbar;

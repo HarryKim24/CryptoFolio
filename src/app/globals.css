@@ -22,13 +22,16 @@ a {
   text-decoration: none;
 }
 
-main::-webkit-scrollbar {
-  width: 4px;
+::-webkit-scrollbar {
+  width: 6px;
 }
-main::-webkit-scrollbar-track {
+
+::-webkit-scrollbar-track {
   background: #0d0d0d;
 }
-main::-webkit-scrollbar-thumb {
-  background: #444;
+
+::-webkit-scrollbar-thumb {
+  background: #555;
   border-radius: 12px;
+  border: 1px solid #333;
 }
