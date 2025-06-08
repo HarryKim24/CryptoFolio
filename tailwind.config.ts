@@ -14,7 +14,7 @@ const config: Config = {
         secondary: "#140b29",
       },
       backgroundImage: {
-        "nav-gradient": "linear-gradient(to right, #0c0c1f, #140b29, #0c0c1f)",
+        "nav-gradient": "linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.1), rgba(255,255,255,0.1))",
         "menu-gradient": "linear-gradient(to bottom, #0c0c1f, #140b29, #0c0c1f)",
         "text-yellow-gradient": "linear-gradient(45deg, #fef08a 10%, #fef9c3 50%, #fef08a 90%)",
       },

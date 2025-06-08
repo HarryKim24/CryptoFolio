@@ -34,7 +34,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full px-6 bg-nav-gradient border-b border-gray-800 shadow-sm z-50">
+    <nav className="fixed top-0 left-0 w-full px-6 backdrop-blur-md bg-nav-gradient shadow-sm z-50">
       <div className="mx-auto h-16 flex items-center justify-between">
         <Link
           href="/"
@@ -68,7 +68,7 @@ export default function Navbar() {
           ))}
           <li className="flex items-center h-12 px-2">
             {session ? (
-              <button onClick={() => signOut()} className="text-red-400">로그아웃</button>
+              <button onClick={() => signOut()}>로그아웃</button>
             ) : (
               <Link href="/login">로그인</Link>
             )}
@@ -94,7 +94,7 @@ export default function Navbar() {
             ))}
             <li className="flex items-center text-lg h-8 px-2">
               {session ? (
-                <button onClick={() => signOut()} className="text-red-400">로그아웃</button>
+                <button onClick={() => signOut()}>로그아웃</button>
               ) : (
                 <Link href="/login" onClick={() => setIsOpen(false)}>로그인</Link>
               )}
