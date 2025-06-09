@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import type { User } from "@/types/user";
+import { validateRegisterInputs } from "@/utils/validateRegisterInputs";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState<User["email"]>("");
@@ -26,40 +27,13 @@ const RegisterPage = () => {
     });
   };
 
-  const validateInputs = () => {
-    if (!email || !password || !name || !confirmPassword) {
-      triggerError("모든 필드를 입력하세요.");
-      return false;
-    }
-
-    const nameRegex = /^[가-힣a-zA-Z]{1,8}$/;
-    if (!nameRegex.test(name)) {
-      triggerError("이름은 한글 또는 영문만 사용 가능하며 8자 이내여야 합니다.");
-      return false;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      triggerError("유효한 이메일 형식을 입력하세요.");
-      return false;
-    }
-
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      triggerError("비밀번호는 영문과 숫자를 포함한 8자 이상이어야 합니다.");
-      return false;
-    }
-
-    if (password !== confirmPassword) {
-      triggerError("비밀번호가 일치하지 않습니다.");
-      return false;
-    }
-
-    return true;
-  };
-
   const handleRegister = async () => {
-    if (!validateInputs()) return;
+      const result = validateRegisterInputs(email, password, name, confirmPassword);
+
+      if (!result.valid) {
+        triggerError(result.message!);
+        return;
+      }
 
     const user: Pick<User, "email" | "password" | "name"> = {
       email,
