@@ -29,8 +29,10 @@ export const authOptions: AuthOptions = {
 
         return {
           id: user._id.toString(),
-          email: user.email,
-          name: user.name,
+          email: user.email ?? "",
+          name: user.name ?? "",
+          createdAt: user.createdAt ?? "",
+          updatedAt: user.updatedAt ?? "",
         };
       },
     }),
@@ -42,16 +44,20 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
+        token.email = user.email ?? "";
+        token.name = user.name ?? "";
+        token.createdAt = user.createdAt ?? "";
+        token.updatedAt = user.updatedAt ?? "";
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
+        session.user.name = token.name ?? "";
+        session.user.email = token.email ?? "";
+        session.user.createdAt = token.createdAt ?? "";
+        session.user.updatedAt = token.updatedAt ?? "";
       }
       return session;
     },

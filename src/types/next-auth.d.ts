@@ -1,27 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import NextAuth from "next-auth";
-
+import NextAuth, { DefaultSession, DefaultUser } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      name?: string | null;
-      email?: string | null;
+      email: string;
+      name: string;
+      createdAt?: string;
+      updatedAt?: string;
     };
   }
 
-  interface User {
-    id: string;
-    name?: string | null;
-    email?: string | null;
+  interface User extends DefaultUser {
+    createdAt?: string;
+    updatedAt?: string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
-    name?: string | null;
-    email?: string | null;
+    email: string;
+    name: string;
+    createdAt?: string;
+    updatedAt?: string;
   }
 }

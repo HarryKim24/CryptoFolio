@@ -1,16 +1,24 @@
-import React from 'react'
+"use client";
 
-const SettingsLayout = ({ 
+import React from "react";
+import { motion } from "framer-motion";
+
+const SettingsLayout = ({
   children,
-}: Readonly<{ 
-  children: React.ReactNode; 
+}: Readonly<{
+  children: React.ReactNode;
 }>) => {
   return (
-    <div>
-      SettingsLayout
-      {children}
+    <div className="min-h-screen pt-16 bg-setting-gradient text-neutral-100 overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+      >
+        {children}
+      </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default SettingsLayout
+export default SettingsLayout;
