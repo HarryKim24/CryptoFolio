@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
   const router = useRouter();
@@ -67,14 +69,25 @@ const LoginPage = () => {
           />
         </div>
 
-        <div className="w-full rounded bg-second-gradient p-[1px]">
+        <div className="w-full rounded bg-second-gradient p-[1px] relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-secondary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 pr-10 rounded bg-secondary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+          >
+            {showPassword ? (
+              <EyeSlashIcon className="h-5 w-5 text-pink-200 hover:text-white" />
+            ) : (
+              <EyeIcon className="h-5 w-5 text-pink-200 hover:text-white" />
+            )}
+          </button>
         </div>
 
         <button
