@@ -17,6 +17,7 @@ const config: Config = {
       backgroundImage: {
         "main-gradient": "linear-gradient(to bottom, #0b0a1a, #1b1443, #0b0a1a)",
         "second-gradient": "linear-gradient(90deg, #f59e85, #f8b36e, #fac263, #f8b36e, #f59e85)",
+        "setting-gradient": "linear-gradient(to bottom, #356378, #47576f, #5c3c58, #3c2c4e)",
       },
       fontFamily: {
         sans: ['"Noto Sans"', "sans-serif"],

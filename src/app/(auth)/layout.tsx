@@ -33,7 +33,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{
             delay: 0.5,
-            y: { duration: 3, ease: "easeOut" },
+            y: { duration: 2, ease: "easeOut" },
             opacity: { delay: 1, duration: 2, ease: "easeOut" },
           }}
           className="p-[2px] rounded-2xl bg-second-gradient shadow-2xl w-full mb-20"
