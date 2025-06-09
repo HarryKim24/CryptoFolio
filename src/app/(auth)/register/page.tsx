@@ -24,8 +24,12 @@ const RegisterPage = () => {
   };
   
   const validateInputs = () => {
-    const nameRegex = /^[가-힣a-zA-Z]{1,8}$/;
+    if (!email || !password || !name || !confirmPassword) {
+      triggerError("모든 필드를 입력하세요.");
+      return false;
+    }
   
+    const nameRegex = /^[가-힣a-zA-Z]{1,8}$/;
     if (!nameRegex.test(name)) {
       triggerError("이름은 한글 또는 영문만 사용 가능하며 8자 이내여야 합니다.");
       return false;

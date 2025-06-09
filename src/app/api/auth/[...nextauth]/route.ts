@@ -12,19 +12,50 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        const email = credentials?.email;
+        const password = credentials?.password;
+
+        if (!email || !password) {
+          throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
+        }
+
         const db = (await client.connect()).db("cryptofolio");
-        const user = await db.collection("users").findOne({ email: credentials?.email });
+        const user = await db.collection("users").findOne({ email });
 
-        if (!user) throw new Error("이메일이 존재하지 않습니다");
+        if (!user) throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
 
-        const isValid = await verifyPassword(credentials!.password, user.password);
-        if (!isValid) throw new Error("비밀번호가 틀렸습니다");
+        const isValid = await verifyPassword(password, user.password);
+        if (!isValid) throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
 
-        return { id: user._id.toString(), email: user.email };
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+        };
       },
     }),
   ],
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
+      }
+      return session;
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
