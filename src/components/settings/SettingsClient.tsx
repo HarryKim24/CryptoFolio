@@ -17,18 +17,30 @@ const SettingsClient = ({ session }: { session: Session }) => {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const [error, setError] = useState("");
+  const [shake, setShake] = useState(false);
+
+  const triggerError = (message: string) => {
+    setError("");
+    setShake(false);
+    requestAnimationFrame(() => {
+      setError(message);
+      setShake(true);
+    });
+  };
+
   const handleSave = async () => {
     const isNameChanged = name !== session.user.name;
     const isPasswordChanged = !!newPassword;
 
     if (newPassword && newPassword !== confirmPassword) {
-      alert("새 비밀번호와 확인이 일치하지 않습니다.");
+      triggerError("비밀번호가가 일치하지 않습니다.");
       return;
     }
 
     if (isNameChanged && !isPasswordChanged) {
       if (!session.user.updatedAt) {
-        alert("최근 수정일 정보를 불러올 수 없습니다.");
+        triggerError("최근 수정일 정보를 불러올 수 없습니다.");
         return;
       }
 
@@ -37,7 +49,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
       const oneMonth = 30 * 24 * 60 * 60 * 1000;
 
       if (now.getTime() - lastUpdated.getTime() < oneMonth) {
-        alert("이름은 최근 수정일로부터 1개월 후에만 변경할 수 있습니다.");
+        triggerError("이름은 최근 수정일로부터 1개월 후에만 변경할 수 있습니다.");
         return;
       }
     }
@@ -55,7 +67,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
 
       if (!res.ok) {
         const msg = await res.text();
-        alert(msg);
+        triggerError(msg);
         return;
       }
 
@@ -63,9 +75,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
       session.user.name = name;
       session.user.updatedAt = new Date().toISOString();
       setIsEditing(false);
+      setError("");
     } catch (err) {
       console.error(err);
-      alert("수정 중 오류 발생");
+      triggerError("수정 중 오류 발생");
     }
   };
 
@@ -78,7 +91,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
       window.location.href = "/";
     } catch (err) {
       console.error(err);
-      alert("회원 탈퇴 중 오류 발생");
+      triggerError("회원 탈퇴 중 오류 발생");
     }
   };
 
@@ -116,7 +129,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
   );
 
   return (
-    <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] px-6 py-12">
+    <div className="flex justify-center items-center min-h-[calc(100vh-12rem)] px-6 py-12">
       <motion.div
         layout
         initial={{ opacity: 0 }}
@@ -150,6 +163,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                     setCurrentPassword("");
                     setNewPassword("");
                     setConfirmPassword("");
+                    setError("");
                     setIsEditing(false);
                   }}
                   className="text-sm px-4 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition"
@@ -174,6 +188,16 @@ const SettingsClient = ({ session }: { session: Session }) => {
           </motion.div>
         </div>
 
+        <div className="text-center">
+          <p
+            className={`text-warning text-sm leading-tight transition-all duration-300 ease-out ${
+              error ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+            } ${shake ? "shake" : ""}`}
+          >
+            {error || "‎"}
+          </p>
+        </div>
+
         <motion.div
           key={isEditing ? "edit" : "view"}
           layout
@@ -184,7 +208,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
         >
           {isEditing ? (
             <>
-              <div>
+              <div className="pb-4">
                 <label className="block text-accent font-semibold pb-1">이름</label>
                 <input
                   type="text"
@@ -219,7 +243,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1, duration: 1 }}
-                className="pt-6 flex justify-end"
+                className="pt-4 flex justify-end"
               >
                 <button
                   onClick={handleDeleteAccount}
