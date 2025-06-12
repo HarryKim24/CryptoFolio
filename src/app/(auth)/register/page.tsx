@@ -67,7 +67,7 @@ const RegisterPage = () => {
 
       <div className="h-5 mb-4 text-center">
         <p
-          className={`text-red-400 text-sm transition-all duration-300 ease-out ${
+          className={`text-warning text-sm transition-all duration-300 ease-out ${
             error ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
           } ${shake ? "shake" : ""}`}
         >
