@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { formatDate } from "@/utils/formatDate";
 import { motion } from "framer-motion";
 import { Session } from "next-auth";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const SettingsClient = ({ session }: { session: Session }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -12,14 +13,37 @@ const SettingsClient = ({ session }: { session: Session }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const handleSave = async () => {
+    const isNameChanged = name !== session.user.name;
+    const isPasswordChanged = !!newPassword;
+
     if (newPassword && newPassword !== confirmPassword) {
       alert("새 비밀번호와 확인이 일치하지 않습니다.");
       return;
     }
 
+    if (isNameChanged && !isPasswordChanged) {
+      if (!session.user.updatedAt) {
+        alert("최근 수정일 정보를 불러올 수 없습니다.");
+        return;
+      }
+
+      const lastUpdated = new Date(session.user.updatedAt);
+      const now = new Date();
+      const oneMonth = 30 * 24 * 60 * 60 * 1000;
+
+      if (now.getTime() - lastUpdated.getTime() < oneMonth) {
+        alert("이름은 최근 수정일로부터 1개월 후에만 변경할 수 있습니다.");
+        return;
+      }
+    }
+
     try {
-      await fetch("/api/settings/update", {
+      const res = await fetch("/api/settings/update", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -29,7 +53,15 @@ const SettingsClient = ({ session }: { session: Session }) => {
         }),
       });
 
+      if (!res.ok) {
+        const msg = await res.text();
+        alert(msg);
+        return;
+      }
+
       alert("수정 완료");
+      session.user.name = name;
+      session.user.updatedAt = new Date().toISOString();
       setIsEditing(false);
     } catch (err) {
       console.error(err);
@@ -50,8 +82,38 @@ const SettingsClient = ({ session }: { session: Session }) => {
     }
   };
 
-  const buttonStyle =
-    "text-sm px-4 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition";
+  const renderPasswordInput = (
+    label: string,
+    value: string,
+    setValue: (val: string) => void,
+    isVisible: boolean,
+    toggleVisibility: () => void,
+    placeholder: string
+  ) => (
+    <div>
+      <label className="block text-accent font-semibold pb-1">{label}</label>
+      <div className="relative">
+        <input
+          type={isVisible ? "text" : "password"}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          className="w-full p-2 pr-10 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
+        />
+        <button
+          type="button"
+          onClick={toggleVisibility}
+          className="absolute right-3 top-1/2 -translate-y-1/2"
+        >
+          {isVisible ? (
+            <EyeSlashIcon className="h-5 w-5 text-neutral-400 hover:text-white" />
+          ) : (
+            <EyeIcon className="h-5 w-5 text-neutral-400 hover:text-white" />
+          )}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] px-6 py-12">
@@ -82,18 +144,30 @@ const SettingsClient = ({ session }: { session: Session }) => {
           >
             {isEditing ? (
               <>
-                <button onClick={() => setIsEditing(false)} className={buttonStyle}>
+                <button
+                  onClick={() => {
+                    setName(session.user?.name ?? "");
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setIsEditing(false);
+                  }}
+                  className="text-sm px-4 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition"
+                >
                   취소
                 </button>
                 <button
                   onClick={handleSave}
-                  className={`${buttonStyle} text-accent border-accent hover:bg-accent/10`}
+                  className="text-sm px-4 py-1.5 border border-accent text-accent hover:bg-accent/10 rounded transition"
                 >
                   저장
                 </button>
               </>
             ) : (
-              <button onClick={() => setIsEditing(true)} className={buttonStyle}>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="text-sm px-4 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition"
+              >
                 수정
               </button>
             )}
@@ -121,38 +195,9 @@ const SettingsClient = ({ session }: { session: Session }) => {
                 />
               </div>
 
-              <div>
-                <label className="block text-accent font-semibold pb-1">현재 비밀번호</label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="현재 비밀번호"
-                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-accent font-semibold pb-1">새 비밀번호</label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="새 비밀번호"
-                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-accent font-semibold pb-1">새 비밀번호 확인</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="새 비밀번호 확인"
-                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
-                />
-              </div>
+              {renderPasswordInput("현재 비밀번호", currentPassword, setCurrentPassword, showCurrent, () => setShowCurrent((prev) => !prev), "현재 비밀번호")}
+              {renderPasswordInput("새 비밀번호", newPassword, setNewPassword, showNew, () => setShowNew((prev) => !prev), "새 비밀번호")}
+              {renderPasswordInput("새 비밀번호 확인", confirmPassword, setConfirmPassword, showConfirm, () => setShowConfirm((prev) => !prev), "새 비밀번호 확인")}
             </>
           ) : (
             <>
@@ -164,12 +209,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
                   <span className="font-semibold text-accent">이메일:</span> {session.user?.email}
                 </li>
                 <li>
-                  <span className="font-semibold text-accent">가입일:</span>{" "}
-                  {formatDate(session.user?.createdAt)}
+                  <span className="font-semibold text-accent">가입일:</span> {formatDate(session.user?.createdAt)}
                 </li>
                 <li>
-                  <span className="font-semibold text-accent">최근 수정:</span>{" "}
-                  {formatDate(session.user?.updatedAt)}
+                  <span className="font-semibold text-accent">최근 수정:</span> {formatDate(session.user?.updatedAt)}
                 </li>
               </ul>
               <motion.div
