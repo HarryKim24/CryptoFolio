@@ -51,15 +51,15 @@ const SettingsClient = ({ session }: { session: Session }) => {
   };
 
   const buttonStyle =
-    "text-sm px-3 py-1 border border-neutral-300 rounded hover:bg-white/10 transition";
+    "text-sm px-4 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition";
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] px-6 py-12">
       <motion.div
         layout
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
         className="w-full max-w-3xl min-w-[250px] bg-white/5 backdrop-blur-md p-10 sm:p-12 rounded-xl shadow-xl space-y-8"
       >
         <div className="flex items-center justify-between">
@@ -67,7 +67,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             key={isEditing ? "title-edit" : "title-view"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.3 }}
+            transition={{ delay: 0.5, duration: 1 }}
             className="text-4xl font-extrabold text-white"
           >
             {isEditing ? "프로필 수정" : "프로필"}
@@ -77,7 +77,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             key={isEditing ? "editing-controls" : "view-controls"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.3 }}
+            transition={{ delay: 1, duration: 1 }}
             className="flex gap-2"
           >
             {isEditing ? (
@@ -105,7 +105,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
           layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          transition={{ duration: 1, delay: 0.5 }}
           className="text-white space-y-4"
         >
           {isEditing ? (
@@ -117,7 +117,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="이름 입력"
-                  className="w-full p-2 rounded bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
+                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
                 />
               </div>
 
@@ -128,7 +128,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="현재 비밀번호"
-                  className="w-full p-2 rounded bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
+                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
                 />
               </div>
 
@@ -139,7 +139,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="새 비밀번호"
-                  className="w-full p-2 rounded bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
+                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
                 />
               </div>
 
@@ -150,7 +150,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="새 비밀번호 확인"
-                  className="w-full p-2 rounded bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
+                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
                 />
               </div>
             </>
@@ -175,7 +175,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.3 }}
+                transition={{ delay: 1, duration: 1 }}
                 className="pt-6 flex justify-end"
               >
                 <button
