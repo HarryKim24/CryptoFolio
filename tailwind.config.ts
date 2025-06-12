@@ -13,6 +13,7 @@ const config: Config = {
         primary: "#0b0a1a",
         secondary: "#1b1443",
         accent: "#fac263",
+        warning: "#f87171",
       },
       backgroundImage: {
         "main-gradient": "linear-gradient(to bottom, #0b0a1a, #1b1443, #0b0a1a)",
@@ -26,5 +27,6 @@ const config: Config = {
   },
   plugins: [],
 };
+
 
 export default config;
