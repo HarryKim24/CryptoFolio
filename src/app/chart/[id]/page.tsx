@@ -1,11 +1,17 @@
-import React from 'react'
+import CoinList from "@/components/chart/CoinList";
+import React from "react";
 
 const ChartPage = () => {
   return (
-    <div>
-      ChartPage
-    </div>
-  )
-}
+    <div style={{ height: "calc(100vh - 64px)" }} className="flex">
+      <div className="w-3/4 p-4 border-r border-gray-700 overflow-auto pt-[64px]">
+      </div>
 
-export default ChartPage
+      <div className="w-1/4 p-4 overflow-auto pt-[64px]">
+        <CoinList />
+      </div>
+    </div>
+  );
+};
+
+export default ChartPage;

@@ -10,15 +10,18 @@ const config: Config = {
     },
     extend: {
       colors: {
-        primary: "#0b0a1a",
-        secondary: "#1b1443",
-        accent: "#fac263",
+        primary: "#0a0a13",
+        secondary: "#1b112b",
+        accent: "#f6b072",
         warning: "#f87171",
       },
       backgroundImage: {
-        "main-gradient": "linear-gradient(to bottom, #0b0a1a, #1b1443, #0b0a1a)",
-        "second-gradient": "linear-gradient(90deg, #f59e85, #f8b36e, #fac263, #f8b36e, #f59e85)",
-        "setting-gradient": "linear-gradient(to bottom, #356378, #47576f, #5c3c58, #3c2c4e)",
+        "main-gradient": "linear-gradient(to bottom, #0a0a13, #1b112b, #0a0a13)",
+        "second-gradient": "linear-gradient(90deg, #f08c6c, #f6b072, #fbc987, #f6b072, #f08c6c)",
+        'chart-gradient': 'linear-gradient(to bottom, #24345c, #267187)',
+        'trends-gradient': 'linear-gradient(to bottom, #6b3455, #a3566c, #e97e7e)',
+        'portfolio-gradient': 'linear-gradient(to bottom, #5a3372, #a77ecb)',
+        'setting-gradient': 'linear-gradient(to bottom, #374e3e, #556648)',
       },
       fontFamily: {
         sans: ['"Noto Sans"', "sans-serif"],
