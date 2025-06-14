@@ -1,12 +1,8 @@
 import React from 'react';
 
-const ChartLayout = ({ 
-  children,
-}: Readonly<{ 
-  children: React.ReactNode; 
-}>) => {
+const ChartLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen bg-chart-gradient text-white">
+    <div className="min-h-screen h-screen bg-chart-gradient text-white flex flex-col">
       {children}
     </div>
   );

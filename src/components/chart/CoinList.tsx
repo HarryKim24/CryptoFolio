@@ -21,6 +21,7 @@ const CoinList = () => {
   const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,49 +98,67 @@ const CoinList = () => {
       : (bValue as number) - (aValue as number);
   });
 
+  const filteredData = sortedData.filter(({ market, ticker }) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      market.korean_name.toLowerCase().includes(term) ||
+      ticker.market.toLowerCase().includes(term)
+    );
+  });
+
   return (
-    <div className="text-sm">
-      <div className="flex justify-center gap-6 mb-2 border-b border-gray-600 pb-1">
-        {["KRW", "BTC", "USDT"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab as MarketTab)}
-            className={`pb-1 font-semibold ${
-              activeTab === tab ? "border-b-2 border-white" : "text-gray-400"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+    <div className="text-sm h-full flex flex-col">
+      <div className="sticky z-10">
+        <div className="flex justify-center gap-12 border-1 border-b border-neutral-400 p-2">
+          {["KRW", "BTC", "USDT"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab as MarketTab)}
+              className={`pb-1 font-semibold ${
+                activeTab === tab ? "border-b-2 border-white" : "text-gray-400"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <input
+          type="text"
+          placeholder="코인명 또는 심볼 검색"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full m-2 px-3 py-1 rounded bg-neutral-800 text-white text-sm placeholder-gray-400"
+        />
+
+        <div className="grid grid-cols-4 gap-2 px-2 py-2 text-xs border-b border-gray-400">
+          {(["korean_name", "trade_price", "signed_change_rate", "acc_trade_price_24h"] as SortKey[]).map((key) => (
+            <button
+              key={key}
+              onClick={() => toggleSort(key)}
+              className={`flex items-center gap-1 ${
+                sortKey === key ? "text-white" : "text-gray-400"
+              }`}
+            >
+              {{
+                korean_name: "한글명",
+                trade_price: "현재가",
+                signed_change_rate: "전일대비",
+                acc_trade_price_24h: "거래대금",
+              }[key]}
+              {sortKey === key && (
+                <span>{sortDirection === "asc" ? "⬆" : "⬇"}</span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 px-2 py-1 text-xs border-b border-gray-700">
-        {(["korean_name", "trade_price", "signed_change_rate", "acc_trade_price_24h"] as SortKey[]).map((key) => (
-          <button
-            key={key}
-            onClick={() => toggleSort(key)}
-            className={`flex items-center gap-1 ${
-              sortKey === key ? "text-white" : "text-gray-400"
-            }`}
-          >
-            {{
-              korean_name: "한글명",
-              trade_price: "현재가",
-              signed_change_rate: "전일대비",
-              acc_trade_price_24h: "거래대금",
-            }[key]}
-            {sortKey === key && (
-              <span>{sortDirection === "asc" ? "⬆" : "⬇"}</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {loading ? (
-        <div className="text-gray-400 p-4">로딩 중...</div>
-      ) : (
-        <div className="space-y-1 mt-2">
-          {sortedData.map(({ ticker, market }) => (
+      <div className="flex-1 overflow-y-auto space-y-1 mt-2 mb-2">
+        {loading ? (
+          <div className="text-gray-400 p-4">로딩 중...</div>
+        ) : (
+          filteredData.map(({ ticker, market }) => (
             <Link
               key={ticker.market}
               href={`/chart/${ticker.market.replace(`${activeTab}-`, "")}`}
@@ -186,9 +205,9 @@ const CoinList = () => {
                 </div>
               </div>
             </Link>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 };
