@@ -159,7 +159,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
         layout
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
+        transition={{ duration: 0.7 }}
         className="w-full max-w-3xl min-w-[250px] bg-white/5 backdrop-blur-md p-10 sm:p-12 rounded-xl shadow-xl space-y-8"
       >
         <div className="flex items-center justify-between">
@@ -167,7 +167,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             key={isEditing ? "title-edit" : "title-view"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
+            transition={{ delay: 0.7, duration: 0.7 }}
             className="text-4xl font-extrabold text-white"
           >
             {isEditing ? "프로필 수정" : "프로필"}
@@ -177,7 +177,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             key={isEditing ? "editing-controls" : "view-controls"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 1 }}
+            transition={{ delay: 1, duration: 0.7 }}
             className="flex gap-2"
           >
             {isEditing ? (
@@ -228,7 +228,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
           layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
+          transition={{ delay: 1, duration: 0.7 }}
           className="text-white space-y-4"
         >
           {isEditing ? (
@@ -259,7 +259,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 1 }}
+                transition={{ delay: 1, duration: 0.7 }}
                 className="pt-4 flex justify-end"
               >
                 <button
@@ -276,8 +276,8 @@ const SettingsClient = ({ session }: { session: Session }) => {
         {showDeleteModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1}}
               transition={{ duration: 0.3 }}
               className="w-full max-w-md border bg-neutral-800 border-white/10 p-6 rounded-xl shadow-2xl space-y-4"
             >
