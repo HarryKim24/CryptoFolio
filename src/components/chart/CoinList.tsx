@@ -1,83 +1,44 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Market, Ticker } from "@/types/upbitTypes";
+import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 
 type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
 type SortDirection = "asc" | "desc";
 type MarketTab = "KRW" | "BTC" | "USDT";
 
-type CoinItem = {
-  market: Market;
-  ticker: Ticker;
-};
-
 const CoinList = () => {
-  const [markets, setMarkets] = useState<Market[]>([]);
-  const [tickers, setTickers] = useState<Ticker[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { tickers, loading, markets } = useUpbitTickerContext(); // ✅ markets 가져오기
   const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const { data: marketData } = await axios.get<Market[]>(
-          "https://api.upbit.com/v1/market/all?isDetails=true"
-        );
-
-        const selectedMarkets = marketData.filter((m) =>
-          m.market.startsWith(`${activeTab}-`)
-        );
-        setMarkets(selectedMarkets);
-
-        const marketQuery = selectedMarkets.map((m) => m.market).join(",");
-        const { data: tickerData } = await axios.get<Ticker[]>(
-          `https://api.upbit.com/v1/ticker?markets=${marketQuery}`
-        );
-
-        setTickers(tickerData);
-      } catch (error) {
-        console.error("API 호출 실패", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [activeTab]);
-
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortKey(key);
-      setSortDirection("desc");
-    }
-  };
-
-  const combinedData: CoinItem[] = tickers
-    .map((ticker) => {
-      const market = markets.find((m) => m.market === ticker.market);
-      if (!market) return null;
-      return { ticker, market };
+  const combined = Object.values(tickers)
+    .filter((t) => t.market.startsWith(`${activeTab}-`))
+    .map((t) => {
+      const marketInfo = markets.find((m) => m.market === t.market);
+      return marketInfo
+        ? {
+            ticker: t,
+            korean_name: marketInfo.korean_name,
+          }
+        : null;
     })
-    .filter(Boolean) as CoinItem[];
+    .filter(Boolean) as {
+      ticker: typeof tickers[string];
+      korean_name: string;
+    }[];
 
-  const sortedData = [...combinedData].sort((a, b) => {
+  const sorted = [...combined].sort((a, b) => {
     let aValue: string | number;
     let bValue: string | number;
 
     switch (sortKey) {
       case "korean_name":
-        aValue = a.market.korean_name;
-        bValue = b.market.korean_name;
+        aValue = a.korean_name;
+        bValue = b.korean_name;
         break;
       case "trade_price":
       case "signed_change_rate":
@@ -98,11 +59,11 @@ const CoinList = () => {
       : (bValue as number) - (aValue as number);
   });
 
-  const filteredData = sortedData.filter(({ market, ticker }) => {
+  const filtered = sorted.filter(({ ticker, korean_name }) => {
     const term = searchTerm.toLowerCase();
     return (
-      market.korean_name.toLowerCase().includes(term) ||
-      ticker.market.toLowerCase().includes(term)
+      ticker.market.toLowerCase().includes(term) ||
+      korean_name.toLowerCase().includes(term)
     );
   });
 
@@ -137,7 +98,14 @@ const CoinList = () => {
           {(["korean_name", "trade_price", "signed_change_rate", "acc_trade_price_24h"] as SortKey[]).map((key) => (
             <button
               key={key}
-              onClick={() => toggleSort(key)}
+              onClick={() => {
+                if (sortKey === key) {
+                  setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+                } else {
+                  setSortKey(key);
+                  setSortDirection("desc");
+                }
+              }}
               className={`flex items-center gap-1 ${
                 sortKey === key ? "text-neutral-100" : "text-gray-400"
               }`}
@@ -160,14 +128,14 @@ const CoinList = () => {
             <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
           </div>
         ) : (
-          filteredData.map(({ ticker, market }) => (
+          filtered.map(({ ticker, korean_name }) => (
             <Link
               key={ticker.market}
               href={`/chart/${ticker.market.replace(`${activeTab}-`, "")}`}
             >
               <div className="flex justify-between items-center p-2 rounded hover:ring-1 ring-white/10 hover:bg-white/5 cursor-pointer">
                 <div>
-                  <div className="font-medium">{market.korean_name}</div>
+                  <div className="font-medium">{korean_name}</div>
                   <div className="text-xs text-gray-400">{ticker.market}</div>
                 </div>
                 <div className="text-right">
