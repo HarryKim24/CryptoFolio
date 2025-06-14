@@ -107,15 +107,15 @@ const CoinList = () => {
   });
 
   return (
-    <div className="text-sm h-full flex flex-col">
+    <div className="text-sm h-full flex flex-col bg-chart-gradient/10 m-1 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
       <div className="sticky z-10">
-        <div className="flex justify-center gap-12 border-1 border-b border-neutral-400 p-2">
+        <div className="flex justify-center gap-12 border-b border-white/10 p-2">
           {["KRW", "BTC", "USDT"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as MarketTab)}
               className={`pb-1 font-semibold ${
-                activeTab === tab ? "border-b-2 border-white" : "text-gray-400"
+                activeTab === tab ? "border-b-2 border-neutral-100" : "text-gray-400"
               }`}
             >
               {tab}
@@ -123,38 +123,38 @@ const CoinList = () => {
           ))}
         </div>
 
-        <input
-          type="text"
-          placeholder="코인명 또는 심볼 검색"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full m-2 px-3 py-1 rounded bg-neutral-800 text-white text-sm placeholder-gray-400"
-        />
+        <div className="m-2">
+          <input
+            type="text"
+            placeholder="코인명 또는 심볼 검색"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-2 py-1 rounded bg-neutral-800 text-neutral-100 text-sm placeholder-gray-400 focus:outline-none"
+          />
+        </div>
 
-        <div className="grid grid-cols-4 gap-2 px-2 py-2 text-xs border-b border-gray-400">
+        <div className="grid grid-cols-4 gap-2 px-2 py-2 text-xs border-b border-white/10">
           {(["korean_name", "trade_price", "signed_change_rate", "acc_trade_price_24h"] as SortKey[]).map((key) => (
             <button
               key={key}
               onClick={() => toggleSort(key)}
               className={`flex items-center gap-1 ${
-                sortKey === key ? "text-white" : "text-gray-400"
+                sortKey === key ? "text-neutral-100" : "text-gray-400"
               }`}
             >
-              {{
+              {({
                 korean_name: "한글명",
                 trade_price: "현재가",
                 signed_change_rate: "전일대비",
                 acc_trade_price_24h: "거래대금",
-              }[key]}
-              {sortKey === key && (
-                <span>{sortDirection === "asc" ? "⬆" : "⬇"}</span>
-              )}
+              } as Record<SortKey, string>)[key]}
+              {sortKey === key && <span>{sortDirection === "asc" ? "⬆" : "⬇"}</span>}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-1 mt-2 mb-2">
+      <div className="flex-1 overflow-y-auto space-y-1">
         {loading ? (
           <div className="text-gray-400 p-4">로딩 중...</div>
         ) : (
@@ -193,9 +193,7 @@ const CoinList = () => {
 
                   <div className="text-[10px] text-gray-400">
                     {activeTab === "KRW"
-                      ? `${Math.floor(
-                          ticker.acc_trade_price_24h / 1_0000_000
-                        ).toLocaleString()}백만`
+                      ? `${Math.floor(ticker.acc_trade_price_24h / 1_0000_000).toLocaleString()}백만`
                       : activeTab === "BTC"
                       ? `${ticker.acc_trade_price_24h.toFixed(6)} BTC`
                       : ticker.acc_trade_price_24h >= 1000

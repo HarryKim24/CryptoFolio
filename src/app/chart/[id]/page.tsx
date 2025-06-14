@@ -8,7 +8,7 @@ const ChartPage = () => {
         <div className="h-full rounded-md" />
       </div>
 
-      <div className="w-[320px] h-full pt-[64px] border-l border-neutral-400 overflow-hidden">
+      <div className="w-[320px] h-full pt-[64px] overflow-hidden p-2">
         <CoinList />
       </div>
     </div>
