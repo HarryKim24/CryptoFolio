@@ -1,16 +1,17 @@
-import React from 'react'
+'use client';
 
-const HomeLayout = ({ 
+import React from 'react';
+
+const HomeLayout = ({
   children,
-}: Readonly<{ 
-  children: React.ReactNode; 
+}: Readonly<{
+  children: React.ReactNode;
 }>) => {
   return (
-    <div>
-      HomeLayout
+    <div className="min-h-screen bg-cover">
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default HomeLayout
+export default HomeLayout;

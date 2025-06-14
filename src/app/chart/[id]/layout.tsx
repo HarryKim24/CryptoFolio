@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 const ChartLayout = ({ 
   children,
@@ -6,11 +6,10 @@ const ChartLayout = ({
   children: React.ReactNode; 
 }>) => {
   return (
-    <div>
-      ChartLayout
+    <div className="min-h-screen bg-chart-gradient text-white">
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default ChartLayout
+export default ChartLayout;

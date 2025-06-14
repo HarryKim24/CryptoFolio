@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 const TrendsLayout = ({ 
   children,
@@ -6,11 +6,10 @@ const TrendsLayout = ({
   children: React.ReactNode; 
 }>) => {
   return (
-    <div>
-      TrendsLayout
+    <div className="min-h-screen bg-trends-gradient text-white">
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default TrendsLayout
+export default TrendsLayout;

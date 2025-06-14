@@ -6,7 +6,7 @@ const PortfolioLayout = ({
   children: React.ReactNode; 
 }>) => {
   return (
-    <div>
+    <div className="min-h-screen bg-portfolio-gradient text-white">
       PortfolioLayout
       {children}
     </div>
