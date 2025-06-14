@@ -163,7 +163,7 @@ const CoinList = () => {
               key={ticker.market}
               href={`/chart/${ticker.market.replace(`${activeTab}-`, "")}`}
             >
-              <div className="flex justify-between items-center p-2 rounded hover:bg-white/10 cursor-pointer">
+              <div className="flex justify-between items-center p-2 rounded hover:ring-1 ring-white/10 hover:bg-white/5 cursor-pointer">
                 <div>
                   <div className="font-medium">{market.korean_name}</div>
                   <div className="text-xs text-gray-400">{ticker.market}</div>
