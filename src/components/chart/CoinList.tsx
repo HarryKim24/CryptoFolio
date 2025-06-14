@@ -3,13 +3,21 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+import {
+  ActivitySquare,
+  Repeat,
+  Banknote,
+  Scale,
+  Users
+} from "lucide-react";
+
 
 type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
 type SortDirection = "asc" | "desc";
 type MarketTab = "KRW" | "BTC" | "USDT";
 
 const CoinList = () => {
-  const { tickers, loading, markets } = useUpbitTickerContext(); // ✅ markets 가져오기
+  const { tickers, loading, markets } = useUpbitTickerContext();
   const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -23,12 +31,20 @@ const CoinList = () => {
         ? {
             ticker: t,
             korean_name: marketInfo.korean_name,
+            caution: marketInfo.market_event?.caution,
           }
         : null;
     })
     .filter(Boolean) as {
       ticker: typeof tickers[string];
       korean_name: string;
+      caution?: {
+        PRICE_FLUCTUATIONS: boolean;
+        TRADING_VOLUME_SOARING: boolean;
+        DEPOSIT_AMOUNT_SOARING: boolean;
+        GLOBAL_PRICE_DIFFERENCES: boolean;
+        CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
+      };
     }[];
 
   const sorted = [...combined].sort((a, b) => {
@@ -128,14 +144,50 @@ const CoinList = () => {
             <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
           </div>
         ) : (
-          filtered.map(({ ticker, korean_name }) => (
+          filtered.map(({ ticker, korean_name, caution }) => (
             <Link
               key={ticker.market}
               href={`/chart/${ticker.market.replace(`${activeTab}-`, "")}`}
             >
               <div className="flex justify-between items-center p-2 rounded hover:ring-1 ring-white/10 hover:bg-white/5 cursor-pointer">
                 <div>
-                  <div className="font-medium">{korean_name}</div>
+                  <div className="flex items-center gap-1 font-medium flex-wrap">
+                    <span>{korean_name}</span>
+                    {caution && (
+                      <div className="flex flex-wrap items-center gap-1 font-bold text-[10px] text-[#f08c6c]">
+                        {caution.PRICE_FLUCTUATIONS && (
+                          <span className="flex items-center gap-0.5">
+                            <ActivitySquare size={14} />
+                            가격 급등락
+                          </span>
+                        )}
+                        {caution.TRADING_VOLUME_SOARING && (
+                          <span className="flex items-center gap-0.5">
+                            <Repeat size={14} />
+                            거래량 급증
+                          </span>
+                        )}
+                        {caution.DEPOSIT_AMOUNT_SOARING && (
+                          <span className="flex items-center gap-0.5">
+                            <Banknote size={14} />
+                            입금 급증
+                          </span>
+                        )}
+                        {caution.GLOBAL_PRICE_DIFFERENCES && (
+                          <span className="flex items-center gap-0.5">
+                            <Scale size={14} />
+                            김프
+                          </span>
+                        )}
+                        {caution.CONCENTRATION_OF_SMALL_ACCOUNTS && (
+                          <span className="flex items-center gap-0.5">
+                            <Users size={14} />
+                            소액 계좌 집중
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   <div className="text-xs text-gray-400">{ticker.market}</div>
                 </div>
                 <div className="text-right">
