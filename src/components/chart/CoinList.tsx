@@ -156,7 +156,9 @@ const CoinList = () => {
 
       <div className="flex-1 overflow-y-auto space-y-1">
         {loading ? (
-          <div className="text-gray-400 p-4">로딩 중...</div>
+          <div className="flex justify-center items-center h-full p-4">
+            <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
+          </div>
         ) : (
           filteredData.map(({ ticker, market }) => (
             <Link
