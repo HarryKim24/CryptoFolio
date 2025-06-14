@@ -1,14 +1,18 @@
-import React from 'react';
+"use client";
 
-const ChartLayout = ({ 
-  children,
-}: Readonly<{ 
-  children: React.ReactNode; 
-}>) => {
+import React from "react";
+import useUpbitTicker from "@/hooks/useUpbitTicker";
+import { UpbitTickerContext } from "@/context/UpbitTickerContext";
+
+const ChartLayout = ({ children }: { children: React.ReactNode }) => {
+  const { loading, tickers, markets } = useUpbitTicker();
+
   return (
-    <div className="min-h-screen bg-chart-gradient text-white">
-      {children}
-    </div>
+    <UpbitTickerContext.Provider value={{ loading, tickers, markets }}>
+      <div className="min-h-screen h-screen bg-chart-gradient text-white flex flex-col">
+        {children}
+      </div>
+    </UpbitTickerContext.Provider>
   );
 };
 

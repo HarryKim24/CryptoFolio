@@ -1,82 +1,53 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import Link from "next/link";
-import { Market, Ticker } from "@/types/upbitTypes";
+import React, { useState } from "react";
+import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+import CoinListItem from "@/components/chart/CoinListItem";
+import CoinListHeader from "@/components/chart/CoinListHeader";
 
 type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
 type SortDirection = "asc" | "desc";
 type MarketTab = "KRW" | "BTC" | "USDT";
 
-type CoinItem = {
-  market: Market;
-  ticker: Ticker;
-};
-
 const CoinList = () => {
-  const [markets, setMarkets] = useState<Market[]>([]);
-  const [tickers, setTickers] = useState<Ticker[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { tickers, loading, markets } = useUpbitTickerContext();
   const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const { data: marketData } = await axios.get<Market[]>(
-          "https://api.upbit.com/v1/market/all?isDetails=true"
-        );
-
-        const selectedMarkets = marketData.filter((m) =>
-          m.market.startsWith(`${activeTab}-`)
-        );
-        setMarkets(selectedMarkets);
-
-        const marketQuery = selectedMarkets.map((m) => m.market).join(",");
-        const { data: tickerData } = await axios.get<Ticker[]>(
-          `https://api.upbit.com/v1/ticker?markets=${marketQuery}`
-        );
-
-        setTickers(tickerData);
-      } catch (error) {
-        console.error("API 호출 실패", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [activeTab]);
-
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortKey(key);
-      setSortDirection("desc");
-    }
-  };
-
-  const combinedData: CoinItem[] = tickers
-    .map((ticker) => {
-      const market = markets.find((m) => m.market === ticker.market);
-      if (!market) return null;
-      return { ticker, market };
+  const combined = Object.values(tickers)
+    .filter((t) => t.market.startsWith(`${activeTab}-`))
+    .map((t) => {
+      const marketInfo = markets.find((m) => m.market === t.market);
+      return marketInfo
+        ? {
+            ticker: t,
+            korean_name: marketInfo.korean_name,
+            caution: marketInfo.market_event?.caution,
+          }
+        : null;
     })
-    .filter(Boolean) as CoinItem[];
+    .filter(Boolean) as {
+      ticker: typeof tickers[string];
+      korean_name: string;
+      caution?: {
+        PRICE_FLUCTUATIONS: boolean;
+        TRADING_VOLUME_SOARING: boolean;
+        DEPOSIT_AMOUNT_SOARING: boolean;
+        GLOBAL_PRICE_DIFFERENCES: boolean;
+        CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
+      };
+    }[];
 
-  const sortedData = [...combinedData].sort((a, b) => {
+  const sorted = [...combined].sort((a, b) => {
     let aValue: string | number;
     let bValue: string | number;
 
     switch (sortKey) {
       case "korean_name":
-        aValue = a.market.korean_name;
-        bValue = b.market.korean_name;
+        aValue = a.korean_name;
+        bValue = b.korean_name;
         break;
       case "trade_price":
       case "signed_change_rate":
@@ -97,98 +68,66 @@ const CoinList = () => {
       : (bValue as number) - (aValue as number);
   });
 
+  const filtered = sorted.filter(({ ticker, korean_name }) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      ticker.market.toLowerCase().includes(term) ||
+      korean_name.toLowerCase().includes(term)
+    );
+  });
+
   return (
-    <div className="text-sm">
-      <div className="flex justify-center gap-6 mb-2 border-b border-gray-600 pb-1">
-        {["KRW", "BTC", "USDT"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab as MarketTab)}
-            className={`pb-1 font-semibold ${
-              activeTab === tab ? "border-b-2 border-white" : "text-gray-400"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-4 gap-2 px-2 py-1 text-xs border-b border-gray-700">
-        {(["korean_name", "trade_price", "signed_change_rate", "acc_trade_price_24h"] as SortKey[]).map((key) => (
-          <button
-            key={key}
-            onClick={() => toggleSort(key)}
-            className={`flex items-center gap-1 ${
-              sortKey === key ? "text-white" : "text-gray-400"
-            }`}
-          >
-            {{
-              korean_name: "한글명",
-              trade_price: "현재가",
-              signed_change_rate: "전일대비",
-              acc_trade_price_24h: "거래대금",
-            }[key]}
-            {sortKey === key && (
-              <span>{sortDirection === "asc" ? "⬆" : "⬇"}</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {loading ? (
-        <div className="text-gray-400 p-4">로딩 중...</div>
-      ) : (
-        <div className="space-y-1 mt-2">
-          {sortedData.map(({ ticker, market }) => (
-            <Link
-              key={ticker.market}
-              href={`/chart/${ticker.market.replace(`${activeTab}-`, "")}`}
+    <div className="text-sm h-full flex flex-col bg-chart-gradient/10 m-1 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
+      <div className="sticky z-10">
+        <div className="flex justify-center gap-12 border-b border-white/10 p-2">
+          {["KRW", "BTC", "USDT"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab as MarketTab)}
+              className={`pb-1 font-semibold ${
+                activeTab === tab ? "border-b-2 border-neutral-100" : "text-gray-400"
+              }`}
             >
-              <div className="flex justify-between items-center p-2 rounded hover:bg-white/10 cursor-pointer">
-                <div>
-                  <div className="font-medium">{market.korean_name}</div>
-                  <div className="text-xs text-gray-400">{ticker.market}</div>
-                </div>
-                <div className="text-right">
-                  <div>
-                    {activeTab === "KRW"
-                      ? `${ticker.trade_price.toLocaleString()}₩`
-                      : activeTab === "BTC"
-                      ? `${ticker.trade_price.toFixed(8)} BTC`
-                      : ticker.trade_price >= 1000
-                      ? `$${Math.round(ticker.trade_price).toLocaleString()}`
-                      : `$${ticker.trade_price.toFixed(3)}`}
-                  </div>
-
-                  <div
-                    className={`text-xs ${
-                      ticker.signed_change_rate > 0
-                        ? "text-red-400"
-                        : ticker.signed_change_rate < 0
-                        ? "text-blue-400"
-                        : "text-gray-300"
-                    }`}
-                  >
-                    {(ticker.signed_change_rate * 100).toFixed(2)}%
-                  </div>
-
-                  <div className="text-[10px] text-gray-400">
-                    {activeTab === "KRW"
-                      ? `${Math.floor(
-                          ticker.acc_trade_price_24h / 1_0000_000
-                        ).toLocaleString()}백만`
-                      : activeTab === "BTC"
-                      ? `${ticker.acc_trade_price_24h.toFixed(6)} BTC`
-                      : ticker.acc_trade_price_24h >= 1000
-                      ? `$${Math.round(ticker.acc_trade_price_24h).toLocaleString()}`
-                      : `$${ticker.acc_trade_price_24h.toFixed(4)}`}
-                  </div>
-                </div>
-              </div>
-            </Link>
+              {tab}
+            </button>
           ))}
         </div>
-      )}
+
+        <div className="m-2">
+          <input
+            type="text"
+            placeholder="코인명 또는 심볼 검색"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-2 py-1 rounded bg-neutral-800 text-neutral-100 text-sm placeholder-gray-400 focus:outline-none"
+          />
+        </div>
+
+        <CoinListHeader
+          sortKey={sortKey}
+          sortDirection={sortDirection}
+          setSortKey={setSortKey}
+          setSortDirection={setSortDirection}
+        />
+      </div>
+
+      <div className="flex-1 overflow-y-auto space-y-1">
+        {loading ? (
+          <div className="flex justify-center items-center h-full p-4">
+            <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
+          </div>
+        ) : (
+          filtered.map(({ ticker, korean_name, caution }) => (
+            <CoinListItem
+              key={ticker.market}
+              ticker={ticker}
+              korean_name={korean_name}
+              caution={caution}
+              activeTab={activeTab}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

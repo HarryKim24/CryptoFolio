@@ -24,17 +24,16 @@ a {
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d0d0d;
+  background: #9CA3AF;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 12px;
-  border: 1px solid #333;
+  background: #FFF;
+  border-radius: 4px;
 }
 
 @keyframes shake {
