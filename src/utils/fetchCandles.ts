@@ -12,12 +12,12 @@ const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] =>
   }));
 
 const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
-  seconds: 400,
-  minutes: 400,
-  days: 1500,
-  weeks: 1500,
-  months: 1500,
-  years: 1500,
+  seconds: 200,
+  minutes: 200,
+  days: 200,
+  weeks: 200,
+  months: 200,
+  years: 200,
 };
 
 export const fetchNormalizedCandles = async (
@@ -52,14 +52,20 @@ export const fetchNormalizedCandles = async (
     nextTo = batch[batch.length - 1].candle_date_time_utc;
 
     if (remaining > 0) {
-      await new Promise((r) => setTimeout(r, 500)); // 요청 딜레이로 429 방지
+      await new Promise((r) => setTimeout(r, 500));
     }
   }
 
   const normalized = normalizeCandles(allCandles).sort(
     (a, b) => a.date.getTime() - b.date.getTime()
   );
-  console.log(`✅ 총 수신된 캔들: ${normalized.length}개`);
 
-  return normalized;
+  const deduplicated = normalized.filter(
+    (candle, index, self) =>
+      index === self.findIndex((t) => t.date.getTime() === candle.date.getTime())
+  );
+
+  console.log(`✅ 총 수신된 캔들: ${deduplicated.length}개`);
+
+  return deduplicated;
 };

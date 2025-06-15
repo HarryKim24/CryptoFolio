@@ -8,7 +8,6 @@ const useUpbitTicker = () => {
   const [loading, setLoading] = useState(true);
   const socketRef = useRef<WebSocket | null>(null);
 
-  // ✅ 1. 마켓 목록 불러오기
   useEffect(() => {
     const fetchMarkets = async () => {
       try {
@@ -27,7 +26,6 @@ const useUpbitTicker = () => {
     fetchMarkets();
   }, []);
 
-  // ✅ 2. 초깃값 티커 정보 불러오기
   useEffect(() => {
     if (markets.length === 0) return;
 
@@ -51,7 +49,6 @@ const useUpbitTicker = () => {
     fetchTickers();
   }, [markets]);
 
-  // ✅ 3. WebSocket 연결 및 실시간 티커 갱신
   useEffect(() => {
     if (markets.length === 0) return;
 
@@ -77,7 +74,6 @@ const useUpbitTicker = () => {
         const market = raw.code;
         const data: Ticker = { ...raw, market };
 
-        // ✅ 변경된 경우에만 setState → 무한 루프 방지
         setTickers((prev) => {
           const prevData = prev[market];
           if (

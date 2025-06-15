@@ -5,8 +5,6 @@ import CoinDetail from "@/components/chart/CoinDetail";
 import CoinList from "@/components/chart/CoinList";
 import CoinChart from "@/components/chart/CoinChart";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
-import useCandles from "@/hooks/useCandles";
-import { useMemo } from "react";
 
 type MarketTab = "KRW" | "BTC" | "USDT";
 
@@ -19,15 +17,6 @@ const ChartPage = () => {
   const isReady = Object.keys(tickers).length > 0 && markets.length > 0;
   const validTicker = tickers[market];
   const validMarketInfo = markets.find((m) => m.market === market);
-
-  const options = useMemo(() => ({
-    market,
-    candleType: "minutes",
-    unit: 1,
-    count: 60,
-  } as const), [market]);
-  
-  const { data: candles, loading } = useCandles(options);
 
   if (!isReady) {
     return (
@@ -53,11 +42,7 @@ const ChartPage = () => {
         <div className="text-sm h-full flex flex-col bg-chart-gradient/10 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
           <CoinDetail market={market} />
           <div className="flex-1 flex items-center justify-center text-neutral-400">
-            {loading ? (
-              <div>차트 로딩 중...</div>
-            ) : (
-              <CoinChart data={candles} />
-            )}
+            <CoinChart market={market} />
           </div>
         </div>
       </div>
