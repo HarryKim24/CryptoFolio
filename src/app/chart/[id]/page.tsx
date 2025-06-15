@@ -9,16 +9,28 @@ type MarketTab = "KRW" | "BTC" | "USDT";
 
 const ChartPage = () => {
   const params = useParams();
-  const { tickers } = useUpbitTickerContext();
-  const market = decodeURIComponent((params?.id ?? "") as string);
+  const { tickers, markets } = useUpbitTickerContext();
+  const raw = decodeURIComponent((params?.id ?? "") as string);
 
-  if (!market.includes("-")) {
+  const isReady = Object.keys(tickers).length > 0 && markets.length > 0;
+
+  if (!isReady) {
+    return (
+      <div className="flex justify-center items-center h-full p-4">
+        <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!raw.includes("-")) {
     return <div className="p-4 text-white">잘못된 경로입니다.</div>;
   }
 
-  const valid = !!tickers[market];
+  const market = raw;
+  const validTicker = tickers[market];
+  const validMarketInfo = markets.find((m) => m.market === market);
 
-  if (!valid) {
+  if (!validTicker || !validMarketInfo) {
     return <div className="p-4 text-white">해당 마켓 정보 없음</div>;
   }
 

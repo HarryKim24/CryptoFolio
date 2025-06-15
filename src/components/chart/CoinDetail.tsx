@@ -13,7 +13,7 @@ const CoinDetail = ({ market }: Props) => {
   const ticker = tickers[market];
   const marketInfo = markets.find((m) => m.market === market);
 
-  if (!ticker || !marketInfo) return <div className="p-4">정보를 불러오는 중...</div>;
+  if (!ticker || !marketInfo) return null;
 
   const activeTab = market.split("-")[0] as "KRW" | "BTC" | "USDT";
   const coinSymbol = market.split("-")[1];

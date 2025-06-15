@@ -14,7 +14,7 @@ type Props = {
 };
 
 const CoinList = ({ initialTab }: Props) => {
-  const { tickers, loading, markets } = useUpbitTickerContext();
+  const { tickers, markets } = useUpbitTickerContext();
   const [activeTab, setActiveTab] = useState<MarketTab>(initialTab);
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -53,12 +53,9 @@ const CoinList = ({ initialTab }: Props) => {
         aValue = a.korean_name;
         bValue = b.korean_name;
         break;
-      case "trade_price":
-      case "signed_change_rate":
-      case "acc_trade_price_24h":
+      default:
         aValue = a.ticker[sortKey];
         bValue = b.ticker[sortKey];
-        break;
     }
 
     if (typeof aValue === "string") {
@@ -116,20 +113,14 @@ const CoinList = ({ initialTab }: Props) => {
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1">
-        {loading ? (
-          <div className="flex justify-center items-center h-full p-4">
-            <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
-          </div>
-        ) : (
-          filtered.map(({ ticker, korean_name, caution }) => (
+        {filtered.map(({ ticker, korean_name, caution }) => (
           <CoinListItem
             key={ticker.market}
             ticker={ticker}
             korean_name={korean_name}
             caution={caution ?? undefined}
           />
-          ))
-        )}
+        ))}
       </div>
     </div>
   );
