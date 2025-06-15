@@ -41,7 +41,7 @@ const ChartPage = () => {
       <div className="w-full min-w-[320px] h-full overflow-auto p-2">
         <div className="text-sm h-full flex flex-col bg-chart-gradient/10 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
           <CoinDetail market={market} />
-          <div className="flex-1 flex items-center justify-center text-neutral-400">
+          <div className="flex-1 relative">
             <CoinChart market={market} />
           </div>
         </div>

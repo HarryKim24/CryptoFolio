@@ -1,5 +1,7 @@
 "use client";
 
+import type { CandleType } from "@/types/upbitCandle";
+
 type Props = {
   open: number;
   close: number;
@@ -8,47 +10,56 @@ type Props = {
   max: number;
   min: number;
   chartHeight: number;
+  candleType: CandleType;
+  barWidth: number;
 };
 
-const CoinCandle = ({ open, close, high, low, max, min, chartHeight }: Props) => {
+const CoinCandle = ({
+  open,
+  close,
+  high,
+  low,
+  max,
+  min,
+  chartHeight,
+  barWidth,
+}: Props) => {
   const priceRange = max - min || 1;
+  const scale = chartHeight / priceRange;
 
-  const top = Math.max(open, close);
-  const bottom = Math.min(open, close);
+  const yHigh = chartHeight - (high - min) * scale;
+  const yLow = chartHeight - (low - min) * scale;
+  const yOpen = chartHeight - (open - min) * scale;
+  const yClose = chartHeight - (close - min) * scale;
 
-  const highToTop = ((max - high) / priceRange) * chartHeight;
-  const lowToBottom = ((max - low) / priceRange) * chartHeight;
-  const openToTop = ((max - top) / priceRange) * chartHeight;
-  const closeToBottom = ((max - bottom) / priceRange) * chartHeight;
-
-  const bodyHeight = Math.max(1, closeToBottom - openToTop);
-  const wickHeight = Math.max(1, lowToBottom - highToTop);
+  const wickHeight = Math.max(1, yLow - yHigh);
+  const bodyHeight = Math.max(1, Math.abs(yOpen - yClose));
+  const bodyTop = Math.min(yOpen, yClose);
 
   const isUp = close >= open;
   const color = isUp ? "#ef4444" : "#3b82f6";
 
   return (
-    <div className="relative" style={{ width: "6px", height: chartHeight }}>
+    <div className="relative" style={{ width: `${barWidth}px`, height: chartHeight }}>
       <div
         style={{
           position: "absolute",
-          top: highToTop,
+          top: Math.round(yHigh),
           left: "50%",
           transform: "translateX(-50%)",
           width: "1px",
-          height: wickHeight,
+          height: Math.round(wickHeight),
           backgroundColor: color,
         }}
       />
-
       <div
         style={{
           position: "absolute",
-          top: openToTop,
+          top: Math.round(bodyTop),
           left: 0,
           right: 0,
           margin: "0 auto",
-          height: bodyHeight,
+          height: Math.round(bodyHeight),
           width: "100%",
           backgroundColor: color,
           borderRadius: "2px",

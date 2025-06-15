@@ -55,10 +55,12 @@ const useCandles = (options: GetCandlesOptions) => {
         const updated = [...prev];
         const last = { ...updated[updated.length - 1] };
 
-        last.close = raw.trade_price;
-        last.volume += raw.trade_volume;
+        if (Math.abs(last.date.getTime() - raw.timestamp) < 5 * 60 * 1000) {
+          last.close = raw.trade_price;
+          last.volume += raw.trade_volume;
+          updated[updated.length - 1] = last;
+        }
 
-        updated[updated.length - 1] = last;
         return updated;
       });
     };
@@ -80,14 +82,19 @@ const useCandles = (options: GetCandlesOptions) => {
         try {
           const latest = await fetchNormalizedCandles({ ...options, count: 2 });
           const nextCandle = latest[latest.length - 1];
-          if (nextCandle.date.getTime() !== lastTime) {
+
+          const alreadyExists = data.some(
+            (candle) => candle.date.getTime() === nextCandle.date.getTime()
+          );
+
+          if (!alreadyExists) {
             setData((prev) => [...prev, nextCandle]);
           }
         } catch (err) {
           console.error("⛔ 실시간 캔들 추가 실패:", err);
         }
       }
-    }, 500);
+    }, 1000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
