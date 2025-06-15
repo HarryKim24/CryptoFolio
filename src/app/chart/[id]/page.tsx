@@ -3,11 +3,26 @@
 import { useParams } from "next/navigation";
 import CoinDetail from "@/components/chart/CoinDetail";
 import CoinList from "@/components/chart/CoinList";
+import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+
+type MarketTab = "KRW" | "BTC" | "USDT";
 
 const ChartPage = () => {
   const params = useParams();
-  const coinSymbol = decodeURIComponent((params?.id ?? "BTC") as string); // fallback to BTC
-  const market = `KRW-${coinSymbol.toUpperCase()}`;
+  const { tickers } = useUpbitTickerContext();
+  const market = decodeURIComponent((params?.id ?? "") as string);
+
+  if (!market.includes("-")) {
+    return <div className="p-4 text-white">잘못된 경로입니다.</div>;
+  }
+
+  const valid = !!tickers[market];
+
+  if (!valid) {
+    return <div className="p-4 text-white">해당 마켓 정보 없음</div>;
+  }
+
+  const tab = market.split("-")[0] as MarketTab;
 
   return (
     <div className="flex flex-1 h-full overflow-hidden">
@@ -21,7 +36,7 @@ const ChartPage = () => {
       </div>
 
       <div className="w-[320px] min-w-[320px] h-full overflow-y-auto p-2">
-        <CoinList />
+        <CoinList initialTab={tab} />
       </div>
     </div>
   );

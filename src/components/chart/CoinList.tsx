@@ -9,9 +9,13 @@ type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade
 type SortDirection = "asc" | "desc";
 type MarketTab = "KRW" | "BTC" | "USDT";
 
-const CoinList = () => {
+type Props = {
+  initialTab: MarketTab;
+};
+
+const CoinList = ({ initialTab }: Props) => {
   const { tickers, loading, markets } = useUpbitTickerContext();
-  const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
+  const [activeTab, setActiveTab] = useState<MarketTab>(initialTab);
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [searchTerm, setSearchTerm] = useState("");
@@ -118,13 +122,12 @@ const CoinList = () => {
           </div>
         ) : (
           filtered.map(({ ticker, korean_name, caution }) => (
-            <CoinListItem
-              key={ticker.market}
-              ticker={ticker}
-              korean_name={korean_name}
-              caution={caution}
-              activeTab={activeTab}
-            />
+          <CoinListItem
+            key={ticker.market}
+            ticker={ticker}
+            korean_name={korean_name}
+            caution={caution ?? undefined}
+          />
           ))
         )}
       </div>
