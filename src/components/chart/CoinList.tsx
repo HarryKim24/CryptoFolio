@@ -9,9 +9,13 @@ type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade
 type SortDirection = "asc" | "desc";
 type MarketTab = "KRW" | "BTC" | "USDT";
 
-const CoinList = () => {
-  const { tickers, loading, markets } = useUpbitTickerContext();
-  const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
+type Props = {
+  initialTab: MarketTab;
+};
+
+const CoinList = ({ initialTab }: Props) => {
+  const { tickers, markets } = useUpbitTickerContext();
+  const [activeTab, setActiveTab] = useState<MarketTab>(initialTab);
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,12 +53,9 @@ const CoinList = () => {
         aValue = a.korean_name;
         bValue = b.korean_name;
         break;
-      case "trade_price":
-      case "signed_change_rate":
-      case "acc_trade_price_24h":
+      default:
         aValue = a.ticker[sortKey];
         bValue = b.ticker[sortKey];
-        break;
     }
 
     if (typeof aValue === "string") {
@@ -77,7 +78,7 @@ const CoinList = () => {
   });
 
   return (
-    <div className="text-sm h-full flex flex-col bg-chart-gradient/10 m-1 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
+    <div className="text-sm h-full flex flex-col bg-chart-gradient/10 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
       <div className="sticky z-10">
         <div className="flex justify-center gap-12 border-b border-white/10 p-2">
           {["KRW", "BTC", "USDT"].map((tab) => (
@@ -112,21 +113,14 @@ const CoinList = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1">
-        {loading ? (
-          <div className="flex justify-center items-center h-full p-4">
-            <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
-          </div>
-        ) : (
-          filtered.map(({ ticker, korean_name, caution }) => (
-            <CoinListItem
-              key={ticker.market}
-              ticker={ticker}
-              korean_name={korean_name}
-              caution={caution}
-              activeTab={activeTab}
-            />
-          ))
-        )}
+        {filtered.map(({ ticker, korean_name, caution }) => (
+          <CoinListItem
+            key={ticker.market}
+            ticker={ticker}
+            korean_name={korean_name}
+            caution={caution ?? undefined}
+          />
+        ))}
       </div>
     </div>
   );

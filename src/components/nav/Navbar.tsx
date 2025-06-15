@@ -27,7 +27,7 @@ const Navbar = () => {
   }, [isOpen]);
 
   const menuItems = [
-    { href: "/chart/BTC", label: "차트" },
+    { href: "/chart/KRW-BTC", label: "차트" },
     { href: "/trends", label: "트렌드" },
     { href: "/portfolio", label: "포트폴리오" },
     { href: "/settings", label: "설정" },
