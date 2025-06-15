@@ -77,7 +77,7 @@ const CoinList = () => {
   });
 
   return (
-    <div className="text-sm h-full flex flex-col bg-chart-gradient/10 m-1 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
+    <div className="text-sm h-full flex flex-col bg-chart-gradient/10 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
       <div className="sticky z-10">
         <div className="flex justify-center gap-12 border-b border-white/10 p-2">
           {["KRW", "BTC", "USDT"].map((tab) => (
