@@ -5,21 +5,21 @@ import CoinCandle from "./CoinCandle";
 
 type Props = {
   data: NormalizedCandle[];
+  chartHeight?: number;
 };
 
-const CoinChart = ({ data }: Props) => {
+const CoinChart = ({ data, chartHeight = 300 }: Props) => {
   if (data.length === 0) return <div className="text-neutral-400">차트 데이터 없음</div>;
 
   const prices = data.flatMap((d) => [d.high, d.low]);
   const max = Math.max(...prices);
   const min = Math.min(...prices);
-  const chartHeight = 300;
 
   return (
-    <div className="flex gap-[2px] items-end h-[300px] overflow-x-auto px-2">
-      {data.map((d, i) => (
+    <div className="flex gap-[2px] items-end overflow-x-auto px-2" style={{ height: chartHeight }}>
+      {data.map((d) => (
         <CoinCandle
-          key={i}
+          key={d.date.toISOString()}
           open={d.open}
           close={d.close}
           high={d.high}
@@ -32,5 +32,6 @@ const CoinChart = ({ data }: Props) => {
     </div>
   );
 };
+
 
 export default CoinChart;

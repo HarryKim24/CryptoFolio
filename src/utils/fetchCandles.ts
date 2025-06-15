@@ -1,8 +1,8 @@
 import { getUpbitCandles } from "@/api/upbitCandle";
 import type { CandleType, GetCandlesOptions, NormalizedCandle, upbitCandle } from "@/types/upbitCandle";
 
-const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] => {
-  return candles.map((candle) => ({
+const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] =>
+  candles.map((candle) => ({
     date: new Date(candle.candle_date_time_kst),
     open: candle.opening_price,
     high: candle.high_price,
@@ -10,7 +10,6 @@ const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] => {
     close: candle.trade_price,
     volume: candle.candle_acc_trade_volume,
   }));
-};
 
 const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
   seconds: 400,
@@ -37,6 +36,8 @@ export const fetchNormalizedCandles = async (
 
   while (remaining > 0) {
     const batchCount = Math.min(200, remaining);
+    console.log(`📥 요청 ${totalCount}개 중 ${totalCount - remaining + 1}번째: ${batchCount}개 요청 → to: ${nextTo}`);
+
     const batch = await getUpbitCandles({
       ...rest,
       candleType,
@@ -51,9 +52,14 @@ export const fetchNormalizedCandles = async (
     nextTo = batch[batch.length - 1].candle_date_time_utc;
 
     if (remaining > 0) {
-      await new Promise((r) => setTimeout(r, 200));
+      await new Promise((r) => setTimeout(r, 500)); // 요청 딜레이로 429 방지
     }
   }
 
-  return normalizeCandles(allCandles).sort((a, b) => a.date.getTime() - b.date.getTime());
+  const normalized = normalizeCandles(allCandles).sort(
+    (a, b) => a.date.getTime() - b.date.getTime()
+  );
+  console.log(`✅ 총 수신된 캔들: ${normalized.length}개`);
+
+  return normalized;
 };
