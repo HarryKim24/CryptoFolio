@@ -55,12 +55,14 @@ const CoinChart = ({ market }: Props) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 400 });
   const [chartKey, setChartKey] = useState(0);
 
+  const count = candleType === 'days' ? 800 : 400;
+
   const options = useMemo<GetCandlesOptions>(() => ({
     market,
     candleType,
     unit: candleType === 'minutes' ? unit : candleType === 'seconds' ? 1 : undefined,
-    count: 200,
-  }), [market, candleType, unit]);
+    count,
+  }), [market, candleType, unit, count]);
 
   const { data, loading } = useCandles(options);
 
@@ -88,7 +90,13 @@ const CoinChart = ({ market }: Props) => {
 
     const barThickness =
       data.length > 0 && dimensions.width > 0
-        ? Math.max(2, Math.floor((dimensions.width / data.length) * 0.6))
+        ? Math.max(
+            2,
+            Math.floor(
+              (dimensions.width / data.length) *
+                (candleType === 'days' ? 0.9 : 0.6)
+            )
+          )
         : 4;
 
     const dataset = {
@@ -103,31 +111,50 @@ const CoinChart = ({ market }: Props) => {
     } as unknown as ChartDataset<'candlestick', CandlestickData[]>;
 
     return { datasets: [dataset] };
-  }, [data, market, dimensions]);
+  }, [data, market, dimensions, candleType]);
+
+  const isBTCMarket = market.startsWith('BTC');
+
+  // ✅ 양쪽 여백 확보용 min/max 계산 (년봉 잘림 방지)
+  const minDate = data.length > 0 ? new Date(data[0].date) : undefined;
+  const maxDate = data.length > 0 ? new Date(data[data.length - 1].date) : undefined;
+  const bufferMs = 1000 * 60 * 60 * 24 * 180; // 6개월
+  const expandedMinDate = minDate ? new Date(minDate.getTime() - bufferMs) : undefined;
+  const expandedMaxDate = maxDate ? new Date(maxDate.getTime() + bufferMs) : undefined;
 
   const chartOptions: ChartOptions<'candlestick'> = {
     responsive: true,
     maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 8,
+        right: 8,
+      },
+    },
     scales: {
       x: {
         type: 'time',
+        offset: false,
         time: {
           unit: getTimeUnitFromRange(data),
         },
-        ticks: { source: 'auto', padding: 8 },
+        ticks: {
+          source: 'auto',
+          padding: 4,
+        },
+        min: candleType === 'years' ? expandedMinDate?.getTime() : undefined,
+        max: candleType === 'years' ? expandedMaxDate?.getTime() : undefined,
       },
       y: {
         beginAtZero: false,
         position: 'right',
         ticks: {
           padding: 8,
-          callback: (value) => {
-            const isBTCMarket = market.startsWith('BTC');
-            return Number(value).toLocaleString('en-US', {
+          callback: (value) =>
+            Number(value).toLocaleString('en-US', {
               minimumFractionDigits: isBTCMarket ? 2 : 0,
               maximumFractionDigits: isBTCMarket ? 8 : 0,
-            });
-          },
+            }),
         },
       },
     },
@@ -150,7 +177,7 @@ const CoinChart = ({ market }: Props) => {
               `시가: ${raw.o.toLocaleString()}`,
               `고가: ${raw.h.toLocaleString()}`,
               `저가: ${raw.l.toLocaleString()}`,
-              `종가: ${raw.c.toLocaleString()}`
+              `종가: ${raw.c.toLocaleString()}`,
             ];
           },
         },
