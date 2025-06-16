@@ -34,7 +34,6 @@ const getTimeUnitFromRange = (
   data: NormalizedCandle[]
 ): 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year' => {
   if (data.length < 2) return 'minute';
-
   const start = data[0].date.getTime();
   const end = data[data.length - 1].date.getTime();
   const diffMinutes = (end - start) / (1000 * 60);
@@ -53,7 +52,6 @@ const CoinChart = ({ market }: Props) => {
   const [unit, setUnit] = useState<number>(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 400 });
-  const [chartKey, setChartKey] = useState(0);
 
   const count = candleType === 'days' ? 800 : 400;
 
@@ -69,81 +67,78 @@ const CoinChart = ({ market }: Props) => {
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver(([entry]) => {
-      setDimensions({
-        width: entry.contentRect.width,
-        height: entry.contentRect.height,
+      setDimensions((prev) => {
+        const { width, height } = entry.contentRect;
+        if (prev.width !== width || prev.height !== height) {
+          return { width, height };
+        }
+        return prev;
       });
-      setChartKey((prev) => prev + 1);
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const chartData = useMemo(() => {
-    const mapped: CandlestickData[] = data.map((d: NormalizedCandle) => ({
-      x: d.date,
-      o: d.open,
-      h: d.high,
-      l: d.low,
-      c: d.close,
-    }));
+  const mapped = useMemo(() => data.map((d) => ({
+    x: d.date,
+    o: d.open,
+    h: d.high,
+    l: d.low,
+    c: d.close,
+  })), [data]);
 
-    const barThickness =
-      data.length > 0 && dimensions.width > 0
-        ? Math.max(
-            2,
-            Math.floor(
-              (dimensions.width / data.length) *
-                (candleType === 'days' ? 0.9 : 0.6)
-            )
-          )
-        : 4;
+  const barThickness = useMemo(() => {
+    const baseRatio = candleType === 'seconds'
+      ? 0.9
+      : candleType === 'days'
+      ? 0.4
+      : 0.6;
+  
+    return data.length > 0 && dimensions.width > 0
+      ? Math.max(
+          2,
+          Math.floor((dimensions.width / data.length) * baseRatio)
+        )
+      : 4;
+  }, [data, dimensions, candleType]);
 
-    const dataset = {
-      label: `${market} 가격`,
-      data: mapped,
-      color: {
-        up: '#ef4444',
-        down: '#3b82f6',
-        unchanged: '#999',
-      },
-      barThickness,
-    } as unknown as ChartDataset<'candlestick', CandlestickData[]>;
+  const dataset = useMemo(() => ({
+    label: `${market} 가격`,
+    data: mapped,
+    color: {
+      up: '#ef4444',
+      down: '#3b82f6',
+      unchanged: '#999',
+    },
+    barThickness,
+  }) as ChartDataset<'candlestick', CandlestickData[]>, [mapped, market, barThickness]);
 
-    return { datasets: [dataset] };
-  }, [data, market, dimensions, candleType]);
+  const chartData = useMemo(() => ({ datasets: [dataset] }), [dataset]);
 
   const isBTCMarket = market.startsWith('BTC');
 
-  // ✅ 양쪽 여백 확보용 min/max 계산 (년봉 잘림 방지)
   const minDate = data.length > 0 ? new Date(data[0].date) : undefined;
   const maxDate = data.length > 0 ? new Date(data[data.length - 1].date) : undefined;
-  const bufferMs = 1000 * 60 * 60 * 24 * 180; // 6개월
-  const expandedMinDate = minDate ? new Date(minDate.getTime() - bufferMs) : undefined;
-  const expandedMaxDate = maxDate ? new Date(maxDate.getTime() + bufferMs) : undefined;
+  const bufferMs = 1000 * 60 * 60 * 24 * 180;
+  const expandedMin = candleType === 'years' && minDate ? minDate.getTime() - bufferMs : undefined;
+  const expandedMax = candleType === 'years' && maxDate ? maxDate.getTime() + bufferMs : undefined;
 
-  const chartOptions: ChartOptions<'candlestick'> = {
+  const timeUnit = useMemo(() => getTimeUnitFromRange(data), [data]);
+
+  const chartOptions: ChartOptions<'candlestick'> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     layout: {
-      padding: {
-        left: 8,
-        right: 8,
-      },
+      padding: { left: 8, right: 8 },
     },
     scales: {
       x: {
         type: 'time',
         offset: false,
-        time: {
-          unit: getTimeUnitFromRange(data),
-        },
-        ticks: {
-          source: 'auto',
-          padding: 4,
-        },
-        min: candleType === 'years' ? expandedMinDate?.getTime() : undefined,
-        max: candleType === 'years' ? expandedMaxDate?.getTime() : undefined,
+        time: { unit: timeUnit },
+        ticks: { source: 'auto', padding: 4 },
+        min: expandedMin,
+        max: expandedMax,
       },
       y: {
         beginAtZero: false,
@@ -182,8 +177,16 @@ const CoinChart = ({ market }: Props) => {
           },
         },
       },
+      zoom: {
+        pan: { enabled: true, mode: 'x' },
+        zoom: {
+          wheel: { enabled: true },
+          pinch: { enabled: true },
+          mode: 'x',
+        },
+      },
     },
-  };
+  }), [timeUnit, expandedMin, expandedMax, isBTCMarket]);
 
   return (
     <div className="w-full h-full flex flex-col pt-4">
@@ -220,10 +223,7 @@ const CoinChart = ({ market }: Props) => {
       <div
         ref={containerRef}
         className="flex-1 relative rounded-xl shadow-md m-4 bg-slate-900"
-        style={{
-          height: '100%',
-          minHeight: '300px',
-        }}
+        style={{ height: '100%', minHeight: '300px' }}
       >
         {loading || data.length === 0 ? (
           <div className="flex justify-center items-center h-full p-4">
@@ -231,7 +231,6 @@ const CoinChart = ({ market }: Props) => {
           </div>
         ) : (
           <Chart
-            key={chartKey}
             type="candlestick"
             data={chartData}
             options={chartOptions}

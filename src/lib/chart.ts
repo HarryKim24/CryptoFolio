@@ -7,6 +7,8 @@ import {
   Legend,
 } from 'chart.js';
 import { CandlestickController, CandlestickElement } from 'chartjs-chart-financial';
+import zoomPlugin from 'chartjs-plugin-zoom';
+import { Chart } from 'chart.js';
 
 ChartJS.register(
   CategoryScale,
@@ -17,3 +19,5 @@ ChartJS.register(
   CandlestickController,
   CandlestickElement
 );
+
+Chart.register(zoomPlugin);
