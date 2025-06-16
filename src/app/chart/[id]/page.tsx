@@ -5,6 +5,7 @@ import CoinDetail from "@/components/chart/CoinDetail";
 import CoinList from "@/components/chart/CoinList";
 import CoinChart from "@/components/chart/CoinChart";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+import { motion } from "framer-motion";
 
 type MarketTab = "KRW" | "BTC" | "USDT";
 
@@ -13,18 +14,8 @@ const ChartPage = () => {
   const { tickers, markets } = useUpbitTickerContext();
   const raw = decodeURIComponent((params?.id ?? "") as string);
   const market = raw;
-
-  const isReady = Object.keys(tickers).length > 0 && markets.length > 0;
   const validTicker = tickers[market];
   const validMarketInfo = markets.find((m) => m.market === market);
-
-  if (!isReady) {
-    return (
-      <div className="flex justify-center items-center h-full p-4">
-        <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   if (!raw.includes("-")) {
     return <div className="p-4 text-white">잘못된 경로입니다.</div>;
@@ -38,17 +29,31 @@ const ChartPage = () => {
 
   return (
     <div className="flex flex-1 h-full overflow-hidden">
-      <div className="w-full min-w-[320px] h-full overflow-auto p-2">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="w-full min-w-[320px] h-full p-2"
+      >
         <div className="text-sm h-full flex flex-col bg-chart-gradient/10 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
           <CoinDetail market={market} />
           <div className="flex-1 relative min-h-0">
             <CoinChart market={market} />
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="w-[320px] min-w-[320px] h-full overflow-y-auto p-2">
-        <CoinList initialTab={tab} />
+      <div className="w-[320px] min-w-[320px] h-full p-2">
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.7, ease: "easeIn" }}
+          className="h-full"
+        >
+          <div className="h-full overflow-y-auto">
+            <CoinList initialTab={tab} />
+          </div>
+        </motion.div>
       </div>
     </div>
   );
