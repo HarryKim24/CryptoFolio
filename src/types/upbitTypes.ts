@@ -1,19 +1,3 @@
-export interface Market {
-  market: string;
-  korean_name: string;
-  english_name: string;
-  market_event?: {
-    warning: boolean;
-    caution: {
-      PRICE_FLUCTUATIONS: boolean;
-      TRADING_VOLUME_SOARING: boolean;
-      DEPOSIT_AMOUNT_SOARING: boolean;
-      GLOBAL_PRICE_DIFFERENCES: boolean;
-      CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
-    };
-  };
-}
-
 export interface Ticker {
   market: string;
   trade_date: string;
@@ -26,7 +10,7 @@ export interface Ticker {
   low_price: number;
   trade_price: number;
   prev_closing_price: number;
-  change: "EVEN" | "RISE" | "FALL";
+  change: "RISE" | "FALL" | "EVEN";
   change_price: number;
   change_rate: number;
   signed_change_price: number;
@@ -41,4 +25,64 @@ export interface Ticker {
   lowest_52_week_price: number;
   lowest_52_week_date: string;
   timestamp: number;
+}
+
+export interface upbitCandle {
+  market: string;
+  candle_date_time_utc: string;
+  candle_date_time_kst: string;
+  opening_price: number;
+  high_price: number;
+  low_price: number;
+  trade_price: number;
+  timestamp: number;
+  candle_acc_trade_price: number;
+  candle_acc_trade_volume: number;
+  first_day_of_period: string;
+}
+
+export interface NormalizedCandle {
+  date: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export type CandleType = "minutes" | "days" | "weeks" | "months" | "years";
+
+export interface GetCandlesOptions {
+  market: string;
+  candleType: CandleType;
+  unit?: number;
+  to?: string;
+  count?: number;
+}
+
+export interface CautionFlags {
+  PRICE_FLUCTUATIONS: boolean;
+  TRADING_VOLUME_SOARING: boolean;
+  DEPOSIT_AMOUNT_SOARING: boolean;
+  GLOBAL_PRICE_DIFFERENCES: boolean;
+  CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
+}
+
+export interface Market {
+  market: string;
+  korean_name: string;
+  english_name: string;
+  market_event?: MarketEvent;
+}
+
+export interface MarketEvent {
+  warning: boolean;
+  caution: CautionFlags;
+}
+
+export interface MarketInfo {
+  market: string;
+  korean_name: string;
+  english_name: string;
+  market_event?: MarketEvent;
 }

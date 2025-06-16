@@ -12,12 +12,11 @@ const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] =>
   }));
 
 const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
-  seconds: 200,
-  minutes: 200,
-  days: 200,
-  weeks: 200,
-  months: 200,
-  years: 200,
+  minutes: 400,
+  days: 800,
+  weeks: 400,
+  months: 400,
+  years: 400,
 };
 
 export const fetchNormalizedCandles = async (
@@ -35,8 +34,7 @@ export const fetchNormalizedCandles = async (
   let nextTo = to;
 
   while (remaining > 0) {
-    const batchCount = Math.min(200, remaining);
-    console.log(`📥 요청 ${totalCount}개 중 ${totalCount - remaining + 1}번째: ${batchCount}개 요청 → to: ${nextTo}`);
+    const batchCount = Math.min(400, remaining);
 
     const batch = await getUpbitCandles({
       ...rest,
@@ -64,8 +62,6 @@ export const fetchNormalizedCandles = async (
     (candle, index, self) =>
       index === self.findIndex((t) => t.date.getTime() === candle.date.getTime())
   );
-
-  console.log(`✅ 총 수신된 캔들: ${deduplicated.length}개`);
 
   return deduplicated;
 };

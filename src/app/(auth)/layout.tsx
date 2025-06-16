@@ -13,7 +13,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
     return null;
   };
 
-  const title = getTitleByPath(pathname);
+  const title = pathname ? getTitleByPath(pathname) : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-main-gradient px-16">

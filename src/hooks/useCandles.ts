@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useRef, useState } from "react";
 import { GetCandlesOptions, NormalizedCandle } from "@/types/upbitCandle";
@@ -27,9 +27,7 @@ const useCandles = (options: GetCandlesOptions) => {
     };
 
     fetchData();
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true };
   }, [options]);
 
   useEffect(() => {
@@ -40,7 +38,7 @@ const useCandles = (options: GetCandlesOptions) => {
 
     socket.onopen = () => {
       const payload = [
-        { ticket: "live-candle" },
+        { ticket: "realtime-candle" },
         { type: "trade", codes: [options.market] }
       ];
       socket.send(JSON.stringify(payload));
@@ -55,7 +53,7 @@ const useCandles = (options: GetCandlesOptions) => {
         const updated = [...prev];
         const last = { ...updated[updated.length - 1] };
 
-        if (Math.abs(last.date.getTime() - raw.timestamp) < 5 * 60 * 1000) {
+        if (Math.abs(last.date.getTime() - raw.timestamp) < 1000 * 60 * 5) {
           last.close = raw.trade_price;
           last.volume += raw.trade_volume;
           updated[updated.length - 1] = last;
@@ -75,23 +73,23 @@ const useCandles = (options: GetCandlesOptions) => {
 
     intervalRef.current = setInterval(async () => {
       const last = data[data.length - 1];
-      const lastTime = last.date.getTime();
       const now = Date.now();
 
-      if (now - lastTime >= 60 * 1000) {
+      const msPerUnit = (options.unit || 1) * 60 * 1000;
+      if (now - last.date.getTime() >= msPerUnit) {
         try {
           const latest = await fetchNormalizedCandles({ ...options, count: 2 });
           const nextCandle = latest[latest.length - 1];
 
           const alreadyExists = data.some(
-            (candle) => candle.date.getTime() === nextCandle.date.getTime()
+            (c) => c.date.getTime() === nextCandle.date.getTime()
           );
 
           if (!alreadyExists) {
             setData((prev) => [...prev, nextCandle]);
           }
         } catch (err) {
-          console.error("⛔ 실시간 캔들 추가 실패:", err);
+          console.error("⚠️ 실시간 봉 추가 실패:", err);
         }
       }
     }, 1000);

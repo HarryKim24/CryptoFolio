@@ -3,12 +3,16 @@
 import React from "react";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 import CoinCautionBadge from "./CautionBadge";
+import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
 
 type Props = {
   market: string;
+  isMobile?: boolean;
+  view?: "chart" | "list";
+  onToggleView?: () => void;
 };
 
-const CoinDetail = ({ market }: Props) => {
+const CoinDetail = ({ market, isMobile = false, view = "chart", onToggleView }: Props) => {
   const { tickers, markets } = useUpbitTickerContext();
   const ticker = tickers[market];
   const marketInfo = markets.find((m) => m.market === market);
@@ -58,14 +62,25 @@ const CoinDetail = ({ market }: Props) => {
           </div>
         </div>
 
-        <div className="text-right space-y-0.5 lg:space-y-1 shrink-0">
-          <div className="text-base lg:text-2xl font-semibold text-white truncate">{formattedPrice}</div>
-          <div className={`text-xs lg:text-base ${rateColor}`}>
-            {(changeRate * 100).toFixed(2)}% ({change.toLocaleString()})
+        <div className="text-right space-y-0.5 lg:space-y-1 shrink-0 flex items-center">
+          <div>
+            <div className="text-base lg:text-2xl font-semibold text-white truncate">{formattedPrice}</div>
+            <div className={`text-xs lg:text-base ${rateColor}`}>
+              {(changeRate * 100).toFixed(2)}% ({change.toLocaleString()})
+            </div>
+            <div className="text-[10px] lg:text-sm text-gray-400 truncate">
+              24H 거래대금: {formattedVolume}
+            </div>
           </div>
-          <div className="text-[10px] lg:text-sm text-gray-400 truncate">
-            24H 거래대금: {formattedVolume}
-          </div>
+
+          {isMobile && onToggleView && (
+            <button
+              onClick={onToggleView}
+              className="ml-2 p-1 text-white bg-transparent border-none shadow-none"
+            >
+              {view === "chart" ? <HiChevronRight size={40} /> : <HiChevronLeft size={20} />}
+            </button>
+          )}
         </div>
       </div>
     </div>

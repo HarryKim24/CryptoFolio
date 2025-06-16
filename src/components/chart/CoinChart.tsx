@@ -1,60 +1,286 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
-import { CandleType, GetCandlesOptions } from "@/types/upbitCandle";
-import CoinCandle from "./CoinCandle";
+import { Chart } from "react-chartjs-2";
+import {
+  ChartOptions,
+  ChartDataset,
+  ChartData,
+  Chart as ChartJS,
+  registerables,
+} from "chart.js";
+import zoomPlugin from "chartjs-plugin-zoom";
+import { useMemo, useRef, useState, useEffect } from "react";
+import {
+  CandleType,
+  GetCandlesOptions,
+  NormalizedCandle,
+} from "@/types/upbitCandle";
 import useCandles from "@/hooks/useCandles";
+import "chartjs-adapter-date-fns";
+import { format } from "date-fns";
+import "@/lib/chart";
 
-type Props = {
-  market: string;
+ChartJS.register(...registerables, zoomPlugin);
+
+type Props = { market: string };
+
+type CandlestickData = {
+  x: number | string | Date;
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+};
+
+type VolumeData = {
+  x: Date;
+  y: number;
+};
+
+interface CandlestickDataset
+  extends ChartDataset<"candlestick", CandlestickData[]> {
+  color: {
+    up: string;
+    down: string;
+    unchanged: string;
+  };
+}
+
+const candleTypeLabels: Record<CandleType, string> = {
+  minutes: "분",
+  days: "일",
+  weeks: "주",
+  months: "월",
+  years: "년",
 };
 
 const minuteUnits = [1, 3, 5, 10, 15, 30, 60, 240] as const;
 
-const candleTypeLabels: Record<CandleType, string> = {
-  seconds: "초봉",
-  minutes: "분봉",
-  days: "일봉",
-  weeks: "주봉",
-  months: "월봉",
-  years: "년봉",
-};
+const getTimeUnitFromRange = (
+  data: NormalizedCandle[]
+): "minute" | "hour" | "day" | "week" | "month" | "year" => {
+  if (data.length < 2) return "minute";
+  const sorted = [...data].sort((a, b) => a.date.getTime() - b.date.getTime());
+  const start = sorted[0].date.getTime();
+  const end = sorted[sorted.length - 1].date.getTime();
+  const diffMinutes = Math.abs(end - start) / (1000 * 60);
 
-const SIDE_PADDING = 16;
+  if (diffMinutes < 60) return "minute";
+  if (diffMinutes < 60 * 24 * 2) return "hour";
+  if (diffMinutes < 60 * 24 * 60) return "day";
+  if (diffMinutes < 60 * 24 * 180) return "week";
+  if (diffMinutes < 60 * 24 * 365 * 2) return "month";
+  return "year";
+};
 
 const CoinChart = ({ market }: Props) => {
   const [candleType, setCandleType] = useState<CandleType>("days");
   const [unit, setUnit] = useState<number>(1);
-  const [chartHeight, setChartHeight] = useState<number>(400);
-  const [chartWidth, setChartWidth] = useState<number>(0);
-
   const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 400 });
 
-  const options = useMemo<GetCandlesOptions>(() => ({
-    market,
-    candleType,
-    unit: candleType === "minutes" ? unit : undefined,
-    count: 200,
-  }), [market, candleType, unit]);
+  const count = candleType === "days" ? 800 : 400;
+
+  const options = useMemo<GetCandlesOptions>(
+    () => ({
+      market,
+      candleType,
+      unit: candleType === "minutes" ? unit : undefined,
+      count,
+    }),
+    [market, candleType, unit, count]
+  );
 
   const { data, loading } = useCandles(options);
-
-  const prices = data.flatMap((d) => [d.high, d.low]);
-  const max = Math.max(...prices);
-  const min = Math.min(...prices);
 
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver(([entry]) => {
-      setChartHeight(entry.contentRect.height);
-      setChartWidth(entry.contentRect.width);
+      const { width, height } = entry.contentRect;
+      setDimensions((prev) =>
+        prev.width !== width || prev.height !== height
+          ? { width, height }
+          : prev
+      );
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const usableWidth = chartWidth - SIDE_PADDING * 2;
-  const barWidth = data.length > 0 ? usableWidth / data.length : 4;
+  const mapped = useMemo<CandlestickData[]>(
+    () =>
+      data.map((d) => ({
+        x: d.date,
+        o: d.open,
+        h: d.high,
+        l: d.low,
+        c: d.close,
+      })),
+    [data]
+  );
+
+  const volumeData = useMemo<VolumeData[]>(
+    () =>
+      data.map((d) => ({
+        x: d.date,
+        y: d.volume,
+      })),
+    [data]
+  );
+
+  const barThickness = useMemo(() => {
+    const baseRatio = candleType === "days" ? 0.4 : 0.6;
+    return data.length > 0 && dimensions.width > 0
+      ? Math.max(2, Math.floor((dimensions.width / data.length) * baseRatio))
+      : 4;
+  }, [data, dimensions, candleType]);
+
+  const volumeMax = useMemo(() => {
+    if (volumeData.length === 0) return undefined;
+    const max = Math.max(...volumeData.map((v) => v.y));
+    return Math.ceil(max * 5);
+  }, [volumeData]);
+
+  const chartData = useMemo<
+    ChartData<"bar" | "candlestick", (CandlestickData | VolumeData)[]>
+  >(() => {
+    const candlestickDataset: CandlestickDataset = {
+      type: "candlestick",
+      label: `${market} 가격`,
+      data: mapped,
+      color: {
+        up: "#ef4444",
+        down: "#3b82f6",
+        unchanged: "#999",
+      },
+      barThickness,
+    };
+
+    const volumeDataset: ChartDataset<"bar", VolumeData[]> = {
+      type: "bar",
+      label: "거래량",
+      data: volumeData,
+      yAxisID: "volume",
+      backgroundColor: "rgba(255,255,255,0.2)",
+      barThickness: Math.floor(barThickness * 0.8),
+    };
+
+    return {
+      datasets: [candlestickDataset, volumeDataset],
+    };
+  }, [mapped, volumeData, market, barThickness]);
+
+  const isBTCMarket = market.startsWith("BTC");
+
+  const minDate = data.length > 0 ? new Date(data[0].date) : undefined;
+  const maxDate = data.length > 0 ? new Date(data[data.length - 1].date) : undefined;
+  const bufferMs = 1000 * 60 * 60 * 24 * 180;
+  const expandedMin =
+    candleType === "years" && minDate ? minDate.getTime() - bufferMs : undefined;
+  const expandedMax =
+    candleType === "years" && maxDate ? maxDate.getTime() + bufferMs : undefined;
+
+  const timeUnit = useMemo(() => getTimeUnitFromRange(data), [data]);
+
+  const chartOptions: ChartOptions<"candlestick" | "bar"> = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { left: 8, right: 8 } },
+      scales: {
+        x: {
+          type: "time",
+          offset: false,
+          time: {
+            unit: candleType === "days" ? "day" : timeUnit,
+            displayFormats: {
+              minute: "HH:mm",
+              hour: "HH:mm",
+              day: "yyyy-MM-dd",
+              month: "yyyy-MM",
+              year: "yyyy",
+            },
+            tooltipFormat: "yyyy-MM-dd HH:mm",
+          },
+          grid: { display: true, color: "rgba(255, 255, 255, 0.05)" },
+          ticks: {
+            source: "auto",
+            padding: 4,
+            autoSkip: true,
+            maxRotation: 0,
+            maxTicksLimit: 20,
+          },
+          min: expandedMin,
+          max: expandedMax,
+        },
+        y: {
+          position: "right",
+          grid: { display: true, color: "rgba(255, 255, 255, 0.05)" },
+          ticks: {
+            padding: 8,
+            callback: (value) =>
+              Number(value).toLocaleString("en-US", {
+                minimumFractionDigits: isBTCMarket ? 2 : 0,
+                maximumFractionDigits: isBTCMarket ? 8 : 0,
+              }),
+          },
+        },
+        volume: {
+          position: "left",
+          display: true,
+          weight: 0.05,
+          max: volumeMax,
+          beginAtZero: true,
+          grid: {
+            display: true,
+            drawOnChartArea: false,
+            color: "rgba(255,255,255,0.05)",
+          },
+          ticks: {
+            display: false,
+          },
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          displayColors: false,
+          backgroundColor: "#111827",
+          titleFont: { weight: "bold" },
+          bodyFont: { weight: "normal" },
+          padding: 8,
+          callbacks: {
+            title: (ctx) => {
+              const raw = ctx[0].raw as CandlestickData;
+              return format(new Date(raw.x), "yyyy년 M월 d일 HH:mm:ss");
+            },
+            label: (ctx) => {
+              if (ctx.dataset.type === "bar") {
+                const raw = ctx.raw as VolumeData;
+                return `거래량: ${raw.y.toLocaleString()}`;
+              }
+              const raw = ctx.raw as CandlestickData;
+              return [
+                `시가: ${raw.o.toLocaleString()}`,
+                `고가: ${raw.h.toLocaleString()}`,
+                `저가: ${raw.l.toLocaleString()}`,
+                `종가: ${raw.c.toLocaleString()}`,
+              ];
+            },
+          },
+        },
+        zoom: {
+          pan: { enabled: true, mode: "x" },
+          zoom: {
+            wheel: { enabled: true },
+            pinch: { enabled: true },
+            mode: "x",
+          },
+        },
+      },
+    }),
+    [timeUnit, expandedMin, expandedMax, isBTCMarket, candleType, volumeMax]
+  );
 
   return (
     <div className="w-full h-full flex flex-col pt-4">
@@ -63,7 +289,9 @@ const CoinChart = ({ market }: Props) => {
           <button
             key={type}
             className={`px-2 py-1 md:px-3 md:py-1.5 rounded text-xs md:text-sm border ${
-              candleType === type ? "bg-white text-black" : "text-white border-white/20"
+              candleType === type
+                ? "bg-white text-black"
+                : "text-white border-white/20"
             }`}
             onClick={() => setCandleType(type as CandleType)}
           >
@@ -78,7 +306,9 @@ const CoinChart = ({ market }: Props) => {
             <button
               key={u}
               className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded text-xs md:text-sm border ${
-                unit === u ? "bg-white text-black" : "text-white border-white/20"
+                unit === u
+                  ? "bg-white text-black"
+                  : "text-white border-white/20"
               }`}
               onClick={() => setUnit(u)}
             >
@@ -89,44 +319,22 @@ const CoinChart = ({ market }: Props) => {
       )}
 
       <div
-        className="flex-1 relative overflow-hidden rounded-xl shadow-md"
         ref={containerRef}
-        style={{
-          margin: "16px",
-          backgroundColor: "#0f172a",
-          backgroundImage: `
-            linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: "20px 20px",
-        }}
+        className="flex-1 relative rounded-xl shadow-md m-4 bg-slate-900"
+        style={{ height: "100%", minHeight: "300px" }}
       >
-        {loading ? (
+        {loading || data.length === 0 ? (
           <div className="flex justify-center items-center h-full p-4">
             <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
           </div>
-        ) : data.length === 0 ? (
-          <div className="text-neutral-400 text-center">차트 데이터 없음</div>
         ) : (
-          <div
-            className="absolute bottom-0 left-0 flex h-full"
-            style={{ paddingLeft: SIDE_PADDING, paddingRight: SIDE_PADDING }}
-          >
-            {data.map((d) => (
-              <CoinCandle
-                key={d.date.toISOString()}
-                open={d.open}
-                close={d.close}
-                high={d.high}
-                low={d.low}
-                max={max}
-                min={min}
-                chartHeight={chartHeight}
-                candleType={candleType}
-                barWidth={barWidth}
-              />
-            ))}
-          </div>
+          <Chart
+            type="candlestick"
+            data={chartData}
+            options={chartOptions}
+            width={dimensions.width}
+            height={dimensions.height}
+          />
         )}
       </div>
     </div>
