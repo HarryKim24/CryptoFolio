@@ -121,7 +121,13 @@ const CoinChart = ({ market }: Props) => {
         position: 'right',
         ticks: {
           padding: 8,
-          callback: (value) => Number(value).toLocaleString(),
+          callback: (value) => {
+            const isBTCMarket = market.startsWith('BTC');
+            return Number(value).toLocaleString('en-US', {
+              minimumFractionDigits: isBTCMarket ? 2 : 0,
+              maximumFractionDigits: isBTCMarket ? 8 : 0,
+            });
+          },
         },
       },
     },
