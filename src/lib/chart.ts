@@ -5,10 +5,14 @@ import {
   TimeScale,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { CandlestickController, CandlestickElement } from 'chartjs-chart-financial';
-import zoomPlugin from 'chartjs-plugin-zoom';
-import { Chart } from 'chart.js';
+  BarController,
+  BarElement,
+} from "chart.js";
+import {
+  CandlestickController,
+  CandlestickElement,
+} from "chartjs-chart-financial";
+import zoomPlugin from "chartjs-plugin-zoom";
 
 ChartJS.register(
   CategoryScale,
@@ -16,8 +20,9 @@ ChartJS.register(
   TimeScale,
   Tooltip,
   Legend,
+  BarController,
+  BarElement,
   CandlestickController,
-  CandlestickElement
+  CandlestickElement,
+  zoomPlugin
 );
-
-Chart.register(zoomPlugin);
