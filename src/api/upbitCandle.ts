@@ -24,9 +24,6 @@ export const getUpbitCandles = async ({
   if (to) params.to = to;
 
   try {
-    console.log("📡 요청 URL:", url);
-    console.log("🧾 요청 파라미터:", params);
-
     const response = await axios.get<upbitCandle[]>(url, {
       params,
       headers: { Accept: "application/json" },

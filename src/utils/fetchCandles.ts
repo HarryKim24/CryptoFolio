@@ -36,7 +36,6 @@ export const fetchNormalizedCandles = async (
 
   while (remaining > 0) {
     const batchCount = Math.min(200, remaining);
-    console.log(`📥 요청 ${totalCount}개 중 ${totalCount - remaining + 1}번째: ${batchCount}개 요청 → to: ${nextTo}`);
 
     const batch = await getUpbitCandles({
       ...rest,
@@ -64,8 +63,6 @@ export const fetchNormalizedCandles = async (
     (candle, index, self) =>
       index === self.findIndex((t) => t.date.getTime() === candle.date.getTime())
   );
-
-  console.log(`✅ 총 수신된 캔들: ${deduplicated.length}개`);
 
   return deduplicated;
 };
