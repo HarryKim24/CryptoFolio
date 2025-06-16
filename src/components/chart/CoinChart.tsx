@@ -20,7 +20,6 @@ type CandlestickData = {
 };
 
 const candleTypeLabels: Record<CandleType, string> = {
-  seconds: '초봉',
   minutes: '분봉',
   days: '일봉',
   weeks: '주봉',
@@ -32,13 +31,14 @@ const minuteUnits = [1, 3, 5, 10, 15, 30, 60, 240] as const;
 
 const getTimeUnitFromRange = (
   data: NormalizedCandle[]
-): 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year' => {
+): 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year' => {
   if (data.length < 2) return 'minute';
-  const start = data[0].date.getTime();
-  const end = data[data.length - 1].date.getTime();
-  const diffMinutes = (end - start) / (1000 * 60);
 
-  if (diffMinutes < 5) return 'second';
+  const sorted = [...data].sort((a, b) => a.date.getTime() - b.date.getTime());
+  const start = sorted[0].date.getTime();
+  const end = sorted[sorted.length - 1].date.getTime();
+  const diffMinutes = Math.abs(end - start) / (1000 * 60);
+
   if (diffMinutes < 60) return 'minute';
   if (diffMinutes < 60 * 24 * 2) return 'hour';
   if (diffMinutes < 60 * 24 * 60) return 'day';
@@ -58,7 +58,7 @@ const CoinChart = ({ market }: Props) => {
   const options = useMemo<GetCandlesOptions>(() => ({
     market,
     candleType,
-    unit: candleType === 'minutes' ? unit : candleType === 'seconds' ? 1 : undefined,
+    unit: candleType === 'minutes' ? unit : undefined,
     count,
   }), [market, candleType, unit, count]);
 
@@ -79,26 +79,22 @@ const CoinChart = ({ market }: Props) => {
     return () => observer.disconnect();
   }, []);
 
-  const mapped = useMemo(() => data.map((d) => ({
-    x: d.date,
-    o: d.open,
-    h: d.high,
-    l: d.low,
-    c: d.close,
-  })), [data]);
+  const mapped = useMemo(() => {
+    const sorted = [...data].sort((a, b) => a.date.getTime() - b.date.getTime());
+    return sorted.map((d) => ({
+      x: d.date,
+      o: d.open,
+      h: d.high,
+      l: d.low,
+      c: d.close,
+    }));
+  }, [data]);
 
   const barThickness = useMemo(() => {
-    const baseRatio = candleType === 'seconds'
-      ? 0.9
-      : candleType === 'days'
-      ? 0.4
-      : 0.6;
-  
+    const baseRatio = candleType === 'days' ? 0.4 : 0.6;
+
     return data.length > 0 && dimensions.width > 0
-      ? Math.max(
-          2,
-          Math.floor((dimensions.width / data.length) * baseRatio)
-        )
+      ? Math.max(2, Math.floor((dimensions.width / data.length) * baseRatio))
       : 4;
   }, [data, dimensions, candleType]);
 
@@ -135,8 +131,24 @@ const CoinChart = ({ market }: Props) => {
       x: {
         type: 'time',
         offset: false,
-        time: { unit: timeUnit },
-        ticks: { source: 'auto', padding: 4 },
+        time: {
+          unit: candleType === 'days' ? 'day' : timeUnit,
+          displayFormats: {
+            minute: 'HH:mm',
+            hour: 'HH:mm',
+            day: 'yyyy-MM-dd',
+            month: 'yyyy-MM',
+            year: 'yyyy',
+          },
+          tooltipFormat: 'yyyy-MM-dd HH:mm',
+        },
+        ticks: {
+          source: 'auto',
+          padding: 4,
+          autoSkip: true,
+          maxRotation: 0,
+          maxTicksLimit: 20,
+        },
         min: expandedMin,
         max: expandedMax,
       },
@@ -186,7 +198,7 @@ const CoinChart = ({ market }: Props) => {
         },
       },
     },
-  }), [timeUnit, expandedMin, expandedMax, isBTCMarket]);
+  }), [timeUnit, expandedMin, expandedMax, isBTCMarket, candleType]);
 
   return (
     <div className="w-full h-full flex flex-col pt-4">

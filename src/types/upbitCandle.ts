@@ -21,7 +21,7 @@ export interface NormalizedCandle {
   volume: number;
 }
 
-export type CandleType = "seconds" | "minutes" | "days" | "weeks" | "months" | "years";
+export type CandleType = "minutes" | "days" | "weeks" | "months" | "years";
 
 export interface GetCandlesOptions {
   market: string;

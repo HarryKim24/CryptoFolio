@@ -12,7 +12,6 @@ const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] =>
   }));
 
 const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
-  seconds: 400,
   minutes: 400,
   days: 800,
   weeks: 400,
