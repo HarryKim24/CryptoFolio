@@ -12,8 +12,15 @@ type MarketTab = "KRW" | "BTC" | "USDT";
 const ChartPage = () => {
   const params = useParams();
   const { tickers, markets } = useUpbitTickerContext();
-  const raw = decodeURIComponent((params?.id ?? "") as string);
+
+  const rawParam = params?.id;
+  if (!rawParam || typeof rawParam !== "string") {
+    return <div className="p-4 text-white">잘못된 경로입니다.</div>;
+  }
+
+  const raw = decodeURIComponent(rawParam);
   const market = raw;
+
   const validTicker = tickers[market];
   const validMarketInfo = markets.find((m) => m.market === market);
 

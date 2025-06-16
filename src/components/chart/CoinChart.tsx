@@ -142,6 +142,10 @@ const CoinChart = ({ market }: Props) => {
           },
           tooltipFormat: 'yyyy-MM-dd HH:mm',
         },
+        grid: {
+          display: true,
+          color: 'rgba(255, 255, 255, 0.05)',
+        },
         ticks: {
           source: 'auto',
           padding: 4,
@@ -155,6 +159,10 @@ const CoinChart = ({ market }: Props) => {
       y: {
         beginAtZero: false,
         position: 'right',
+        grid: {
+          display: true,
+          color: 'rgba(255, 255, 255, 0.05)',
+        },
         ticks: {
           padding: 8,
           callback: (value) =>
