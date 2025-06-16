@@ -73,9 +73,9 @@ const ChartPage = () => {
       {(!isMobile || view === "list") && (
         <div className="w-full md:w-[320px] min-w-[320px] h-full p-2">
           <motion.div
-            initial={{ opacity: 0, x: 120 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
+            initial={{ x: 300 }}
+            animate={{ x: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
             className="h-full"
           >
             <div className="h-full overflow-y-auto">
