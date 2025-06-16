@@ -11,9 +11,11 @@ type MarketTab = "KRW" | "BTC" | "USDT";
 
 type Props = {
   initialTab: MarketTab;
+  currentMarket: string;
+  onClickSameMarket?: () => void;
 };
 
-const CoinList = ({ initialTab }: Props) => {
+const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   const { tickers, markets } = useUpbitTickerContext();
   const [activeTab, setActiveTab] = useState<MarketTab>(initialTab);
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
@@ -119,6 +121,9 @@ const CoinList = ({ initialTab }: Props) => {
             ticker={ticker}
             korean_name={korean_name}
             caution={caution ?? undefined}
+            onClickSameMarket={
+              ticker.market === currentMarket ? onClickSameMarket : undefined
+            }
           />
         ))}
       </div>

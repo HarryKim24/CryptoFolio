@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import CoinDetail from "@/components/chart/CoinDetail";
 import CoinList from "@/components/chart/CoinList";
 import CoinChart from "@/components/chart/CoinChart";
@@ -12,6 +13,18 @@ type MarketTab = "KRW" | "BTC" | "USDT";
 const ChartPage = () => {
   const params = useParams();
   const { tickers, markets } = useUpbitTickerContext();
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [view, setView] = useState<"chart" | "list">("chart");
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const rawParam = params?.id;
   if (!rawParam || typeof rawParam !== "string") {
@@ -35,33 +48,46 @@ const ChartPage = () => {
   const tab = market.split("-")[0] as MarketTab;
 
   return (
-    <div className="flex flex-1 h-full overflow-hidden">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-        className="w-full min-w-[320px] h-full p-2"
-      >
-        <div className="text-sm h-full flex flex-col bg-chart-gradient/10 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
-          <CoinDetail market={market} />
-          <div className="flex-1 relative min-h-0">
-            <CoinChart market={market} />
-          </div>
-        </div>
-      </motion.div>
-
-      <div className="w-[320px] min-w-[320px] h-full p-2">
+    <div className="flex flex-1 h-full overflow-hidden flex-col md:flex-row relative">
+      {(!isMobile || view === "chart") && (
         <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, delay: 0.7, ease: "easeIn" }}
-          className="h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="w-full min-w-[320px] h-full p-2"
         >
-          <div className="h-full overflow-y-auto">
-            <CoinList initialTab={tab} />
+          <div className="text-sm h-full flex flex-col bg-chart-gradient/10 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
+            <CoinDetail
+              market={market}
+              isMobile={isMobile}
+              view={view}
+              onToggleView={() => setView(view === "chart" ? "list" : "chart")}
+            />
+            <div className="flex-1 relative min-h-0">
+              <CoinChart market={market} />
+            </div>
           </div>
         </motion.div>
-      </div>
+      )}
+
+      {(!isMobile || view === "list") && (
+        <div className="w-full md:w-[320px] min-w-[320px] h-full p-2">
+          <motion.div
+            initial={{ opacity: 0, x: 120 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="h-full"
+          >
+            <div className="h-full overflow-y-auto">
+              <CoinList
+                initialTab={tab}
+                currentMarket={market}
+                onClickSameMarket={() => isMobile && setView("chart")}
+              />
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
