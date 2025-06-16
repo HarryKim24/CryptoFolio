@@ -20,11 +20,11 @@ type CandlestickData = {
 };
 
 const candleTypeLabels: Record<CandleType, string> = {
-  minutes: '분봉',
-  days: '일봉',
-  weeks: '주봉',
-  months: '월봉',
-  years: '년봉',
+  minutes: '분',
+  days: '일',
+  weeks: '주',
+  months: '월',
+  years: '년',
 };
 
 const minuteUnits = [1, 3, 5, 10, 15, 30, 60, 240] as const;
