@@ -45,13 +45,19 @@ const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinL
       </div>
       <div className="text-right">
         <div>
-          {ticker.market.startsWith("KRW")
-            ? `${ticker.trade_price.toLocaleString()}₩`
-            : ticker.market.startsWith("BTC")
-            ? `${ticker.trade_price.toFixed(8)} BTC`
-            : ticker.trade_price >= 1000
-            ? `$${Math.round(ticker.trade_price).toLocaleString()}`
-            : `$${ticker.trade_price.toFixed(3)}`}
+          {typeof ticker.trade_price === "number" ? (
+            ticker.market.startsWith("KRW") ? (
+              `${ticker.trade_price.toLocaleString()}₩`
+            ) : ticker.market.startsWith("BTC") ? (
+              `${ticker.trade_price.toFixed(8)} BTC`
+            ) : ticker.trade_price >= 1000 ? (
+              `$${Math.round(ticker.trade_price).toLocaleString()}`
+            ) : (
+              `$${ticker.trade_price.toFixed(3)}`
+            )
+          ) : (
+            "-"
+          )}
         </div>
         <div
           className={`text-xs ${
@@ -62,16 +68,24 @@ const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinL
               : "text-gray-300"
           }`}
         >
-          {(ticker.signed_change_rate * 100).toFixed(2)}%
+          {typeof ticker.signed_change_rate === "number"
+            ? `${(ticker.signed_change_rate * 100).toFixed(2)}%`
+            : "-"}
         </div>
         <div className="text-[10px] text-gray-400">
-          {ticker.market.startsWith("KRW")
-            ? `${Math.floor(ticker.acc_trade_price_24h / 1_0000_000).toLocaleString()}백만`
-            : ticker.market.startsWith("BTC")
-            ? `${ticker.acc_trade_price_24h.toFixed(6)} BTC`
-            : ticker.acc_trade_price_24h >= 1000
-            ? `$${Math.round(ticker.acc_trade_price_24h).toLocaleString()}`
-            : `$${ticker.acc_trade_price_24h.toFixed(4)}`}
+          {typeof ticker.acc_trade_price_24h === "number" ? (
+            ticker.market.startsWith("KRW") ? (
+              `${Math.floor(ticker.acc_trade_price_24h / 1_0000_000).toLocaleString()}백만`
+            ) : ticker.market.startsWith("BTC") ? (
+              `${ticker.acc_trade_price_24h.toFixed(6)} BTC`
+            ) : ticker.acc_trade_price_24h >= 1000 ? (
+              `$${Math.round(ticker.acc_trade_price_24h).toLocaleString()}`
+            ) : (
+              `$${ticker.acc_trade_price_24h.toFixed(4)}`
+            )
+          ) : (
+            "-"
+          )}
         </div>
       </div>
     </div>
