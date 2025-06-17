@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import ExchangeRates from "@/components/trends/ExchangeRates";
-import WeeklyTopRise from "@/components/trends/TopRise";
+import TopRise from "@/components/trends/TopRise";
 import BitFlow from "@/components/trends/BitFlow";
 import TopVolume from "@/components/trends/TopVolume";
 
@@ -29,7 +29,7 @@ const TrendsPage = () => {
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            transition={{ duration: 1, delay: 0.2 }}
+            transition={{ duration: 1, delay: 0.3 }}
           >
             <BitFlow />
           </motion.div>
@@ -40,15 +40,15 @@ const TrendsPage = () => {
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            transition={{ duration: 1, delay: 0.4 }}
+            transition={{ duration: 1, delay: 0.6 }}
           >
-            <WeeklyTopRise />
+            <TopRise />
           </motion.div>
           <motion.div
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            transition={{ duration: 1, delay: 0.6 }}
+            transition={{ duration: 1, delay: 0.9 }}
           >
             <TopVolume />
           </motion.div>
