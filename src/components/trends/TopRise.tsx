@@ -64,9 +64,9 @@ const TopRise = () => {
             <li
               key={coin.market}
               onClick={() => handleClick(coin.market)}
-              className="flex justify-between cursor-pointer"
+              className="flex justify-between cursor-pointer overflow-hidden"
             >
-              <span>
+              <span className="truncate whitespace-nowrap overflow-hidden max-w-none [@media(max-width:1299px)]:max-w-[200px]">
                 {i + 1}. {coin.korean_name} ({coin.market})
               </span>
               <span className="text-right">
