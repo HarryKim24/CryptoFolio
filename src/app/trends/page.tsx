@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import ExchangeRates from "@/components/trends/ExchangeRates";
-import WeeklyTopRise from "@/components/trends/WeeklyTopRise";
-import TopPerformance from "@/components/trends/TopPerformance";
+import WeeklyTopRise from "@/components/trends/TopRise";
+import BitFlow from "@/components/trends/BitFlow";
 import TopVolume from "@/components/trends/TopVolume";
 
 const fadeInUp = {
@@ -14,35 +14,33 @@ const fadeInUp = {
 const TrendsPage = () => {
   return (
     <div className="px-4 lg:px-20 max-w-screen-xl mx-auto text-neutral-100">
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-stretch pb-4 lg:pb-0 h-full">
-        <div className="flex flex-col gap-6 h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 pb-4">
+        <div className="flex flex-col gap-6 min-w-[320px] lg:min-w-[580px]">
           <motion.div
             variants={fadeInUp}
             initial="initial"
             animate="animate"
             transition={{ duration: 1 }}
-            className="h-full"
           >
             <ExchangeRates />
           </motion.div>
+
           <motion.div
             variants={fadeInUp}
             initial="initial"
             animate="animate"
             transition={{ duration: 1, delay: 0.2 }}
-            className="h-full"
           >
-            <TopPerformance />
+            <BitFlow />
           </motion.div>
         </div>
 
-        <div className="flex flex-col gap-6 h-full">
+        <div className="flex flex-col gap-6 min-w-[320px]">
           <motion.div
             variants={fadeInUp}
             initial="initial"
             animate="animate"
             transition={{ duration: 1, delay: 0.4 }}
-            className="flex-1"
           >
             <WeeklyTopRise />
           </motion.div>
@@ -51,7 +49,6 @@ const TrendsPage = () => {
             initial="initial"
             animate="animate"
             transition={{ duration: 1, delay: 0.6 }}
-            className="flex-1"
           >
             <TopVolume />
           </motion.div>
