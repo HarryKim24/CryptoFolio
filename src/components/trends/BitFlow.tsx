@@ -28,8 +28,10 @@ ChartJS.register(
   Filler
 );
 
+type PricePoint = { x: Date; y: number };
+
 const BitFlow = () => {
-  const [btcData, setBtcData] = useState([]);
+  const [btcData, setBtcData] = useState<PricePoint[]>([]);
   const chartRef = useRef<any>(null);
   const [gradient, setGradient] = useState("rgba(96,165,250,0.2)");
 
@@ -63,8 +65,13 @@ const BitFlow = () => {
 
   return (
     <section className="bg-white/5 rounded-xl p-6 pb-4 shadow flex flex-col gap-6 min-h-[620px]">
-      <div>
-        <h2 className="text-xl font-bold">비트코인 24시간 가격 추이</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold">비트코인 24시간 차트</h2>
+        <span className="text-xl font-semibold text-red-400">
+          {btcData.length > 0
+            ? `₩${btcData[btcData.length - 1].y.toLocaleString("ko-KR")}`
+            : "-"}
+        </span>
       </div>
 
       <div className="mt-6">
