@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 
-const TrendsLayout = ({ 
+const TrendsLayout = ({
   children,
-}: Readonly<{ 
-  children: React.ReactNode; 
+}: Readonly<{
+  children: React.ReactNode;
 }>) => {
   return (
-    <div className="min-h-screen bg-trends-gradient text-white">
+    <div className="min-h-screen w-full bg-trends-gradient text-neutral-100 pt-16">
       {children}
     </div>
   );

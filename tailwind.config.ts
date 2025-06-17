@@ -19,7 +19,7 @@ const config: Config = {
         "main-gradient": "linear-gradient(to bottom, #0a0a13, #1b112b, #0a0a13)",
         "second-gradient": "linear-gradient(90deg, #f08c6c, #f6b072, #fbc987, #f6b072, #f08c6c)",
         'chart-gradient': 'linear-gradient(to bottom, #24345c, #267187)',
-        'trends-gradient': 'linear-gradient(to bottom, #6b3455, #a3566c, #e97e7e)',
+        'trends-gradient': 'linear-gradient(to bottom, #3c2441, #5a3a56, #8e5a67)',
         'portfolio-gradient': 'linear-gradient(to bottom, #5a3372, #a77ecb)',
         'setting-gradient': 'linear-gradient(to bottom, #374e3e, #556648)',
       },
