@@ -2,15 +2,14 @@ import React from "react";
 
 const TopPerformance = () => {
   return (
-    <section className="bg-white/5 rounded-xl p-4 shadow flex flex-col gap-4 flex-1 min-h-[480px]">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">디지털 자산 퍼포먼스</h2>
-        <span className="text-sm text-gray-400">업비트 기준</span>
+    <section className="bg-white/5 rounded-xl p-6 pb-4 shadow flex flex-col gap-6 flex-1 min-h-[620px]">
+      <div>
+        <h2 className="text-xl font-bold">디지털 자산</h2>
       </div>
-
+    
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-sm text-left md:whitespace-nowrap">
-          <thead className="text-gray-400 border-b border-white/10">
+          <thead className="text-gray-300 border-b border-white/10">
             <tr>
               <th className="p-3 font-medium whitespace-nowrap">자산명</th>
               <th className="p-3 font-medium">마켓</th>
@@ -21,7 +20,6 @@ const TopPerformance = () => {
               <th className="p-3 font-medium text-right">1년</th>
             </tr>
           </thead>
-
           <tbody className="divide-y divide-white/10">
             {[...Array(10)].map((_, i) => (
               <tr key={i} className="hover:bg-white/5 transition">
