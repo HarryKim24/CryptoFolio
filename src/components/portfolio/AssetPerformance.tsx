@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { Asset } from './types'
 
 interface Props {
@@ -10,6 +11,13 @@ interface Props {
 }
 
 const AssetPerformance = ({ assets, priceMap }: Props) => {
+  const [isReady, setIsReady] = useState(false)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsReady(true), 300)
+    return () => clearTimeout(timeout)
+  }, [])
+
   const holdings = new Map<string, { name: string, quantity: number, totalCost: number }>()
 
   for (const a of assets) {
@@ -45,23 +53,42 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
       }
     })
 
+  if (!isReady) {
+    return (
+      <div className="bg-white/5 rounded-xl shadow p-4 h-[400px] animate-pulse flex flex-col">
+        <div className="h-6 w-24" />
+        <div className="flex-1 overflow-auto space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-6" />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="bg-gray-800 p-4 rounded-xl h-[400px] flex flex-col overflow-hidden">
-      <h3 className="text-sm text-white mb-2">보유 종목 수익</h3>
-      <div className="flex-1 overflow-auto w-full">
-        <div className="min-w-full overflow-x-auto">
-          <table className="w-full text-xs text-white">
-            <thead className="text-gray-400 border-b border-gray-600 text-left">
-              <tr>
-                <th className="pb-1">코인</th>
-                <th className="pb-1 text-right">현재가</th>
-                <th className="pb-1 text-right">수익</th>
-                <th className="pb-1 text-right">수익률</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((d, i) => (
-                <tr key={i} className="border-t border-gray-700">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+      className="bg-white/5 rounded-xl shadow p-4 h-[400px] flex flex-col"
+    >
+      <h3 className="text-lg text-gray-300 mb-2">보유 종목 수익</h3>
+      <div className="flex-1 overflow-auto w-full pr-1 pt-4">
+        <table className="w-full text-sm text-white">
+          <thead className="text-gray-300 text-left">
+            <tr>
+              <th className="pb-1">코인</th>
+              <th className="pb-1 text-right">현재가</th>
+              <th className="pb-1 text-right">수익</th>
+              <th className="pb-1 text-right">수익률</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data
+              .sort((a, b) => b.profit - a.profit)
+              .map((d, i) => (
+                <tr key={i} className="border-t border-gray-400">
                   <td className="py-1 truncate">{d.symbol} - {d.name}</td>
                   <td className="py-1 text-right">{d.currentPrice.toLocaleString()} ₩</td>
                   <td className={`py-1 text-right ${d.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -72,11 +99,10 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
                   </td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+          </tbody>
+        </table>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
