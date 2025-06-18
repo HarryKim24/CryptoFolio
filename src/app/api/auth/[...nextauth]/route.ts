@@ -14,19 +14,20 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         const email = credentials?.email;
         const password = credentials?.password;
-
+      
         if (!email || !password) {
           throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
         }
-
-        const db = (await client.connect()).db("cryptofolio");
+      
+        const mongoClient = await client;
+        const db = mongoClient.db("cryptofolio");
         const user = await db.collection("users").findOne({ email });
-
+      
         if (!user) throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
-
+      
         const isValid = await verifyPassword(password, user.password);
         if (!isValid) throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
-
+      
         return {
           id: user._id.toString(),
           email: user.email ?? "",
