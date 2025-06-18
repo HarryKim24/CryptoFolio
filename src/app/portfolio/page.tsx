@@ -16,10 +16,28 @@ export default function PortfolioPage() {
   const totalProfit = totalValue - totalInvestment
   const profitRate = totalInvestment ? (totalProfit / totalInvestment) * 100 : 0
 
-  const handleAddAsset = (asset: Asset) => {
-    setAssets(prev => [...prev, asset])
-  }
-
+  const handleAddAsset = async (asset: Asset) => {
+    try {
+      const response = await fetch("/api/asset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(asset),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "자산 저장 실패");
+      }
+  
+      const savedAsset = await response.json();
+      setAssets(prev => [...prev, savedAsset]); 
+      setShowModal(false);
+    } catch (err) {
+      console.error("자산 저장 실패:", err);
+      alert("거래 저장 중 오류가 발생했습니다.");
+    }
+  };
+  
   return (
     <div className="p-6 space-y-6">
       <AssetSummary
