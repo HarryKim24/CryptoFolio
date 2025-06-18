@@ -5,10 +5,14 @@ import AssetSummary from '@/components/portfolio/AssetSummary'
 import AssetTable from '@/components/portfolio/AssetTable'
 import AssetModal from '@/components/portfolio/AssetModal'
 import { Asset } from '@/components/portfolio/types'
+import { getTickerInfo } from '@/api/upbitApi'
+import { getDistribution } from '@/utils/portfolioCharts'
+import AssetDistribution from '@/components/portfolio/AssetDisturibution'
 
 const PortfolioPage = () => {
   const [assets, setAssets] = useState<Asset[]>([])
   const [showModal, setShowModal] = useState(false)
+  const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([])
 
   useEffect(() => {
     const fetchAssets = async () => {
@@ -17,7 +21,17 @@ const PortfolioPage = () => {
         if (!res.ok) throw new Error('자산 불러오기 실패')
 
         const data: Asset[] = await res.json()
+
+        const symbols = [...new Set(data.map(a => a.symbol))]
+        const tickers = await getTickerInfo(symbols.map(s => `KRW-${s}`))
+        const priceMap: Record<string, number> = {}
+        tickers.forEach(t => {
+          const symbol = t.market.replace('KRW-', '')
+          priceMap[symbol] = t.trade_price
+        })
+
         setAssets(data)
+        setDistribution(getDistribution(data, priceMap))
       } catch (err) {
         console.error(err)
         alert('자산을 불러오는 데 실패했습니다.')
@@ -33,11 +47,11 @@ const PortfolioPage = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(asset),
-      });
+      })
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "자산 저장 실패");
+        const errorText = await response.text()
+        throw new Error(errorText || "자산 저장 실패")
       }
 
       const savedAsset = await response.json()
@@ -52,6 +66,10 @@ const PortfolioPage = () => {
   return (
     <div className="p-6 space-y-6">
       <AssetSummary assets={assets} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <AssetDistribution allocation={distribution} />
+      </div>
 
       <button
         onClick={() => setShowModal(true)}
