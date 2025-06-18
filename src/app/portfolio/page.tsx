@@ -1,21 +1,49 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { redirect } from "next/navigation";
-import React from "react";
+'use client'
 
-const PortfolioPage = async () => {
-  const session = await getServerSession(authOptions);
+import React, { useState } from 'react'
+import AssetSummary from '@/components/portfolio/AssetSummary'
+import AssetTable from '@/components/portfolio/AssetTable'
+import AssetModal from '@/components/portfolio/AssetModal'
+import { Asset } from '@/components/portfolio/types'
 
-  if (!session) {
-    redirect("/login");
+export default function PortfolioPage() {
+  const [assets, setAssets] = useState<Asset[]>([])
+  const [showModal, setShowModal] = useState(false)
+  const [deposit] = useState<number>(0)
+
+  const totalInvestment = assets.reduce((sum, a) => sum + a.quantity * a.averagePrice, 0)
+  const totalValue = assets.reduce((sum, a) => sum + a.quantity * a.currentPrice, 0)
+  const totalProfit = totalValue - totalInvestment
+  const profitRate = totalInvestment ? (totalProfit / totalInvestment) * 100 : 0
+
+  const handleAddAsset = (asset: Asset) => {
+    setAssets(prev => [...prev, asset])
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-2">내 포트폴리오</h1>
-      <p>환영합니다, {session.user?.email}님!</p>
-    </div>
-  );
-};
+    <div className="p-6 space-y-6">
+      <AssetSummary
+        totalValue={totalValue}
+        totalProfit={totalProfit}
+        profitRate={profitRate}
+        deposit={deposit}
+        totalInvestment={totalInvestment}
+      />
 
-export default PortfolioPage;
+      <button
+        onClick={() => setShowModal(true)}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+      >
+        + 자산 추가
+      </button>
+
+      <AssetModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={handleAddAsset}
+      />
+
+      <AssetTable assets={assets} />
+    </div>
+  )
+}
