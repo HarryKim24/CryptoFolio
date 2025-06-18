@@ -14,7 +14,7 @@ const PortfolioPage = () => {
   const [assets, setAssets] = useState<Asset[]>([])
   const [showModal, setShowModal] = useState(false)
   const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([])
-  const [priceMap, setPriceMap] = useState<Record<string, number>>({});
+  const [priceMap, setPriceMap] = useState<Record<string, number>>({})
 
   useEffect(() => {
     const fetchAssets = async () => {
@@ -66,25 +66,31 @@ const PortfolioPage = () => {
   }
 
   return (
-    <div className="p-6 space-y-8 text-white max-w-screen-2xl mx-auto">
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
+    <div className="p-6 space-y-8 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
+      <div className="flex flex-col lg:flex-row items-stretch gap-6">
+        <div className="w-full lg:w-5/6">
           <AssetSummary assets={assets} />
         </div>
-
-        <div className="space-y-4 flex flex-row">
-          <AssetDistribution allocation={distribution} />
-          <AssetPerformance assets={assets} priceMap={priceMap} />
+        <div className="w-full lg:w-1/6 flex flex-col justify-end">
+          <div className="mt-auto">
+            <button
+              onClick={() => setShowModal(true)}
+              className="w-full px-4 py-2 rounded-xl whitespace-nowrap bg-white/5 
+            text-neutral-100 hover:bg-white/10 shadow transition"
+            >
+              + 거래 추가
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-        >
-          + 거래 추가
-        </button>
+      <div className="flex flex-row gap-6 w-full items-center">
+        <div className="flex-1 h-full">
+          <AssetDistribution allocation={distribution} />
+        </div>
+        <div className="flex-1 h-full">
+          <AssetPerformance assets={assets} priceMap={priceMap} />
+        </div>
       </div>
 
       <AssetModal

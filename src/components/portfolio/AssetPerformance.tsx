@@ -46,32 +46,36 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
     })
 
   return (
-    <div className="bg-gray-800 p-4 rounded-xl space-y-2">
+    <div className="bg-gray-800 p-4 rounded-xl h-[400px] flex flex-col overflow-hidden">
       <h3 className="text-sm text-white mb-2">보유 종목 수익</h3>
-      <table className="w-full text-xs text-white">
-        <thead className="text-gray-400 border-b border-gray-600 text-left">
-          <tr>
-            <th className="pb-1">코인</th>
-            <th className="pb-1 text-right">현재가</th>
-            <th className="pb-1 text-right">수익</th>
-            <th className="pb-1 text-right">수익률</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((d, i) => (
-            <tr key={i} className="border-t border-gray-700">
-              <td className="py-1">{d.symbol} - {d.name}</td>
-              <td className="py-1 text-right">{d.currentPrice.toLocaleString()} ₩</td>
-              <td className={`py-1 text-right ${d.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {d.profit >= 0 ? '+' : ''}{d.profit.toLocaleString()} ₩
-              </td>
-              <td className={`py-1 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {d.rate.toFixed(2)}%
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="flex-1 overflow-auto w-full">
+        <div className="min-w-full overflow-x-auto">
+          <table className="w-full text-xs text-white">
+            <thead className="text-gray-400 border-b border-gray-600 text-left">
+              <tr>
+                <th className="pb-1">코인</th>
+                <th className="pb-1 text-right">현재가</th>
+                <th className="pb-1 text-right">수익</th>
+                <th className="pb-1 text-right">수익률</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((d, i) => (
+                <tr key={i} className="border-t border-gray-700">
+                  <td className="py-1 truncate">{d.symbol} - {d.name}</td>
+                  <td className="py-1 text-right">{d.currentPrice.toLocaleString()} ₩</td>
+                  <td className={`py-1 text-right ${d.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {d.profit >= 0 ? '+' : ''}{d.profit.toLocaleString()} ₩
+                  </td>
+                  <td className={`py-1 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {d.rate.toFixed(2)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }

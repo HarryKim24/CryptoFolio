@@ -34,53 +34,52 @@ const AssetSummary = ({ assets }: Props) => {
   if (!stats) return null
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-white">
-      <div className="bg-gray-800 p-4 rounded-xl">
-        <div className="text-sm text-gray-400 flex items-center gap-1">
-          총 평가금액
-          <span title="보유 수량 × 현재가">ℹ️</span>
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full text-neutral-100">
+      <div className="lg:col-span-1 flex flex-col gap-4">
+        <div className="w-full bg-white/5 transition shadow p-4 rounded-xl flex flex-row justify-between">
+          <div className="text-lg text-gray-300">평가금액</div>
+          <div className="text-2xl font-bold mt-1">
+            {stats.evaluation.toLocaleString()} 원
+          </div>
         </div>
-        <div className="text-2xl font-bold">{stats.evaluation.toLocaleString()} 원</div>
+
+        <div className="w-full bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
+          <div className="text-lg text-gray-300">총 투자금</div>
+          <div className="text-2xl font-bold mt-1">
+            {stats.totalBuy.toLocaleString()} 원
+          </div>
+        </div>
       </div>
 
-      <div className="bg-gray-800 p-4 rounded-xl">
-        <div className="text-sm text-gray-400 flex items-center gap-1">
-          총 투자금 (Cost Basis)
-          <span title="모든 매수 금액의 합 (수량 × 매수가)">ℹ️</span>
+      <div className="w-full bg-white/5 shadow p-4 rounded-xl flex flex-col justify-between">
+        <div className="flex justify-between items-center">
+          <div className="text-lg text-gray-300">총 수익</div>
+          <div className={`text-2xl lg:text-3xl font-bold ${stats.allTimeProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            {stats.allTimeProfit >= 0 ? '+' : ''}{stats.allTimeProfit.toLocaleString()} 원
+          </div>
         </div>
-        <div className="text-2xl font-bold">{stats.totalBuy.toLocaleString()} 원</div>
-      </div>
-
-      <div className="bg-gray-800 p-4 rounded-xl col-span-2 xl:col-span-1">
-        <div className="text-sm text-gray-400 flex items-center gap-1">
-          총 수익
-          <span title="실현 수익 + 미실현 수익">ℹ️</span>
-        </div>
-        <div className={`text-2xl font-bold ${stats.allTimeProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-          {stats.allTimeProfit >= 0 ? '+' : ''}{stats.allTimeProfit.toLocaleString()} 원
-        </div>
-        <div className="text-xs mt-2 text-gray-400 space-y-1">
-          <div>
-            실현 수익:
-            <span className={`ml-1 ${stats.realisedProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+        <div className="text-xs mt-1 text-gray-300 space-y-1 pl-1">
+          <div className="flex justify-between">
+            <span>실현 수익:</span>
+            <span className={`${stats.realisedProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {stats.realisedProfit >= 0 ? '+' : ''}{stats.realisedProfit.toLocaleString()} 원
             </span>
           </div>
-          <div>
-            미실현 수익:
-            <span className={`ml-1 ${stats.unrealisedProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+          <div className="flex justify-between">
+            <span>미실현 수익:</span>
+            <span className={`${stats.unrealisedProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {stats.unrealisedProfit >= 0 ? '+' : ''}{stats.unrealisedProfit.toLocaleString()} 원
             </span>
           </div>
-          <div>
-            총 수익률:
-            <span className={`ml-1 ${stats.profitRate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+          <div className="flex justify-between">
+            <span>총 수익률:</span>
+            <span className={`${stats.profitRate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {stats.profitRate.toFixed(2)}%
             </span>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
 
