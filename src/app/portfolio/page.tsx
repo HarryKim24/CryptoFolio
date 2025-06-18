@@ -67,7 +67,7 @@ const PortfolioPage = () => {
 
   return (
     <div className="p-6 space-y-8 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
-      <div className="flex flex-col lg:flex-row items-stretch gap-6">
+      <div className="flex flex-col xs:px-20 lg:px-0 lg:flex-row items-stretch gap-6">
         <div className="w-full lg:w-5/6">
           <AssetSummary assets={assets} />
         </div>
@@ -84,11 +84,11 @@ const PortfolioPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-row gap-6 w-full items-center">
-        <div className="flex-1 h-full">
+      <div className="flex flex-col xs:px-20 lg:px-0 lg:flex-row gap-6 w-full items-center">
+        <div className="flex-1 h-full w-full">
           <AssetDistribution allocation={distribution} />
         </div>
-        <div className="flex-1 h-full">
+        <div className="flex-1 h-full w-full">
           <AssetPerformance assets={assets} priceMap={priceMap} />
         </div>
       </div>

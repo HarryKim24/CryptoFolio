@@ -2,7 +2,8 @@
 
 import { Doughnut } from 'react-chartjs-2'
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 
 Chart.register(ArcElement, Tooltip, Legend)
 
@@ -17,8 +18,14 @@ const COLORS = [
 ]
 
 const AssetDistribution = ({ allocation }: Props) => {
-  const total = allocation.reduce((sum, item) => sum + item.value, 0)
+  const [isReady, setIsReady] = useState(false)
 
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsReady(true), 300)
+    return () => clearTimeout(timeout)
+  }, [])
+
+  const total = allocation.reduce((sum, item) => sum + item.value, 0)
   const sorted = [...allocation].sort((a, b) => b.value - a.value)
   const top10 = sorted.slice(0, 10)
   const others = sorted.slice(10)
@@ -40,19 +47,46 @@ const AssetDistribution = ({ allocation }: Props) => {
   }
 
   const options = {
-  plugins: {
-    legend: {
-      display: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
     },
-  },
-}
+  }
 
+  if (!isReady) {
+    return (
+      <div className="bg-white/5 rounded-xl shadow p-4 h-[400px] animate-pulse flex flex-col">
+        <div className="h-7 w-20 mb-2" />
+        <div className="flex flex-1 gap-8 flex-col md:flex-row">
+          <div className="flex-1 flex items-center justify-center p-4">
+            <div className="h-[300px] w-[300px] bg-white/10 rounded-full" />
+          </div>
+
+          <div className="flex-1 flex items-center justify-center">
+            <div className='flex flex-col space-y-2 w-fit'>
+              <div className='flex items-center justify-between min-w-[160px] pl-4 pr-4'>
+                <div className='flex items-center gap-2'>
+                  <div className='w-3 h-3' />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="bg-gray-800 p-4 rounded-xl h-[400px] flex flex-col">
-      <h3 className="text-lg text-white">배분</h3>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+      className="bg-white/5 shadow p-4 rounded-xl lg:h-[400px] flex flex-col"
+    >
+      <h3 className="text-lg text-gray-300 mb-2">배분</h3>
 
-      <div className="flex flex-1 gap-8">
+      <div className="flex flex-1 gap-8 flex-col md:flex-row">
         <div className="flex-1 flex items-center justify-center p-4">
           <Doughnut data={data} options={options} />
         </div>
@@ -62,7 +96,7 @@ const AssetDistribution = ({ allocation }: Props) => {
             {displayData.map((item, index) => {
               const percent = total > 0 ? (item.value / total) * 100 : 0
               return (
-                <div key={index} className="flex items-center justify-between min-w-[232px] pl-4 pr-4">
+                <div key={index} className="flex items-center justify-between min-w-[160px] pl-4 pr-4">
                   <div className="flex items-center gap-2">
                     <div
                       className="w-3 h-3 rounded-sm"
@@ -77,7 +111,7 @@ const AssetDistribution = ({ allocation }: Props) => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
