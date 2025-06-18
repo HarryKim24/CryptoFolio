@@ -27,7 +27,8 @@ export async function POST(req: Request) {
       return new Response("비밀번호는 영문과 숫자를 포함한 8자 이상이어야 합니다", { status: 400 });
     }
 
-    const db = (await client.connect()).db("cryptofolio");
+    const mongoClient = await client;
+    const db = mongoClient.db("cryptofolio");
     const users = db.collection("users");
 
     const existingUser = await users.findOne({ email });
