@@ -24,7 +24,7 @@ const AssetTable = ({ assets, onDelete }: Props) => {
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="flex space-x-4">
               {Array.from({ length: 7 }).map((__, j) => (
-                <div key={j} className="h-4 bg-gray-600/50 rounded" style={{ width: j === 2 ? '30%' : '12%' }} />
+                <div key={j} className="h-4" style={{ width: j === 2 ? '30%' : '12%' }} />
               ))}
             </div>
           ))}
