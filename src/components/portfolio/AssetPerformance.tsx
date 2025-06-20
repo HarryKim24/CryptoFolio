@@ -71,17 +71,18 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="bg-white/5 rounded-xl shadow p-4 h-[400px] flex flex-col"
+      className="bg-white/5 rounded-xl shadow p-4 h-[400px] flex flex-col overflow-hidden"
     >
       <h3 className="text-lg text-gray-300 mb-2">보유 종목 수익</h3>
-      <div className="flex-1 overflow-auto w-full pr-1 pt-4">
-        <table className="w-full text-sm text-white">
-          <thead className="text-gray-300 text-left">
+
+      <div className="flex-1 overflow-auto w-full">
+        <table className="min-w-full table-fixed text-sm text-white whitespace-nowrap">
+          <thead className="sticky top-0 text-gray-300 text-left bg-white/5 backdrop-blur-xl z-10">
             <tr>
-              <th className="pb-1">코인</th>
-              <th className="pb-1 text-right">현재가</th>
-              <th className="pb-1 text-right">수익</th>
-              <th className="pb-1 text-right">수익률</th>
+              <th className="p-2">코인</th>
+              <th className="p-2 text-right">현재가</th>
+              <th className="p-2 text-right">수익</th>
+              <th className="p-2 text-right">수익률</th>
             </tr>
           </thead>
           <tbody>
