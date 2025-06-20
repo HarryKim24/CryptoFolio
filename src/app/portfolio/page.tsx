@@ -114,7 +114,7 @@ const PortfolioPage = () => {
         <div className="flex-1 h-full w-full">
           <AssetDistribution allocation={distribution} />
         </div>
-        <div className="flex-1 h-full w-full">
+        <div className="flex-1 h-full w-full min-w-[200px]">
           <AssetPerformance assets={assets} priceMap={priceMap} />
         </div>
       </div>
