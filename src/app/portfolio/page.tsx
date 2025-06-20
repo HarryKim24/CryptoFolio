@@ -9,12 +9,16 @@ import AssetPerformance from '@/components/portfolio/AssetPerformance'
 import { Asset } from '@/components/portfolio/types'
 import { getTickerInfo } from '@/api/upbitApi'
 import { getDistribution } from '@/utils/portfolioCharts'
+import ConfirmModal from '@/components/portfolio/ConfirmModal'
 
 const PortfolioPage = () => {
   const [assets, setAssets] = useState<Asset[]>([])
   const [showModal, setShowModal] = useState(false)
   const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([])
   const [priceMap, setPriceMap] = useState<Record<string, number>>({})
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     const fetchAssets = async () => {
@@ -56,12 +60,34 @@ const PortfolioPage = () => {
         throw new Error(errorText || "자산 저장 실패")
       }
 
-      const savedAsset = await response.json()
+      const savedAsset: Asset = await response.json()
       setAssets(prev => [...prev, savedAsset])
       setShowModal(false)
     } catch (err) {
       console.error("자산 저장 실패:", err)
       alert("거래 저장 중 오류가 발생했습니다.")
+    }
+  }
+
+  const requestDelete = (id: string | undefined) => {
+    setPendingDeleteId(id)
+    setConfirmOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return
+    try {
+      const res = await fetch(`/api/asset/${pendingDeleteId}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) throw new Error('삭제 실패')
+      setAssets(prev => prev.filter(a => a._id !== pendingDeleteId))
+    } catch (err) {
+      console.error('삭제 오류:', err)
+      alert('삭제 중 문제가 발생했습니다.')
+    } finally {
+      setConfirmOpen(false)
+      setPendingDeleteId(undefined)
     }
   }
 
@@ -76,7 +102,7 @@ const PortfolioPage = () => {
             <button
               onClick={() => setShowModal(true)}
               className="w-full px-4 py-2 rounded-xl whitespace-nowrap bg-white/5 
-            text-neutral-100 hover:bg-white/10 shadow transition"
+              text-neutral-100 hover:bg-white/10 shadow transition"
             >
               + 거래 추가
             </button>
@@ -99,9 +125,16 @@ const PortfolioPage = () => {
         onSave={handleAddAsset}
       />
 
-      <div className='xs:px-20 lg:px-0 lg:flex-row gap-6 w-full items-center'>
-        <AssetTable assets={assets} />
+      <div className="xs:px-20 lg:px-0 lg:flex-row gap-6 w-full items-center">
+        <AssetTable assets={assets} onDelete={requestDelete} />
       </div>
+
+      <ConfirmModal
+        open={confirmOpen}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={confirmDelete}
+        title="거래를 삭제하시겠습니까?"
+      />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 export type Asset = {
+  _id?: string;
   symbol: string
   name: string
   quantity: number

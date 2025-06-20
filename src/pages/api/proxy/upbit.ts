@@ -21,9 +21,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       url += `/${safeUnit}`;
     }
 
-    console.log("📡 요청 URL:", url);
-    console.log("🧾 요청 파라미터:", { market: safeMarket, count: safeCount, to: safeTo });
-
     const { data } = await axios.get(url, {
       params: {
         market: safeMarket,
