@@ -99,7 +99,9 @@ const PortfolioPage = () => {
         onSave={handleAddAsset}
       />
 
-      <AssetTable assets={assets} />
+      <div className='xs:px-20 lg:px-0 lg:flex-row gap-6 w-full items-center'>
+        <AssetTable assets={assets} />
+      </div>
     </div>
   )
 }

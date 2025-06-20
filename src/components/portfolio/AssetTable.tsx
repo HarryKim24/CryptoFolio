@@ -1,50 +1,93 @@
-import React from 'react'
+'use client'
+
+import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { Asset } from './types'
 
 interface Props {
   assets: Asset[]
 }
 
-const AssetTable = ({ assets }: Props) => (
-  <div className="overflow-x-auto mt-4 text-white">
-    <table className="min-w-full text-sm">
-      <thead className="bg-gray-700 text-left">
-        <tr>
-          <th className="p-2">거래일</th>
-          <th className="p-2">종류</th>
-          <th className="p-2">코인</th>
-          <th className="p-2 text-right">수량</th>
-          <th className="p-2 text-right">단가</th>
-          <th className="p-2 text-right">거래 금액</th>
-        </tr>
-      </thead>
-      <tbody>
-        {assets.map((a, i) => {
-          const value = a.quantity * a.currentPrice
-          const isBuy = a.type === 'buy'
+const AssetTable = ({ assets }: Props) => {
+  const [isReady, setIsReady] = useState(false)
 
-          return (
-            <tr key={i} className="border-t border-gray-700">
-              <td className="p-2">{a.date}</td>
-              <td className="p-2">
-                <span
-                  className={`px-2 py-1 rounded text-xs font-semibold ${
-                    isBuy ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-                  }`}
-                >
-                  {isBuy ? '구매' : '매도'}
-                </span>
-              </td>
-              <td className="p-2">{a.symbol} - {a.name}</td>
-              <td className="p-2 text-right">{a.quantity}</td>
-              <td className="p-2 text-right">{a.averagePrice.toLocaleString()}</td>
-              <td className="p-2 text-right">{value.toLocaleString()}</td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
-  </div>
-)
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsReady(true), 300)
+    return () => clearTimeout(timeout)
+  }, [])
+
+  if (!isReady) {
+    return (
+      <div className="bg-white/5 rounded-xl shadow p-4 h-[500px] animate-pulse flex flex-col">
+        <div className="h-6 w-32 rounded mb-4" />
+        <div className="flex-1 space-y-3 overflow-auto">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex space-x-4">
+              {Array.from({ length: 6 }).map((__, j) => (
+                <div
+                  key={j}
+                  className="h-4"
+                  style={{ width: j === 2 ? '30%' : '12%' }}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+      className="bg-white/5 rounded-xl shadow p-4 flex flex-col h-[500px] overflow-hidden"
+    >
+      <h3 className="text-lg text-gray-300 mb-2">거래 내역</h3>
+      <div className="flex-1 overflow-auto">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full min-w-[800px] whitespace-nowrap text-sm text-white table-fixed">
+            <thead className="text-gray-300 text-left sticky top-0 bg-white/5 backdrop-blur z-10">
+              <tr>
+                <th className="p-2">거래일</th>
+                <th className="p-2">종류</th>
+                <th className="p-2">코인</th>
+                <th className="p-2 text-right">수량</th>
+                <th className="p-2 text-right">단가</th>
+                <th className="p-2 text-right">거래 금액</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assets.map((a, i) => {
+                const value = a.quantity * a.currentPrice
+                const isBuy = a.type === 'buy'
+
+                return (
+                  <tr key={i} className="border-t border-gray-700">
+                    <td className="p-2">{a.date}</td>
+                    <td className="p-2">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          isBuy ? 'bg-green-600' : 'bg-red-600'
+                        }`}
+                      >
+                        {isBuy ? '구매' : '매도'}
+                      </span>
+                    </td>
+                    <td className="p-2">{a.symbol} - {a.name}</td>
+                    <td className="p-2 text-right">{a.quantity}</td>
+                    <td className="p-2 text-right">{a.averagePrice.toLocaleString()}</td>
+                    <td className="p-2 text-right">{value.toLocaleString()}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
 
 export default AssetTable
