@@ -2,6 +2,10 @@
 
 import React, { useEffect, useState } from 'react'
 import type { Asset } from './types'
+import DatePicker from 'react-datepicker'
+import { ko } from 'date-fns/locale'
+import 'react-datepicker/dist/react-datepicker.css'
+
 
 interface Market {
   market: string
@@ -32,6 +36,12 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
       setInput({})
       setInputValue('')
       setFilteredMarkets([])
+
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.body.style.overflow = ''
     }
   }, [show])
 
@@ -48,11 +58,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
   const handleChange = (field: string, value: string) => {
     if (field === 'quantity' || field === 'averagePrice') {
       const parsed = parseFloat(value)
-      if (!isNaN(parsed) && parsed >= 0) {
-        setInput(prev => ({ ...prev, [field]: parsed }))
-      } else {
-        setInput(prev => ({ ...prev, [field]: undefined }))
-      }
+      setInput(prev => ({ ...prev, [field]: isNaN(parsed) || parsed < 0 ? undefined : parsed }))
     } else {
       setInput(prev => ({ ...prev, [field]: value }))
     }
@@ -62,22 +68,16 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (
-      input.symbol &&
-      input.name &&
-      input.quantity !== undefined &&
-      input.averagePrice !== undefined &&
-      input.date &&
-      input.type
-    ) {
+    const { symbol, name, quantity, averagePrice, date, type } = input
+    if (symbol && name && quantity !== undefined && averagePrice !== undefined && date && type) {
       onSave({
-        symbol: input.symbol,
-        name: input.name,
-        quantity: input.quantity,
-        averagePrice: input.averagePrice,
-        currentPrice: input.averagePrice,
-        date: input.date,
-        type: input.type,
+        symbol,
+        name,
+        quantity,
+        averagePrice,
+        currentPrice: averagePrice,
+        date,
+        type,
       })
       onClose()
     } else {
@@ -88,51 +88,51 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
   if (!show) return null
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <form onSubmit={handleSubmit} className="bg-[#1E1E2F] text-white rounded-2xl w-full max-w-md p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white/5 text-neutral-100 backdrop-blur-xl rounded-xl shadow-xl w-full max-w-md p-6"
+      >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">거래 추가</h2>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-white">&#10005;</button>
+          <h2 className="text-lg font-semibold">거래 추가</h2>
+          <button type="button" onClick={onClose} className="text-neutral-100 hover:text-neutral-200 text-2xl p-2">&times;</button>
         </div>
 
         <div className="grid grid-cols-2 gap-2 mb-4 text-sm font-medium">
-          <button
-            type="button"
-            className={`rounded-lg py-2 ${input.type === 'buy' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'}`}
-            onClick={() => handleChange('type', 'buy')}
-          >
-            구매하기
-          </button>
-          <button
-            type="button"
-            className={`rounded-lg py-2 ${input.type === 'sell' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'}`}
-            onClick={() => handleChange('type', 'sell')}
-          >
-            매도
-          </button>
+          {['buy', 'sell'].map(type => (
+            <button
+              key={type}
+              type="button"
+              className={`rounded-xl py-2 text-sm font-semibold transition focus:outline-none
+                ${input.type === type
+                  ? 'bg-portfolio hover:bg-portfolio/90 text-neutral-100'
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
+              onClick={() => handleChange('type', type)}
+            >
+              {type === 'buy' ? '구매' : '매도'}
+            </button>
+          ))}
         </div>
 
         <div className="relative mb-4">
           <input
             type="text"
             placeholder="코인 검색"
-            className="w-full bg-gray-800 text-white rounded-lg px-4 py-3"
+            className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 placeholder-neutral-100 focus:outline-none"
             value={inputValue}
             onChange={e => {
               const value = e.target.value
               setInputValue(value)
               setFilteredMarkets(
-                marketList.filter(
-                  m =>
-                    m.korean_name.includes(value) ||
-                    m.english_name.toLowerCase().includes(value.toLowerCase()) ||
-                    m.market.replace('KRW-', '').toLowerCase().includes(value.toLowerCase())
+                marketList.filter(m =>
+                  [m.korean_name, m.english_name.toLowerCase(), m.market.replace('KRW-', '').toLowerCase()]
+                    .some(field => field.includes(value.toLowerCase()))
                 )
               )
             }}
           />
           {filteredMarkets.length > 0 && (
-            <ul className="absolute z-10 w-full bg-gray-700 mt-1 rounded-lg shadow max-h-48 overflow-y-auto">
+            <ul className="absolute z-10 w-full bg-gray-700 mt-1 rounded-xl shadow max-h-48 overflow-y-auto">
               {filteredMarkets.map((m, idx) => (
                 <li
                   key={idx}
@@ -151,19 +151,19 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             type="number"
             min="0"
             step="any"
-            placeholder="0.00"
-            className="w-full bg-gray-800 text-white rounded-lg px-4 py-3"
+            placeholder="수량"
+            className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 placeholder-neutral-100 focus:outline-none"
             value={input.quantity ?? ''}
             onChange={e => handleChange('quantity', e.target.value)}
           />
           <div className="relative w-full">
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-md text-gray-400">₩</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-md text-neutral-100">₩</span>
             <input
               type="number"
               min="0"
               step="any"
               placeholder="코인당 가격"
-              className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 pr-14"
+              className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 pr-14 placeholder-neutral-100 focus:outline-none"
               value={input.averagePrice ?? ''}
               onChange={e => handleChange('averagePrice', e.target.value)}
             />
@@ -171,22 +171,28 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
         </div>
 
         <div className="mb-4">
-          <input
-            type="date"
-            className="w-full bg-gray-800 text-neutral-100 rounded-lg px-4 py-3 text-base"
-            value={input.date ?? ''}
-            onChange={e => handleChange('date', e.target.value)}
+          <DatePicker
+            selected={input.date ? new Date(input.date) : null}
+            onChange={(date: Date | null) => {
+              handleChange('date', date ? date.toISOString().split('T')[0] : '')
+            }}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="날짜 선택"
+            locale={ko}
+            className="w-full bg-white/10 text-white rounded-xl px-4 py-3 focus:outline-none placeholder-neutral-100"
+            wrapperClassName="w-full"
+            calendarClassName="!bg-white !text-black rounded-lg shadow-xl"
           />
         </div>
 
-        <div className="bg-gray-800 rounded-lg p-4 mb-4">
-          <p className="text-sm text-gray-400">사용된 총액</p>
+        <div className="bg-white/10 rounded-xl p-4 mb-4">
+          <p className="text-sm text-neutral-100">사용된 총액</p>
           <p className="text-xl font-semibold">₩ {totalPrice.toLocaleString()}</p>
         </div>
 
         <button
           type="submit"
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg"
+          className="w-full py-3 bg-portfolio hover:bg-portfolio/90 text-neutral-100 font-semibold rounded-xl transition focus:outline-none"
         >
           거래 추가
         </button>

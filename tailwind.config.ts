@@ -14,6 +14,7 @@ const config: Config = {
         secondary: "#1b112b",
         accent: "#f6b072",
         warning: "#f87171",
+        portfolio: "#a77ecb",
       },
       backgroundImage: {
         "main-gradient": "linear-gradient(to bottom, #0a0a13, #1b112b, #0a0a13)",

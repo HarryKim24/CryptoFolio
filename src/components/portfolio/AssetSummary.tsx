@@ -5,6 +5,7 @@ import { Asset } from './types'
 import { getTickerInfo } from '@/api/upbitApi'
 import { calculateStats, PortfolioStats } from '@/utils/calculateStats'
 import { motion } from 'framer-motion'
+import { useAnimatedNumber } from '@/utils/animatedNumber'
 
 interface Props {
   assets: Asset[]
@@ -12,6 +13,8 @@ interface Props {
 
 const AssetSummary = ({ assets }: Props) => {
   const [stats, setStats] = useState<PortfolioStats | null>(null)
+
+  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, 3000)
 
   useEffect(() => {
     const load = async () => {
@@ -76,7 +79,7 @@ const AssetSummary = ({ assets }: Props) => {
             }`}
           >
             {stats.allTimeProfit >= 0 ? '+' : ''}
-            {stats.allTimeProfit.toLocaleString()} 원
+            {animatedProfit.toLocaleString()} 원
           </div>
         </div>
         <div className="text-xs mt-1 text-gray-300 space-y-1 pl-1">
