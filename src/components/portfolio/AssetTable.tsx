@@ -47,7 +47,7 @@ const AssetTable = ({ assets, onDelete }: Props) => {
               <th className="p-2 text-center">단가</th>
               <th className="p-2 text-center">거래 금액</th>
               <th className="p-2 text-center">삭제</th>
-            </tr>
+            </tr> 
           </thead>
           <tbody>
             {[...assets]
