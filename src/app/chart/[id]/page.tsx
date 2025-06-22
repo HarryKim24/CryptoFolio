@@ -56,7 +56,7 @@ const ChartPage = () => {
           transition={{ duration: 1, ease: "easeOut" }}
           className="w-full min-w-[320px] h-full p-2"
         >
-          <div className="text-sm h-full flex flex-col bg-chart-gradient/10 border border-white/10 rounded-3xl shadow-lg backdrop-blur-md overflow-hidden">
+          <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
             <CoinDetail
               market={market}
               isMobile={isMobile}

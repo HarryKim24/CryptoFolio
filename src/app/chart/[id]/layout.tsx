@@ -9,7 +9,7 @@ const ChartLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <UpbitTickerContext.Provider value={{ loading, tickers, markets }}>
-      <div className="h-screen pt-16 w-full bg-chart-gradient text-white flex flex-col overflow-hidden">
+      <div className="h-screen pt-16 w-full bg-chart-gradient text-neutral-100 flex flex-col overflow-hidden">
         {children}
       </div>
     </UpbitTickerContext.Provider>
