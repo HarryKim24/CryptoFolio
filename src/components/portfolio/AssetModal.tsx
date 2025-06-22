@@ -132,11 +132,11 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             }}
           />
           {filteredMarkets.length > 0 && (
-            <ul className="absolute z-10 w-full bg-gray-700 mt-1 rounded-xl shadow max-h-48 overflow-y-auto">
+            <ul className="absolute z-50 w-full bg-portfolio mt-1 rounded-xl  shadow max-h-48 overflow-y-auto">
               {filteredMarkets.map((m, idx) => (
                 <li
                   key={idx}
-                  className="px-4 py-2 hover:bg-gray-600 cursor-pointer"
+                  className="px-4 py-2 hover:bg-white/5 cursor-pointer"
                   onClick={() => handleSelect(m)}
                 >
                   {m.korean_name} ({m.market.replace('KRW-', '')})
