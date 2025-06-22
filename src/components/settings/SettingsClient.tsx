@@ -160,7 +160,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7 }}
-        className="w-full max-w-3xl min-w-[250px] bg-white/5 backdrop-blur-md p-10 sm:p-12 rounded-xl shadow-xl space-y-8"
+        className="w-full max-w-3xl min-w-[250px] bg-white/5 p-10 sm:p-12 rounded-xl shadow space-y-3"
       >
         <div className="flex items-center justify-between">
           <motion.h1
@@ -168,7 +168,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.7 }}
-            className="text-4xl font-extrabold text-white"
+            className="text-2xl md:text-4xl font-extrabold text-white"
           >
             {isEditing ? "프로필 수정" : "프로필"}
           </motion.h1>
@@ -191,13 +191,13 @@ const SettingsClient = ({ session }: { session: Session }) => {
                     setError("");
                     setIsEditing(false);
                   }}
-                  className="text-sm px-4 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition"
+                  className="text-sm px-3 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition whitespace-nowrap"
                 >
                   취소
                 </button>
                 <button
                   onClick={handleSave}
-                  className="text-sm px-4 py-1.5 border border-accent text-accent hover:bg-accent/10 rounded transition"
+                  className="text-sm px-3 py-1.5 border border-accent text-accent hover:bg-accent/10 rounded transition whitespace-nowrap"
                 >
                   저장
                 </button>
@@ -205,7 +205,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="text-sm px-4 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition"
+                className="text-sm px-3 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition"
               >
                 수정
               </button>
@@ -274,21 +274,21 @@ const SettingsClient = ({ session }: { session: Session }) => {
         </motion.div>
 
         {showDeleteModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 px-6 z-50 flex items-center justify-center">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1}}
               transition={{ duration: 0.3 }}
-              className="w-full max-w-md border bg-neutral-800 border-white/10 p-6 rounded-xl shadow-2xl space-y-4"
+              className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
             >
-              <h2 className="text-white text-lg font-bold">비밀번호 확인</h2>
+              <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
         
               <input
                 type="password"
                 placeholder="현재 비밀번호 입력"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                className="w-full p-2 rounded bg-white/10 border border-white/20 text-white placeholder:text-neutral-400 focus:outline-none"
+                className="w-full p-2 rounded bg-white/10 border border-white/20 text-neutral-100 placeholder:text-neutral-100 focus:outline-none"
               />
         
               <div className="flex justify-end gap-2 pt-2">
@@ -297,7 +297,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                     setShowDeleteModal(false);
                     setPasswordInput("");
                   }}
-                  className="text-sm px-4 py-1.5 rounded border border-white/20 text-white hover:bg-white/10 transition"
+                  className="text-sm font-extrabold px-4 py-1.5 rounded border border-neutral-100 text-neutral-100 transition"
                 >
                   취소
                 </button>
@@ -306,7 +306,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                     handleDeleteAccount();
                     setShowDeleteModal(false);
                   }}
-                  className="text-sm px-4 py-1.5 rounded border border-warning text-warning hover:bg-warning hover:text-neutral-100"
+                  className="text-sm font-extrabold px-4 py-1.5 rounded border border-warning text-warning hover:text-neutral-100"
                 >
                   탈퇴
                 </button>
