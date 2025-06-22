@@ -76,7 +76,7 @@ const CoinDetail = ({ market, isMobile = false, view = "chart", onToggleView }: 
           {isMobile && onToggleView && (
             <button
               onClick={onToggleView}
-              className="ml-2 p-1 text-white bg-transparent border-none shadow-none"
+              className="ml-2 p-1 text-neutral-100 bg-transparent border-none shadow-none"
             >
               {view === "chart" ? <HiChevronRight size={40} /> : <HiChevronLeft size={20} />}
             </button>
