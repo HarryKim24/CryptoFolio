@@ -18,31 +18,42 @@ const ChartPage = () => {
   const [view, setView] = useState<"chart" | "list">("chart");
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handleResize = () => setIsMobile(mq.matches);
+    setIsMobile(mq.matches);
+    mq.addEventListener("change", handleResize);
+    return () => mq.removeEventListener("change", handleResize);
   }, []);
 
-  const rawParam = params?.id;
-  if (!rawParam || typeof rawParam !== "string") {
-    return <div className="p-4 text-white">잘못된 경로입니다.</div>;
+  const market = params?.id;
+  if (!market || typeof market !== "string" || !market.includes("-")) {
+    return (
+      <div className="flex justify-center items-center h-full text-neutral-100">
+        잘못된 경로입니다.
+      </div>
+    );
   }
 
-  const raw = decodeURIComponent(rawParam);
-  const market = raw;
+  const isLoading =
+    Object.keys(tickers).length === 0 || markets.length === 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="w-6 h-6 border-1 border-neutral-100 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const validTicker = tickers[market];
   const validMarketInfo = markets.find((m) => m.market === market);
 
-  if (!raw.includes("-")) {
-    return <div className="p-4 text-white">잘못된 경로입니다.</div>;
-  }
-
   if (!validTicker || !validMarketInfo) {
-    return <div className="p-4 text-white">해당 마켓 정보 없음</div>;
+    return (
+      <div className="flex justify-center items-center h-full text-neutral-100">
+        해당 마켓 정보 없음
+      </div>
+    );
   }
 
   const tab = market.split("-")[0] as MarketTab;
@@ -61,7 +72,9 @@ const ChartPage = () => {
               market={market}
               isMobile={isMobile}
               view={view}
-              onToggleView={() => setView(view === "chart" ? "list" : "chart")}
+              onToggleView={() =>
+                setView(view === "chart" ? "list" : "chart")
+              }
             />
             <div className="flex-1 relative min-h-0">
               <CoinChart market={market} />
