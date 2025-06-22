@@ -1,4 +1,3 @@
-// utils/useAnimatedNumber.ts
 import { useEffect, useState } from 'react'
 import { useMotionValue, animate } from 'framer-motion'
 
