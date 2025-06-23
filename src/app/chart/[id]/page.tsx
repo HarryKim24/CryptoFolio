@@ -59,7 +59,7 @@ const ChartPage = () => {
   const tab = market.split("-")[0] as MarketTab;
 
   return (
-    <div className="flex flex-1 h-full overflow-hidden flex-col md:flex-row relative">
+    <div className="p-4 flex flex-1 h-full overflow-hidden flex-col md:flex-row relative">
       {(!isMobile || view === "chart") && (
         <motion.div
           initial={{ opacity: 0 }}
