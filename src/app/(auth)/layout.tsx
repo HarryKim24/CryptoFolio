@@ -16,7 +16,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   const title = pathname ? getTitleByPath(pathname) : null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-main-gradient px-16">
+    <div className="min-h-screen flex items-center justify-center bg-main-gradient px-16 pt-20">
       <div className="flex flex-col items-center w-full max-w-[480px] min-w-[220px]">
         {title && (
           <motion.h1
