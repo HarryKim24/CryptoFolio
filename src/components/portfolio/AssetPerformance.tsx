@@ -91,15 +91,15 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
               .map((d, i) => (
                 <tr key={i} className="border-t border-gray-400">
                   <td className="py-1 truncate">{d.symbol} - {d.name}</td>
-                  <td className="py-1 text-right">{d.currentPrice.toLocaleString()} ₩</td>
+                  <td className="py-1 text-right">{d.currentPrice.toLocaleString()} 원</td>
                   <td className={`py-1 text-right ${d.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {d.profit >= 0 ? '+' : ''}{d.profit.toLocaleString()} ₩
+                    {d.profit >= 0 ? '+' : ''}{d.profit.toLocaleString()} 원
                   </td>
                   <td className={`py-1 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {d.rate.toFixed(2)}%
                   </td>
                 </tr>
-              ))}
+              ))} 
           </tbody>
         </table>
       </div>

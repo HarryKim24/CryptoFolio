@@ -82,7 +82,7 @@ const RegisterPage = () => {
             placeholder="이름"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-secondary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
           />
         </div>
 
@@ -92,7 +92,7 @@ const RegisterPage = () => {
             placeholder="이메일"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-secondary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
           />
         </div>
 
@@ -102,7 +102,7 @@ const RegisterPage = () => {
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 pr-10 rounded bg-secondary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 pr-10 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             type="button"
@@ -123,7 +123,7 @@ const RegisterPage = () => {
             placeholder="비밀번호 확인"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-2 pr-10 rounded bg-secondary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 pr-10 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             type="button"
@@ -140,7 +140,7 @@ const RegisterPage = () => {
 
         <button
           onClick={handleRegister}
-          className="w-full py-2 px-4 bg-second-gradient text-secondary font-semibold rounded hover:brightness-105 transition"
+          className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition"
         >
           회원가입
         </button>
@@ -148,7 +148,7 @@ const RegisterPage = () => {
 
       <div className="text-sm text-center text-neutral-100 mt-6">
         이미 계정이 있으신가요?{" "}
-        <Link href="/login" className="text-accent hover:underline">
+        <Link href="/login" className="text-secondary hover:underline">
           로그인
         </Link>
       </div>

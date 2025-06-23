@@ -87,7 +87,7 @@ const AssetSummary = ({ assets }: Props) => {
             <span>실현 수익:</span>
             <span
               className={`${
-                stats.realisedProfit >= 0 ? 'text-green-400' : 'text-red-400'
+                stats.realisedProfit >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
               }`}
             >
               {stats.realisedProfit >= 0 ? '+' : ''}
@@ -98,7 +98,7 @@ const AssetSummary = ({ assets }: Props) => {
             <span>미실현 수익:</span>
             <span
               className={`${
-                stats.unrealisedProfit >= 0 ? 'text-green-400' : 'text-red-400'
+                stats.unrealisedProfit >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
               }`}
             >
               {stats.unrealisedProfit >= 0 ? '+' : ''}
@@ -109,7 +109,7 @@ const AssetSummary = ({ assets }: Props) => {
             <span>총 수익률:</span>
             <span
               className={`${
-                stats.profitRate >= 0 ? 'text-green-400' : 'text-red-400'
+                stats.profitRate >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
               }`}
             >
               {stats.profitRate.toFixed(2)}%

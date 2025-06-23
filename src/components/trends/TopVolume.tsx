@@ -125,7 +125,7 @@ const TopVolume = () => {
   return (
     <section className="bg-white/5 rounded-xl p-6 shadow flex flex-col gap-4 flex-1">
       <div>
-        <h2 className="text-xl font-bold">알트코인 거래대금 TOP 3</h2>
+        <h2 className="text-xl font-bold">가장 많이 거래되는 알트코인</h2>
       </div>
 
       <div className="relative flex-1 overflow-hidden min-h-[297px]">

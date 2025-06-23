@@ -56,7 +56,7 @@ const TopRise = () => {
   return (
     <section className="bg-white/5 rounded-xl p-4 shadow flex flex-col gap-4 flex-1">
       <div>
-        <h2 className="text-xl font-bold">오늘 상승률</h2>
+        <h2 className="text-xl font-bold">오늘의 급등 코인</h2>
       </div>
       <ol className="space-y-2 text-sm">
         {topCoins.length > 0 ? (

@@ -13,6 +13,7 @@ interface ConfirmModalProps {
 const ConfirmModal = ({
   open,
   title = '정말 삭제하시겠습니까?',
+  description,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) => {
@@ -34,8 +35,11 @@ const ConfirmModal = ({
     <div className="fixed inset-0 z-50 bg-gray/60 flex items-center justify-center px-12">
       <div className="bg-white/5 backdrop-blur-md rounded-xl shadow-xl p-6 w-full max-w-sm text-neutral-100">
         <h2 className="text-lg font-semibold mb-2">{title}</h2>
+        {description && (
+          <p className="text-sm text-neutral-300 mb-4">{description}</p>
+        )}
 
-        <div className="flex justify-end gap-3 mt-4">
+        <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
             className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm transition"

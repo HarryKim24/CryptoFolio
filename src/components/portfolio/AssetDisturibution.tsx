@@ -82,7 +82,7 @@ const AssetDistribution = ({ allocation }: Props) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="bg-white/5 shadow p-4 rounded-xl lg:h-[400px] flex flex-col"
+      className="bg-white/5 shadow p-4 rounded-xl flex flex-col"
     >
       <h3 className="text-lg text-gray-300 mb-2">배분</h3>
 

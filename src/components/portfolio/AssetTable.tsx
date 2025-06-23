@@ -6,9 +6,10 @@ import type { Asset } from './types'
 interface Props {
   assets: Asset[]
   onDelete: (id: string | undefined) => void
+  onDeleteAll: () => void
 }
 
-const AssetTable = ({ assets, onDelete }: Props) => {
+const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
@@ -35,7 +36,15 @@ const AssetTable = ({ assets, onDelete }: Props) => {
 
   return (
     <div className="bg-white/5 rounded-xl shadow p-4 flex flex-col h-[500px] overflow-hidden">
-      <h3 className="text-lg text-gray-300 mb-2">거래 내역</h3>
+      <div className='flex justify-between pb-4'>
+        <h3 className="text-lg text-gray-300 mb-2">거래 내역</h3>
+        <button
+          onClick={onDeleteAll}
+          className="px-2 py-0.5 rounded-lg bg-red-600/40 hover:bg-red-600/70 text-neutral-100 transition text-sm"
+          >
+          모두 삭제
+        </button>
+      </div>
       <div className="flex-1 overflow-auto w-full">
         <table className="min-w-full table-fixed text-sm text-white whitespace-nowrap">
           <thead className="sticky top-0 bg-white/5 backdrop-blur-xl z-10 text-gray-300">
@@ -68,8 +77,8 @@ const AssetTable = ({ assets, onDelete }: Props) => {
                     </td>
                     <td className="p-2 text-center">{a.symbol} - {a.name}</td>
                     <td className="p-2 text-right">{a.quantity}</td>
-                    <td className="p-2 text-right">{a.averagePrice.toLocaleString()}</td>
-                    <td className="p-2 text-right">{value.toLocaleString()}</td>
+                    <td className="p-2 text-right">{a.averagePrice.toLocaleString()} 원</td>
+                    <td className="p-2 text-right">{value.toLocaleString()} 원</td>
                     <td className="p-2 text-center">
                       <button
                         onClick={() => onDelete(a._id)}

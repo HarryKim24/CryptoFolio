@@ -16,7 +16,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   const title = pathname ? getTitleByPath(pathname) : null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-main-gradient px-16">
+    <div className="min-h-screen flex items-center justify-center bg-main-gradient px-16 pt-20">
       <div className="flex flex-col items-center w-full max-w-[480px] min-w-[220px]">
         {title && (
           <motion.h1
@@ -36,9 +36,9 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
             y: { duration: 2, ease: "easeOut" },
             opacity: { delay: 1, duration: 2, ease: "easeOut" },
           }}
-          className="p-[2px] rounded-2xl bg-second-gradient shadow-2xl w-full mb-20"
+          className="p-[1px] rounded-xl bg-second-gradient shadow-2xl w-full mb-20"
         >
-          <div className="w-full bg-secondary backdrop-blur-md p-8 rounded-[14px]">
+          <div className="w-full bg-main-gradient backdrop-blur-md p-8 rounded-xl">
             {children}
           </div>
         </motion.div>
