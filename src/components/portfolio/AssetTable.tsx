@@ -77,8 +77,8 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
                     </td>
                     <td className="p-2 text-center">{a.symbol} - {a.name}</td>
                     <td className="p-2 text-right">{a.quantity}</td>
-                    <td className="p-2 text-right">{a.averagePrice.toLocaleString()}</td>
-                    <td className="p-2 text-right">{value.toLocaleString()}</td>
+                    <td className="p-2 text-right">{a.averagePrice.toLocaleString()} 원</td>
+                    <td className="p-2 text-right">{value.toLocaleString()} 원</td>
                     <td className="p-2 text-center">
                       <button
                         onClick={() => onDelete(a._id)}
