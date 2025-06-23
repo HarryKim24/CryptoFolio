@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session } = useSession();
+  const [loading, setLoading] = useState(false);
+  const { data: session, status } = useSession();
+  const isSessionLoading = status === "loading";
+  const router = useRouter();
 
   useEffect(() => {
     const handleResize = () => {
@@ -25,6 +29,14 @@ const Navbar = () => {
       document.body.style.overflow = "auto";
     };
   }, [isOpen]);
+
+  const handleNavigate = async (href: string) => {
+    if (loading || isSessionLoading) return;
+    setLoading(true);
+    router.push(href);
+    setIsOpen(false);
+    setLoading(false);
+  };
 
   const menuItems = [
     { href: "/chart/KRW-BTC", label: "차트" },
@@ -63,14 +75,32 @@ const Navbar = () => {
         <ul className="hidden xs:flex gap-4 text-md font-extrabold text-neutral-100">
           {menuItems.map(({ href, label }) => (
             <li key={href} className="flex items-center h-12 whitespace-nowrap px-2">
-              <Link href={href}>{label}</Link>
+              <button
+                onClick={() => handleNavigate(href)}
+                disabled={loading || isSessionLoading}
+                className="disabled:opacity-50"
+              >
+                {label}
+              </button>
             </li>
           ))}
           <li className="flex items-center h-12 px-2">
             {session ? (
-              <button onClick={() => signOut()}>로그아웃</button>
+              <button
+                onClick={() => !loading && !isSessionLoading && signOut()}
+                disabled={loading || isSessionLoading}
+                className="disabled:opacity-50"
+              >
+                로그아웃
+              </button>
             ) : (
-              <Link href="/login">로그인</Link>
+              <button
+                onClick={() => handleNavigate("/login")}
+                disabled={loading || isSessionLoading}
+                className="disabled:opacity-50"
+              >
+                로그인
+              </button>
             )}
           </li>
         </ul>
@@ -87,16 +117,32 @@ const Navbar = () => {
           >
             {menuItems.map(({ href, label }) => (
               <li key={href} className="flex items-center text-lg h-8 px-2">
-                <Link href={href} onClick={() => setIsOpen(false)}>
+                <button
+                  onClick={() => handleNavigate(href)}
+                  disabled={loading || isSessionLoading}
+                  className="disabled:opacity-50 text-left w-full"
+                >
                   {label}
-                </Link>
+                </button>
               </li>
             ))}
             <li className="flex items-center text-lg h-8 px-2">
               {session ? (
-                <button onClick={() => signOut()}>로그아웃</button>
+                <button
+                  onClick={() => !loading && !isSessionLoading && signOut()}
+                  disabled={loading || isSessionLoading}
+                  className="disabled:opacity-50"
+                >
+                  로그아웃
+                </button>
               ) : (
-                <Link href="/login" onClick={() => setIsOpen(false)}>로그인</Link>
+                <button
+                  onClick={() => handleNavigate("/login")}
+                  disabled={loading || isSessionLoading}
+                  className="disabled:opacity-50"
+                >
+                  로그인
+                </button>
               )}
             </li>
           </motion.ul>
@@ -104,6 +150,6 @@ const Navbar = () => {
       </AnimatePresence>
     </nav>
   );
-}
+};
 
 export default Navbar;
