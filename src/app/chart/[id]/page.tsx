@@ -84,7 +84,7 @@ const ChartPage = () => {
       )}
 
       {(!isMobile || view === "list") && (
-        <div className="w-full min-w-[320px] h-full p-2">
+        <div className="w-full min-w-[320px] lg:max-w-[320px] h-full p-2 mx-auto">
           <motion.div
             initial={{ x: 300 }}
             animate={{ x: 0 }}
