@@ -101,8 +101,8 @@ const PortfolioPage = () => {
           <div className="mt-auto">
             <button
               onClick={() => setShowModal(true)}
-              className="w-full px-4 py-2 rounded-xl whitespace-nowrap bg-white/5 
-              text-neutral-100 hover:bg-white/10 shadow transition"
+              className="w-full px-4 py-2 border border-neutral-100/20  rounded-xl whitespace-nowrap bg-white/10 
+              text-neutral-100 hover:bg-white/20 shadow transition"
             >
               + 거래 추가
             </button>
