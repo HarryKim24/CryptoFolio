@@ -10,31 +10,44 @@ import { Asset } from '@/components/portfolio/types'
 import { getTickerInfo } from '@/api/upbitApi'
 import { getDistribution } from '@/utils/portfolioCharts'
 import ConfirmModal from '@/components/portfolio/ConfirmModal'
+import EmptyPortfolioModal from '@/components/portfolio/EmptyPortfolioModal'
 
 const PortfolioPage = () => {
   const [assets, setAssets] = useState<Asset[]>([])
-  const [showModal, setShowModal] = useState(false)
-  const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([])
-  const [priceMap, setPriceMap] = useState<Record<string, number>>({})
+  const [showModal, setShowModal] = useState(false);
+  const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([]);
+  const [priceMap, setPriceMap] = useState<Record<string, number>>({});
+  const [showEmptyModal, setShowEmptyModal] = useState(false);
+
 
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | undefined>(undefined)
+  const [confirmAllOpen, setConfirmAllOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const fetchAssets = async () => {
       try {
         const res = await fetch('/api/asset')
         if (!res.ok) throw new Error('자산 불러오기 실패')
-
+  
         const data: Asset[] = await res.json()
+  
         const symbols = [...new Set(data.map(a => a.symbol))]
+        if (symbols.length === 0) {
+          setAssets(data)
+          setPriceMap({})
+          setDistribution([])
+          setShowEmptyModal(true)
+          return
+        }
+  
         const tickers = await getTickerInfo(symbols.map(s => `KRW-${s}`))
         const priceMap: Record<string, number> = {}
         tickers.forEach(t => {
           const symbol = t.market.replace('KRW-', '')
           priceMap[symbol] = t.trade_price
         })
-
+  
         setAssets(data)
         setPriceMap(priceMap)
         setDistribution(getDistribution(data, priceMap))
@@ -43,9 +56,10 @@ const PortfolioPage = () => {
         alert('자산을 불러오는 데 실패했습니다.')
       }
     }
-
+  
     fetchAssets()
   }, [])
+
 
   const handleAddAsset = async (asset: Asset) => {
     try {
@@ -91,6 +105,29 @@ const PortfolioPage = () => {
     }
   }
 
+  const requestDeleteAll = () => {
+    setConfirmAllOpen(true)
+  }
+  
+  const confirmDeleteAll = async () => {
+    try {
+      const res = await fetch(`/api/asset`, {
+        method: 'DELETE',
+      })
+  
+      if (!res.ok) throw new Error("전체 삭제 실패")
+  
+      setAssets([])
+    } catch (err) {
+      console.error("전체 삭제 오류:", err)
+      alert("전체 삭제 중 문제가 발생했습니다.")
+    } finally {
+      setConfirmAllOpen(false)
+    }
+  }
+
+
+
   return (
     <div className="p-6 space-y-8 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
       <div className="flex flex-col xs:px-20 lg:px-0 lg:flex-row items-stretch gap-6">
@@ -101,8 +138,8 @@ const PortfolioPage = () => {
           <div className="mt-auto">
             <button
               onClick={() => setShowModal(true)}
-              className="w-full px-4 py-2 border border-neutral-100/20  rounded-xl whitespace-nowrap bg-white/10 
-              text-neutral-100 hover:bg-white/20 shadow transition"
+              className="w-full px-4 py-2 rounded-xl whitespace-nowrap bg-portfolio
+              text-neutral-100 hover:bg-portfolio/90 shadow transition"
             >
               + 거래 추가
             </button>
@@ -126,7 +163,11 @@ const PortfolioPage = () => {
       />
 
       <div className="xs:px-20 lg:px-0 lg:flex-row gap-6 w-full items-center">
-        <AssetTable assets={assets} onDelete={requestDelete} />
+        <AssetTable
+          assets={assets}
+          onDelete={requestDelete}
+          onDeleteAll={requestDeleteAll}
+        />
       </div>
 
       <ConfirmModal
@@ -134,7 +175,18 @@ const PortfolioPage = () => {
         onCancel={() => setConfirmOpen(false)}
         onConfirm={confirmDelete}
         title="거래를 삭제하시겠습니까?"
+        description="선택한 거래 내역이 삭제됩니다."
       />
+
+      <ConfirmModal
+        open={confirmAllOpen}
+        onCancel={() => setConfirmAllOpen(false)}
+        onConfirm={confirmDeleteAll}
+        title="모든 거래를 삭제하시겠습니까?"
+        description="전체 포트폴리오 기록이 사라집니다."
+      />
+
+      <EmptyPortfolioModal open={showEmptyModal} onClose={() => setShowEmptyModal(false)} />
     </div>
   )
 }
