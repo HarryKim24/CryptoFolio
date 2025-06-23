@@ -83,7 +83,7 @@ const Navbar = () => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.5 }}
-            className="xs:hidden absolute top-full right-0 w-2/3 max-w-xs h-screen shadow-lg flex flex-col justify-start gap-6 text-lg font-extrabold text-neutral-100 pt-24 px-6 z-40 backdrop-blur-md bg-main-gradient"
+            className="xs:hidden absolute top-full right-0 w-2/3 max-w-xs h-screen flex flex-col justify-start gap-6 text-lg font-extrabold text-neutral-100 pt-24 px-6 z-40 bg-main-gradient"
           >
             {menuItems.map(({ href, label }) => (
               <li key={href} className="flex items-center text-lg h-8 px-2">
