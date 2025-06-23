@@ -99,7 +99,7 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
                     {d.rate.toFixed(2)}%
                   </td>
                 </tr>
-              ))}
+              ))} 
           </tbody>
         </table>
       </div>
