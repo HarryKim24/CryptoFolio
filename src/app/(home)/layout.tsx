@@ -48,7 +48,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
   }, [])
 
   return (
-    <div ref={container} className="relative text-neutral-100">
+    <div ref={container} className="relative text-neutral-100 overflow-x-hidden">
       <div className="bg-global bg-main-gradient fixed inset-0 z-0 opacity-1 pointer-events-none" />
       <div className="bg-global bg-chart-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
       <div className="bg-global bg-trends-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
