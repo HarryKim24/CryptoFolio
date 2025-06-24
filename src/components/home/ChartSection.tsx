@@ -1,6 +1,7 @@
-import React from 'react'
+'use client'
 
 const ChartSection = () => {
+
   return (
     <div>
       ChartSection

@@ -70,7 +70,7 @@ const MainSection = () => {
           <motion.h1
             initial={{ opacity: 0, scale: 20 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
             className="text-3xl md:text-4xl font-bold leading-tight"
           >
             신뢰할 수 있는 암호화폐 자산 포트폴리오 플랫폼
