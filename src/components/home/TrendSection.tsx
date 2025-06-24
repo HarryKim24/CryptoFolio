@@ -4,6 +4,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useInView } from 'framer-motion'
+import { useAnimatedNumber } from '@/utils/animatedNumber'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -22,14 +24,18 @@ type CoinChange = {
 }
 
 const TrendSection = () => {
-  const [ubmiValue, setUbmiValue] = useState<number | null>(null)
-  const [ubaiValue, setUbaiValue] = useState<number | null>(null)
+  const [ubmiValue, setUbmiValue] = useState<number>(0)
+  const [ubaiValue, setUbaiValue] = useState<number>(0)
   const [topRise, setTopRise] = useState<CoinChange[]>([])
   const [topFall, setTopFall] = useState<CoinChange[]>([])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const leftRef = useRef<HTMLDivElement>(null)
   const rightRef = useRef<HTMLDivElement>(null)
+
+  const isInView = useInView(leftRef, { amount: 0.5 })
+  const animatedUBMI = useAnimatedNumber(isInView ? ubmiValue : 0, { duration: 2000, trigger: isInView })
+  const animatedUBAI = useAnimatedNumber(isInView ? ubaiValue : 0, { duration: 2000, trigger: isInView })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,7 +82,7 @@ const TrendSection = () => {
 
   useEffect(() => {
     if (!containerRef.current || window.innerWidth < 768) return
-  
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         leftRef.current,
@@ -92,7 +98,7 @@ const TrendSection = () => {
           },
         }
       )
-  
+
       gsap.fromTo(
         rightRef.current,
         { y: 0 },
@@ -108,14 +114,9 @@ const TrendSection = () => {
         }
       )
     }, containerRef)
-  
+
     return () => ctx.revert()
   }, [])
-  
-  const formatMoney = (value: number | null) => {
-    if (value === null) return '--'
-    return `${(value / 1e8).toFixed(2)} 억 원`
-  }
 
   const renderList = (coins: CoinChange[], isRise: boolean) => (
     <ol className="space-y-2 text-sm text-left">
@@ -124,7 +125,7 @@ const TrendSection = () => {
           <span className="truncate min-w-[240px]">
             {i + 1}. {coin.korean_name} ({coin.market})
           </span>
-          <span className='flex flex-row'>
+          <span className="flex flex-row">
             ₩{coin.trade_price.toLocaleString()}
             <span className={`ml-2 min-w-[48px] text-right inline-block ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
               {(coin.signed_change_rate * 100).toFixed(2)}%
@@ -147,11 +148,11 @@ const TrendSection = () => {
             <div className="space-y-6">
               <div>
                 <p className="text-neutral-400 text-sm">UPbit Market 거래규모</p>
-                <p className="text-3xl font-bold text-white">{formatMoney(ubmiValue)}</p>
+                <p className="text-3xl font-bold text-white">{(animatedUBMI / 1e8).toFixed(2)} 억 원</p>
               </div>
               <div>
                 <p className="text-neutral-400 text-sm">Upbit Altcoin 거래규모</p>
-                <p className="text-3xl font-bold text-white">{formatMoney(ubaiValue)}</p>
+                <p className="text-3xl font-bold text-white">{(animatedUBAI / 1e8).toFixed(2)} 억 원</p>
               </div>
             </div>
           </div>

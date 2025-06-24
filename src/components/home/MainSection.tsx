@@ -79,7 +79,7 @@ const MainSection = () => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, ease: 'easeOut', delay: 1.5 }}
+            transition={{ duration: 1, ease: 'easeOut', delay: 1 }}
             className="text-neutral-300 text-sm md:text-lg"
           >
             암호화폐 가격을 실시간으로 조회하고,
@@ -89,7 +89,7 @@ const MainSection = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 2, duration: 1, ease: 'easeOut' }}
+            transition={{ delay: 1.5, duration: 1, ease: 'easeOut' }}
             className="flex items-center justify-center gap-2 xs:gap-20 mt-12"
           >
             <div>
@@ -105,7 +105,7 @@ const MainSection = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2, duration: 1, ease: 'easeOut' }}
+            transition={{ delay: 1.5, duration: 1, ease: 'easeOut' }}
             className="flex flex-col xs:flex-row items-center justify-center gap-4 mt-12"
           >
             <button

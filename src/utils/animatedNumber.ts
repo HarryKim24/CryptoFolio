@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useMotionValue, animate } from 'framer-motion'
 
-export function useAnimatedNumber(target: number, duration = 1000) {
+type Options = {
+  duration?: number
+  trigger?: unknown
+}
+
+export function useAnimatedNumber(target: number, options?: Options) {
   const motionValue = useMotionValue(0)
   const [displayValue, setDisplayValue] = useState(0)
+
+  const duration = options?.duration ?? 1000
+  const trigger = options?.trigger
 
   useEffect(() => {
     const controls = animate(motionValue, target, {
@@ -15,7 +23,7 @@ export function useAnimatedNumber(target: number, duration = 1000) {
     })
 
     return () => controls.stop()
-  }, [target, duration, motionValue])
+  }, [motionValue, target, duration, trigger])
 
   return displayValue
 }
