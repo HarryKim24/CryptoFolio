@@ -122,7 +122,7 @@ const TrendSection = () => {
     <ol className="space-y-2 text-sm text-left">
       {coins.map((coin, i) => (
         <li key={coin.market} className="flex justify-between">
-          <span className="truncate min-w-[240px]">
+          <span className="truncate min-w-[200px]">
             {i + 1}. {coin.korean_name} ({coin.market})
           </span>
           <span className="flex flex-row">
@@ -137,7 +137,7 @@ const TrendSection = () => {
   )
 
   return (
-    <div ref={containerRef} className="text-center space-y-10 px-4">
+    <div ref={containerRef} className="text-center space-y-10 px-2">
       <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center items-stretch">
         <div
           ref={leftRef}
