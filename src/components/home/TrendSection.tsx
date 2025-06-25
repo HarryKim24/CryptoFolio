@@ -6,6 +6,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useInView } from 'framer-motion'
 import { useAnimatedNumber } from '@/utils/animatedNumber'
+import TrendDescription from "@/components/home/TrendDescription"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -86,9 +87,9 @@ const TrendSection = () => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         leftRef.current,
-        { y: 80 },
+        { y: 160 },
         {
-          y: -80,
+          y: 80,
           ease: 'none',
           scrollTrigger: {
             trigger: containerRef.current,
@@ -138,34 +139,38 @@ const TrendSection = () => {
 
   return (
     <div ref={containerRef} className="text-center space-y-10 px-2">
-      <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center items-stretch">
-        <div
-          ref={leftRef}
-          className="flex-1 bg-white/5 rounded-xl px-6 py-4 shadow flex flex-col gap-4 justify-center md:max-h-[280px]"
-        >
-          <div>
-            <h2 className="text-3xl font-bold text-white mb-8">디지털 자산 거래규모</h2>
-            <div className="space-y-6">
-              <div>
-                <p className="text-neutral-400 text-sm">UPbit Market 거래규모</p>
-                <p className="text-3xl font-bold text-white">{(animatedUBMV / 1e8).toFixed(2)} 억 원</p>
-              </div>
-              <div>
-                <p className="text-neutral-400 text-sm">Upbit Altcoin 거래규모</p>
-                <p className="text-3xl font-bold text-white">{(animatedUBAV / 1e8).toFixed(2)} 억 원</p>
+
+      <div className="flex flex-col justify-center items-stretch">
+        <TrendDescription />
+        <div className='flex flex-col md:flex-row gap-6 md:gap-12 mt-6 md:mt-0'>
+          <div
+            ref={leftRef}
+            className="flex-1 bg-white/5 rounded-xl px-6 py-6 shadow flex flex-col gap-4 justify-center md:max-h-[280px]"
+          >
+            <div>
+              <h2 className="text-3xl font-bold text-neutral-100 mb-8">디지털 자산 거래규모</h2>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-neutral-400 text-lg pb-1">Market 거래규모</p>
+                  <p className="text-3xl font-bold text-neutral-100">{(animatedUBMV / 1e8).toFixed(2)} 억 원</p>
+                </div>
+                <div>
+                  <p className="text-neutral-400 text-lg pb-1">Altcoin 거래규모</p>
+                  <p className="text-3xl font-bold text-neutral-100">{(animatedUBAV / 1e8).toFixed(2)} 억 원</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div ref={rightRef} className="flex-1 grid sm:grid-cols-2 gap-6 md:gap-12">
-          <div className="bg-white/5 rounded-xl p-4 shadow">
-            <h3 className="text-xl font-semibold mb-4">오늘의 급등 Top 5</h3>
-            {renderList(topRise, true)}
-          </div>
-          <div className="bg-white/5 rounded-xl p-4 shadow">
-            <h3 className="text-xl font-semibold mb-4">오늘의 급락 Top 5</h3>
-            {renderList(topFall, false)}
+  
+          <div ref={rightRef} className="flex-1 grid sm:grid-cols-2 gap-6 md:gap-12">
+            <div className="bg-white/5 rounded-xl p-4 shadow">
+              <h3 className="text-xl font-semibold mb-4">오늘의 급등 Top 5</h3>
+              {renderList(topRise, true)}
+            </div>
+            <div className="bg-white/5 rounded-xl p-4 shadow">
+              <h3 className="text-xl font-semibold mb-4">오늘의 급락 Top 5</h3>
+              {renderList(topFall, false)}
+            </div>
           </div>
         </div>
       </div>

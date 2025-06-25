@@ -15,8 +15,9 @@ const config: Config = {
         third: "#ffb84c",
         accent: "#f6b072",
         chart: "#267187",
-        warning: "#f87171",
+        trend: "#5a3a56",
         portfolio: "#7b5ea8",
+        warning: "#f87171",
       },
       backgroundImage: {
         "main-gradient": "linear-gradient(to bottom, #5731a8, #c637b3, #f27567, #ffb84c)",
