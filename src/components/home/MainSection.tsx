@@ -6,6 +6,8 @@ import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useAnimatedNumber } from '@/utils/animatedNumber'
+import { useInView } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -17,6 +19,18 @@ const MainSection = () => {
   const [marketCount, setMarketCount] = useState(0)
 
   const sectionRef = useRef<HTMLDivElement>(null)
+  const statRef = useRef<HTMLDivElement>(null)
+  const isInView = useInView(statRef, { amount: 0.5 })
+
+  const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, {
+    duration: 4000,
+    trigger: isInView,
+  })
+
+  const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, {
+    duration: 4000,
+    trigger: isInView,
+  })
 
   useEffect(() => {
     const fetchMarketData = async () => {
@@ -87,17 +101,18 @@ const MainSection = () => {
           </motion.p>
 
           <motion.div
+            ref={statRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5, duration: 1, ease: 'easeOut' }}
             className="flex items-center justify-center gap-2 xs:gap-20 mt-12"
           >
             <div>
-              <p className="text-4xl md:text-5xl font-bold">{assetCount}</p>
+              <p className="text-4xl md:text-5xl font-bold">{Math.round(animatedAssetCount)}</p>
               <p className="text-sm text-neutral-300 min-w-[90px]">Digital Assets</p>
             </div>
             <div>
-              <p className="text-4xl md:text-5xl font-bold">{marketCount}</p>
+              <p className="text-4xl md:text-5xl font-bold">{Math.round(animatedMarketCount)}</p>
               <p className="text-sm text-neutral-300 min-w-[90px]">Markets</p>
             </div>
           </motion.div>
@@ -110,13 +125,13 @@ const MainSection = () => {
           >
             <button
               onClick={() => router.push('/chart/KRW-BTC')}
-              className="bg-chart hover:brightness-105 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
+              className="bg-chart/70 hover:brightness-105 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
             >
               차트 확인하기
             </button>
             <button
               onClick={handleMainAction}
-              className="bg-portfolio hover:brightness-105 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
+              className="bg-portfolio/70 hover:brightness-105 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
             >
               {session ? '내 포트폴리오' : '로그인'}
             </button>

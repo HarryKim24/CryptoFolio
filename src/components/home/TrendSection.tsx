@@ -34,8 +34,8 @@ const TrendSection = () => {
   const rightRef = useRef<HTMLDivElement>(null)
 
   const isInView = useInView(leftRef, { amount: 0.5 })
-  const animatedUBMI = useAnimatedNumber(isInView ? ubmiValue : 0, { duration: 2000, trigger: isInView })
-  const animatedUBAI = useAnimatedNumber(isInView ? ubaiValue : 0, { duration: 2000, trigger: isInView })
+  const animatedUBMV = useAnimatedNumber(isInView ? ubmiValue : 0, { duration: 2000, trigger: isInView })
+  const animatedUBAV = useAnimatedNumber(isInView ? ubaiValue : 0, { duration: 2000, trigger: isInView })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -148,11 +148,11 @@ const TrendSection = () => {
             <div className="space-y-6">
               <div>
                 <p className="text-neutral-400 text-sm">UPbit Market 거래규모</p>
-                <p className="text-3xl font-bold text-white">{(animatedUBMI / 1e8).toFixed(2)} 억 원</p>
+                <p className="text-3xl font-bold text-white">{(animatedUBMV / 1e8).toFixed(2)} 억 원</p>
               </div>
               <div>
                 <p className="text-neutral-400 text-sm">Upbit Altcoin 거래규모</p>
-                <p className="text-3xl font-bold text-white">{(animatedUBAI / 1e8).toFixed(2)} 억 원</p>
+                <p className="text-3xl font-bold text-white">{(animatedUBAV / 1e8).toFixed(2)} 억 원</p>
               </div>
             </div>
           </div>
