@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import React, { useEffect, useRef, useState } from 'react'
+import { motion, useInView } from 'framer-motion'
 import { Doughnut } from 'react-chartjs-2'
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js'
 import gsap from 'gsap'
@@ -14,6 +14,9 @@ gsap.registerPlugin(ScrollTrigger)
 const PortfolioSection = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const rightRef = useRef<HTMLDivElement>(null)
+  const chartRef = useRef<HTMLDivElement>(null)
+  const isInView = useInView(chartRef, { once: true })
+  const [chartKey, setChartKey] = useState(0)
 
   useEffect(() => {
     if (!containerRef.current || window.innerWidth < 768) return
@@ -38,12 +41,25 @@ const PortfolioSection = () => {
     return () => ctx.revert()
   }, [])
 
+  useEffect(() => {
+    if (isInView) {
+      setChartKey(prev => prev + 1)
+    }
+  }, [isInView])
+
   const data = {
     labels: ['ETH', 'BTC', 'ONDO', 'MEW', 'JTO', 'AXL'],
     datasets: [
       {
         data: [55.23, 28.68, 4.76, 4.07, 4.03, 3.22],
-        backgroundColor: ['#6366f1', '#10b981', '#facc15', '#f472b6', '#60a5fa', '#fb923c'],
+        backgroundColor: [
+          '#6366f1',
+          '#10b981',
+          '#facc15',
+          '#f472b6',
+          '#60a5fa',
+          '#fb923c',
+        ],
         borderWidth: 0,
       },
     ],
@@ -55,11 +71,17 @@ const PortfolioSection = () => {
       tooltip: { enabled: false },
     },
     cutout: '50%',
+    animation: {
+      animateRotate: true,
+      animateScale: false,
+      duration: 1200,
+      easing: 'easeOutCubic' as const,
+    },
   }
 
   return (
-    <div ref={containerRef} className="text-center space-y-10 px-2">
-      <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 md:gap-12">
+    <div ref={containerRef} className="text-center md:space-y-10 px-6">
+      <div className="flex flex-col md:flex-row justify-center items-stretch gap-0 lg:gap-6">
         <div className="flex-1 px-6 py-6 flex flex-col justify-center">
           <PortfolioDescription />
         </div>
@@ -69,10 +91,12 @@ const PortfolioSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          className="flex-1 bg-white/5 rounded-xl shadow p-6 flex justify-center items-center"
+          className="flex-1 p-6 flex justify-center items-center"
         >
-          <div className="w-[260px] h-[260px]">
-            <Doughnut data={data} options={options} />
+          <div className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px]" ref={chartRef}>
+            {isInView && (
+              <Doughnut key={chartKey} data={data} options={options} />
+            )}
           </div>
         </motion.div>
       </div>
