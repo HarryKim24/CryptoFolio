@@ -22,7 +22,7 @@ export default function HomePage() {
         <section className="panel h-screen flex flex-col items-center justify-center">
           <TrendSection />
         </section>
-        <section className="panel h-screen flex items-center justify-center">
+        <section className="panel h-[150vh] md:h-screen flex items-center justify-center">
           <PortfolioSection />
         </section>
       </div>
