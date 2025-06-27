@@ -14,7 +14,7 @@ const Footer = () => {
         <div className="grid grid-cols-3 xs:grid-cols-6 gap-2 xs:gap-6 text-sm sm:text-base text-center w-full">
           <Link href="/"><span className="hover:underline">홈</span></Link>
           <Link href="/trends"><span className="hover:underline">트렌드</span></Link>
-          <Link href="/chart/BTC"><span className="hover:underline">차트</span></Link>
+          <Link href="/chart/KRW-BTC"><span className="hover:underline">차트</span></Link>
           <Link href="/portfolio"><span className="hover:underline">포트폴리오</span></Link>
           <Link href="/settings"><span className="hover:underline">설정</span></Link>
           {session ? (
@@ -36,7 +36,14 @@ const Footer = () => {
               Contact | <a href="mailto:tl9434@naver.com" className="hover:underline">tl9434@naver.com</a>
             </p>
             <p>
-              GitHub | <a href="https://github.com/HarryKim24/CryptoFolio" className="hover:underline">github.com/HarryKim24/CryptoFolio</a>
+              GitHub | <a
+                href="https://github.com/HarryKim24/CryptoFolio"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                github.com/HarryKim24/CryptoFolio
+              </a>
             </p>
           </div>
         </div>
