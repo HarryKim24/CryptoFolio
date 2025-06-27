@@ -23,12 +23,12 @@ const MainSection = () => {
   const isInView = useInView(statRef, { amount: 0.5 })
 
   const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, {
-    duration: 4000,
+    duration: 3000,
     trigger: isInView,
   })
 
   const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, {
-    duration: 4000,
+    duration: 3000,
     trigger: isInView,
   })
 

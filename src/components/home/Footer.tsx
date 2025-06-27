@@ -13,8 +13,8 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 gap-6 flex flex-col justify-between items-center">
         <div className="grid grid-cols-3 xs:grid-cols-6 gap-2 xs:gap-6 text-sm sm:text-base text-center w-full">
           <Link href="/"><span className="hover:underline">홈</span></Link>
-          <Link href="/trends"><span className="hover:underline">트렌드</span></Link>
           <Link href="/chart/KRW-BTC"><span className="hover:underline">차트</span></Link>
+          <Link href="/trends"><span className="hover:underline">트렌드</span></Link>
           <Link href="/portfolio"><span className="hover:underline">포트폴리오</span></Link>
           <Link href="/settings"><span className="hover:underline">설정</span></Link>
           {session ? (
