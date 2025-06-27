@@ -12,7 +12,6 @@ import {
   CandlestickController,
   CandlestickElement,
 } from "chartjs-chart-financial";
-import zoomPlugin from "chartjs-plugin-zoom";
 
 ChartJS.register(
   CategoryScale,
@@ -24,5 +23,4 @@ ChartJS.register(
   BarElement,
   CandlestickController,
   CandlestickElement,
-  zoomPlugin
 );

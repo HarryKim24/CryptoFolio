@@ -8,7 +8,6 @@ import {
   Chart as ChartJS,
   registerables,
 } from 'chart.js';
-import zoomPlugin from 'chartjs-plugin-zoom';
 import { useMemo, useRef, useState, useEffect } from 'react';
 import {
   CandleType,
@@ -20,7 +19,8 @@ import 'chartjs-adapter-date-fns';
 import { format } from 'date-fns';
 import '@/lib/chart';
 
-ChartJS.register(...registerables, zoomPlugin);
+
+ChartJS.register(...registerables);
 
 type Props = {
   market: string;
@@ -95,6 +95,13 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
   );
 
   const { data, loading } = useCandles(options);
+
+  useEffect(() => {
+    import('chartjs-plugin-zoom').then((module) => {
+      const zoomPlugin = module.default;
+      ChartJS.register(zoomPlugin);
+    });
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
