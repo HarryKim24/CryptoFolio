@@ -17,6 +17,7 @@ const config: Config = {
         chart: "#267187",
         trend: "#5a3a56",
         portfolio: "#7b5ea8",
+        setting: "#2d4b4a",
         warning: "#f87171",
       },
       backgroundImage: {
