@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -8,6 +9,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const TrendDescription = () => {
   const ref = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     if (!ref.current) return
@@ -29,6 +31,10 @@ const TrendDescription = () => {
     )
   }, [])
 
+  const handleTrendClick = () => {
+    router.push('/trends')
+  }
+
   return (
     <div
       ref={ref}
@@ -39,7 +45,10 @@ const TrendDescription = () => {
         <span>변화하는</span>
         <span>
           시장{' '}
-          <span className="text-trend brightness-200 whitespace-nowrap">
+          <span
+            onClick={handleTrendClick}
+            className="text-trend brightness-200 whitespace-nowrap cursor-pointer"
+          >
             트렌드
           </span>
         </span>

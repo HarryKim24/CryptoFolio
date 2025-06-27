@@ -36,7 +36,7 @@ const LoginPage = () => {
     });
 
     if (res?.ok) {
-      router.push("/portfolio");
+      router.push("/");
     } else {
       triggerError("이메일 또는 비밀번호가 틀렸습니다.");
     }

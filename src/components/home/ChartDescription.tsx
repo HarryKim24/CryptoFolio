@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -8,6 +9,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const ChartDescription = () => {
   const ref = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     if (!ref.current) return
@@ -43,6 +45,10 @@ const ChartDescription = () => {
     )
   }, [])
 
+  const handleChartClick = () => {
+    router.push('/chart/KRW-BTC')
+  }
+
   return (
     <div
       ref={ref}
@@ -52,7 +58,12 @@ const ChartDescription = () => {
         <span>실시간으로</span>
         <div className="flex flex-col space-y-3">
           <span>확인할 수 있는</span>
-          <span className="text-chart brightness-200 whitespace-nowrap">차트</span>
+          <span
+            onClick={handleChartClick}
+            className="text-chart brightness-200 whitespace-nowrap cursor-pointer"
+          >
+            차트
+          </span>
         </div>
       </div>
     </div>
