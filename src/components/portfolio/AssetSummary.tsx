@@ -58,14 +58,14 @@ const AssetSummary = ({ assets }: Props) => {
         <div className="w-full bg-white/5 transition shadow p-4 rounded-xl flex flex-row justify-between">
           <div className="text-lg text-gray-300">평가금액</div>
           <div className="text-2xl font-bold mt-1">
-            {stats.evaluation.toLocaleString()} 원
+            {Math.floor(stats.evaluation).toLocaleString()} 원
           </div>
         </div>
-
+      
         <div className="w-full bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
           <div className="text-lg text-gray-300">총 투자금</div>
           <div className="text-2xl font-bold mt-1">
-            {stats.totalBuy.toLocaleString()} 원
+            {Math.floor(stats.totalBuy).toLocaleString()} 원
           </div>
         </div>
       </div>
