@@ -125,13 +125,13 @@ const MainSection = () => {
           >
             <button
               onClick={() => router.push('/chart/KRW-BTC')}
-              className="bg-chart/70 hover:brightness-105 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
+              className="bg-white/20 shadow hover:brightness-150 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
             >
               차트 확인하기
             </button>
             <button
               onClick={handleMainAction}
-              className="bg-portfolio/70 hover:brightness-105 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
+              className="bg-white/20 shadow hover:brightness-150 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
             >
               {session ? '내 포트폴리오' : '로그인'}
             </button>
