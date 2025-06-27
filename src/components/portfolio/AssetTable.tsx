@@ -2,12 +2,15 @@
 
 import React, { useEffect, useState } from 'react'
 import type { Asset } from './types'
+import { formatNumberForDisplay } from '@/utils/formatNumber'
 
 interface Props {
   assets: Asset[]
   onDelete: (id: string | undefined) => void
   onDeleteAll: () => void
 }
+
+const formatAmount = (v: number) => Math.floor(v).toLocaleString()
 
 const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
   const [isReady, setIsReady] = useState(false)
@@ -25,7 +28,11 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="flex space-x-4">
               {Array.from({ length: 7 }).map((__, j) => (
-                <div key={j} className="h-4" style={{ width: j === 2 ? '30%' : '12%' }} />
+                <div
+                  key={j}
+                  className="h-4"
+                  style={{ width: j === 2 ? '30%' : '12%' }}
+                />
               ))}
             </div>
           ))}
@@ -41,7 +48,7 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
         <button
           onClick={onDeleteAll}
           className="px-2 py-0.5 rounded-lg bg-red-600/40 hover:bg-red-600/70 text-neutral-100 transition text-sm"
-          >
+        >
           모두 삭제
         </button>
       </div>
@@ -56,7 +63,7 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
               <th className="p-2 text-center">단가</th>
               <th className="p-2 text-center">거래 금액</th>
               <th className="p-2 text-center">삭제</th>
-            </tr> 
+            </tr>
           </thead>
           <tbody>
             {[...assets]
@@ -76,9 +83,9 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
                       </span>
                     </td>
                     <td className="p-2 text-center">{a.symbol} - {a.name}</td>
-                    <td className="p-2 text-right">{a.quantity}</td>
-                    <td className="p-2 text-right">{a.averagePrice.toLocaleString()} 원</td>
-                    <td className="p-2 text-right">{value.toLocaleString()} 원</td>
+                    <td className="p-2 text-right">{formatNumberForDisplay(a.quantity)}</td>
+                    <td className="p-2 text-right">{formatNumberForDisplay(a.averagePrice)} 원</td>
+                    <td className="p-2 text-right">{formatAmount(value)} 원</td>
                     <td className="p-2 text-center">
                       <button
                         onClick={() => onDelete(a._id)}

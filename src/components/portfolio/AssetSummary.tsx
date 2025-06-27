@@ -14,7 +14,7 @@ interface Props {
 const AssetSummary = ({ assets }: Props) => {
   const [stats, setStats] = useState<PortfolioStats | null>(null)
 
-  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, 3000)
+  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, { duration: 3000 })
 
   useEffect(() => {
     const load = async () => {
@@ -58,14 +58,14 @@ const AssetSummary = ({ assets }: Props) => {
         <div className="w-full bg-white/5 transition shadow p-4 rounded-xl flex flex-row justify-between">
           <div className="text-lg text-gray-300">평가금액</div>
           <div className="text-2xl font-bold mt-1">
-            {stats.evaluation.toLocaleString()} 원
+            {Math.floor(stats.evaluation).toLocaleString()} 원
           </div>
         </div>
 
         <div className="w-full bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
           <div className="text-lg text-gray-300">총 투자금</div>
           <div className="text-2xl font-bold mt-1">
-            {stats.totalBuy.toLocaleString()} 원
+            {Math.floor(stats.totalBuy).toLocaleString()} 원
           </div>
         </div>
       </div>
@@ -79,7 +79,7 @@ const AssetSummary = ({ assets }: Props) => {
             }`}
           >
             {stats.allTimeProfit >= 0 ? '+' : ''}
-            {animatedProfit.toLocaleString()} 원
+            {Math.floor(animatedProfit).toLocaleString()} 원
           </div>
         </div>
         <div className="text-xs mt-1 text-gray-300 space-y-1 pl-1">
@@ -91,7 +91,7 @@ const AssetSummary = ({ assets }: Props) => {
               }`}
             >
               {stats.realisedProfit >= 0 ? '+' : ''}
-              {stats.realisedProfit.toLocaleString()} 원
+              {Math.floor(stats.realisedProfit).toLocaleString()} 원
             </span>
           </div>
           <div className="flex justify-between">
@@ -102,7 +102,7 @@ const AssetSummary = ({ assets }: Props) => {
               }`}
             >
               {stats.unrealisedProfit >= 0 ? '+' : ''}
-              {stats.unrealisedProfit.toLocaleString()} 원
+              {Math.floor(stats.unrealisedProfit).toLocaleString()} 원
             </span>
           </div>
           <div className="flex justify-between">

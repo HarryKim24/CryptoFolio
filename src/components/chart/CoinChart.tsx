@@ -8,7 +8,6 @@ import {
   Chart as ChartJS,
   registerables,
 } from 'chart.js';
-import zoomPlugin from 'chartjs-plugin-zoom';
 import { useMemo, useRef, useState, useEffect } from 'react';
 import {
   CandleType,
@@ -20,7 +19,8 @@ import 'chartjs-adapter-date-fns';
 import { format } from 'date-fns';
 import '@/lib/chart';
 
-ChartJS.register(...registerables, zoomPlugin);
+
+ChartJS.register(...registerables);
 
 type Props = {
   market: string;
@@ -95,6 +95,13 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
   );
 
   const { data, loading } = useCandles(options);
+
+  useEffect(() => {
+    import('chartjs-plugin-zoom').then((module) => {
+      const zoomPlugin = module.default;
+      ChartJS.register(zoomPlugin);
+    });
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -185,6 +192,15 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
 
   const timeUnit = useMemo(() => getTimeUnitFromRange(data), [data]);
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const chartOptions: ChartOptions<'candlestick' | 'bar'> = useMemo(
     () => ({
       responsive: true,
@@ -249,9 +265,15 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
         tooltip: {
           displayColors: false,
           backgroundColor: '#111827',
-          titleFont: { weight: 'bold' },
-          bodyFont: { weight: 'normal' },
-          padding: 8,
+          titleFont: { 
+            weight: 'bold',
+            size: isMobile ? 7 : 14,
+          },
+          bodyFont: { 
+            weight: 'normal',
+            size: isMobile ? 6 : 12,
+          },
+          padding: isMobile ? 4 : 8,
           callbacks: {
             title: (ctx) => {
               const raw = ctx[0].raw as CandlestickData;
@@ -286,7 +308,7 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
             }),
       },
     }),
-    [timeUnit, expandedMin, expandedMax, isBTCMarket, candleType, volumeMax, disableZoom]
+    [isMobile, timeUnit, expandedMin, expandedMax, isBTCMarket, candleType, volumeMax, disableZoom]
   );
 
   return (
