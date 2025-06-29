@@ -98,8 +98,8 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
               <th className="p-2 text-right">보유 수량</th>
               <th className="p-2 text-right">평단가</th>
               <th className="p-2 text-right">현재가</th>
-              <th className="p-2 text-right">미실현 수익</th>
-              <th className="p-2 text-right">미실현 수익률</th>
+              <th className="p-2 text-right">수익</th>
+              <th className="p-2 text-right">수익률</th>
             </tr>
           </thead>
           <tbody>
