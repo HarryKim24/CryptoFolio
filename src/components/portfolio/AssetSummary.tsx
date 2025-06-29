@@ -14,7 +14,7 @@ interface Props {
 const AssetSummary = ({ assets }: Props) => {
   const [stats, setStats] = useState<PortfolioStats | null>(null)
 
-  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, { duration: 3000 })
+  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, { duration: 2000 })
 
   useEffect(() => {
     const load = async () => {

@@ -4,7 +4,6 @@ export type Asset = {
   name: string
   quantity: number
   averagePrice: number
-  currentPrice: number
   date: string
   type?: 'buy' | 'sell'
 }

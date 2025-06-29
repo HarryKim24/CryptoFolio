@@ -21,3 +21,8 @@ export const formatNumberForDisplay = (value: number): string => {
 
   return `0.${trimmedFrac}`
 }
+
+export const formatPrice = (value: number): string => {
+  if (isNaN(value)) return '-'
+  return Math.floor(value).toLocaleString()
+}

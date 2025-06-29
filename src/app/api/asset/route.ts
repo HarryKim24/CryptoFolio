@@ -33,14 +33,13 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { symbol, name, quantity, averagePrice, currentPrice, date, type } = body;
+    const { symbol, name, quantity, averagePrice, date, type } = body;
 
     if (
       !symbol ||
       !name ||
       quantity === undefined ||
       averagePrice === undefined ||
-      currentPrice === undefined ||
       !date ||
       !type
     ) {
@@ -55,7 +54,6 @@ export async function POST(req: NextRequest) {
       name,
       quantity,
       averagePrice,
-      currentPrice,
       date,
       type,
       createdAt: new Date().toISOString(),
