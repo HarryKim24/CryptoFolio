@@ -2,15 +2,13 @@
 
 import React, { useEffect, useState } from 'react'
 import type { Asset } from './types'
-import { formatNumberForDisplay } from '@/utils/formatNumber'
+import { formatNumberForDisplay, formatPrice } from '@/utils/formatNumber'
 
 interface Props {
   assets: Asset[]
   onDelete: (id: string | undefined) => void
   onDeleteAll: () => void
 }
-
-const formatAmount = (v: number) => Math.floor(v).toLocaleString()
 
 const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
   const [isReady, setIsReady] = useState(false)
@@ -69,7 +67,7 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
             {[...assets]
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
               .map((a, i) => {
-                const value = a.quantity * a.currentPrice
+                const value = a.quantity * a.averagePrice
                 const isBuy = a.type === 'buy'
                 return (
                   <tr key={i} className="border-t border-gray-400">
@@ -84,8 +82,8 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
                     </td>
                     <td className="p-2 text-center">{a.symbol} - {a.name}</td>
                     <td className="p-2 text-right">{formatNumberForDisplay(a.quantity)}</td>
-                    <td className="p-2 text-right">{formatNumberForDisplay(a.averagePrice)} 원</td>
-                    <td className="p-2 text-right">{formatAmount(value)} 원</td>
+                    <td className="p-2 text-right">{formatPrice(a.averagePrice)} 원</td>
+                    <td className="p-2 text-right">{formatPrice(value)} 원</td>
                     <td className="p-2 text-center">
                       <button
                         onClick={() => onDelete(a._id)}

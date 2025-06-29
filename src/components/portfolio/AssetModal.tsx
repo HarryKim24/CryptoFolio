@@ -75,7 +75,6 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
         name,
         quantity,
         averagePrice,
-        currentPrice: averagePrice,
         date,
         type,
       })

@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Asset } from './types'
-import { formatNumberForDisplay } from '@/utils/formatNumber'
+import { formatNumberForDisplay, formatPrice } from '@/utils/formatNumber'
 
 interface Props {
   assets: Asset[]
@@ -20,16 +20,28 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
   }, [])
 
   const holdings = new Map<string, { name: string, quantity: number, totalCost: number }>()
+  let realizedProfit = 0
 
-  for (const a of assets) {
+  const sortedAssets = [...assets].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  )
+
+  for (const a of sortedAssets) {
     const record = holdings.get(a.symbol) ?? { name: a.name, quantity: 0, totalCost: 0 }
 
     if (a.type === 'buy') {
       record.quantity += a.quantity
       record.totalCost += a.quantity * a.averagePrice
-    } else if (a.type === 'sell') {
+    } 
+    else if (a.type === 'sell') {
+      const prevQuantity = record.quantity
+      const prevAvgPrice = prevQuantity > 0 ? record.totalCost / prevQuantity : 0
+
+      const sellProfit = (a.averagePrice - prevAvgPrice) * a.quantity
+      realizedProfit += sellProfit
+
       record.quantity -= a.quantity
-      record.totalCost -= a.quantity * a.averagePrice
+      record.totalCost -= a.quantity * prevAvgPrice
     }
 
     holdings.set(a.symbol, record)
@@ -42,11 +54,13 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
       const currentValue = quantity * currentPrice
       const profit = currentValue - totalCost
       const rate = totalCost > 0 ? (profit / totalCost) * 100 : 0
+      const averagePrice = quantity > 0 ? totalCost / quantity : 0
 
       return {
         symbol,
         name,
         quantity,
+        averagePrice,
         currentPrice,
         currentValue,
         profit,
@@ -77,13 +91,15 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
       <h3 className="text-lg text-gray-300 mb-2">보유 종목 수익</h3>
 
       <div className="flex-1 overflow-auto w-full">
-        <table className="min-w-full table-fixed text-sm text-white whitespace-nowrap">
+        <table className="min-w-full table-fixed text-sm text-neutral-100 whitespace-nowrap">
           <thead className="sticky top-0 text-gray-300 text-left bg-white/5 backdrop-blur-xl z-10">
             <tr>
               <th className="p-2">코인</th>
+              <th className="p-2 text-right">보유 수량</th>
+              <th className="p-2 text-right">평단가</th>
               <th className="p-2 text-right">현재가</th>
-              <th className="p-2 text-right">수익</th>
-              <th className="p-2 text-right">수익률</th>
+              <th className="p-2 text-right">미실현 수익</th>
+              <th className="p-2 text-right">미실현 수익률</th>
             </tr>
           </thead>
           <tbody>
@@ -91,12 +107,14 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
               .sort((a, b) => b.profit - a.profit)
               .map((d, i) => (
                 <tr key={i} className="border-t border-gray-400">
-                  <td className="py-1 truncate">{d.symbol} - {d.name}</td>
-                  <td className="py-1 text-right">{formatNumberForDisplay(d.currentPrice)} 원</td>
-                  <td className={`py-1 text-right ${d.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <td className="py-2 pr-2 truncate">{d.symbol} - {d.name}</td>
+                  <td className="py-2 pr-2 text-right">{formatNumberForDisplay(d.quantity)}</td>
+                  <td className="py-2 pr-2 text-right">{formatPrice(d.averagePrice)} 원</td>
+                  <td className="py-2 pr-2 text-right">{formatPrice(d.currentPrice)} 원</td>
+                  <td className={`py-2 pr-2 text-right ${d.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {d.profit >= 0 ? '+' : ''}{Math.floor(d.profit).toLocaleString()} 원
                   </td>
-                  <td className={`py-1 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <td className={`py-2 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {d.rate.toFixed(2)}%
                   </td>
                 </tr>
