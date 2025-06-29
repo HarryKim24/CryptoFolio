@@ -147,11 +147,11 @@ const PortfolioClient = () => {
         </div>
       </div>
 
-      <div className="flex flex-col xs:px-20 lg:px-0 lg:flex-row gap-6 w-full items-center">
-        <div className="flex-1 h-full w-full">
+      <div className="flex flex-col lg:flex-row w-full items-center overflow-x-auto gap-6 lg:gap-0 px-0 xs:px-20 lg:px-0">
+        <div className="flex-none min-w-[320px] w-full lg:w-1/2 lg:pr-3">
           <AssetDistribution allocation={distribution} />
         </div>
-        <div className="flex-1 h-full w-full min-w-[200px]">
+        <div className="flex-none min-w-[320px] w-full lg:w-1/2 lg:pl-3">
           <AssetPerformance assets={assets} priceMap={priceMap} />
         </div>
       </div>

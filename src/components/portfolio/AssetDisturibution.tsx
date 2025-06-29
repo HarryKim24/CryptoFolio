@@ -47,6 +47,7 @@ const AssetDistribution = ({ allocation }: Props) => {
   }
 
   const options = {
+    responsive: true,
     plugins: {
       legend: {
         display: false,
@@ -54,60 +55,69 @@ const AssetDistribution = ({ allocation }: Props) => {
     },
   }
 
-  if (!isReady) {
-    return (
-      <div className="bg-white/5 rounded-xl shadow p-4 h-[400px] animate-pulse flex flex-col">
-        <div className="h-7 w-20 mb-2" />
-        <div className="flex flex-1 gap-8 flex-col md:flex-row">
-          <div className="flex-1 flex items-center justify-center p-4">
+if (!isReady) {
+  return (
+    <div className="bg-white/5 rounded-xl shadow p-4 h-[400px] animate-pulse flex flex-col overflow-hidden">
+      <div className="h-7 w-20 mb-2" />
+
+      <div className="flex-1 w-full overflow-x-auto overflow-y-hidden">
+        <div className="flex items-center gap-8 flex-col md:flex-row w-max mx-auto">
+          <div className="flex items-center justify-center w-[300px] h-[300px] flex-shrink-0">
             <div className="h-[300px] w-[300px] bg-white/10 rounded-full" />
           </div>
 
-          <div className="flex-1 flex items-center justify-center">
-            <div className='flex flex-col space-y-2 w-fit'>
-              <div className='flex items-center justify-between min-w-[160px] pl-4 pr-4'>
-                <div className='flex items-center gap-2'>
-                  <div className='w-3 h-3' />
-                </div>
-              </div>
+          <div className="flex items-center justify-center flex-shrink-0 min-w-[200px]">
+            <div className="flex flex-col space-y-2 w-fit">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-4 w-[160px]"
+                />
+              ))}
             </div>
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="bg-white/5 shadow p-4 rounded-xl flex flex-col"
+      className="bg-white/5 shadow p-4 rounded-xl flex flex-col md:h-[400px] overflow-hidden"
     >
-      <h3 className="text-lg text-gray-300 mb-2">배분</h3>
-
-      <div className="flex flex-1 gap-8 flex-col md:flex-row">
-        <div className="flex-1 flex items-center justify-center p-4">
-          <Doughnut data={data} options={options} />
-        </div>
-
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col text-sm text-white space-y-2 w-fit">
-            {displayData.map((item, index) => {
-              const percent = total > 0 ? (item.value / total) * 100 : 0
-              return (
-                <div key={index} className="flex items-center justify-between min-w-[160px] pl-4 pr-4">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-3 h-3 rounded-sm"
-                      style={{ backgroundColor: COLORS[index] }}
-                    ></div>
-                    <span>{item.symbol}</span>
+      <h3 className="text-lg text-gray-300 mb-2">보유 종목 분포</h3>
+  
+      <div className="flex-1 w-full justify-center overflow-x-auto overflow-y-hidden">
+        <div className="flex items-center gap-8 flex-col md:flex-row w-max mx-auto">
+          <div className="flex items-center justify-center w-[300px] h-[300px] flex-shrink-0">
+            <Doughnut data={data} options={options} />
+          </div>
+  
+          <div className="flex items-center justify-center flex-shrink-0 min-w-[200px]">
+            <div className="flex flex-col text-sm text-white space-y-2 w-fit">
+              {displayData.map((item, index) => {
+                const percent = total > 0 ? (item.value / total) * 100 : 0
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between min-w-[160px] pl-4 pr-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-sm"
+                        style={{ backgroundColor: COLORS[index] }}
+                      ></div>
+                      <span>{item.symbol}</span>
+                    </div>
+                    <div className="text-gray-300">{percent.toFixed(2)}%</div>
                   </div>
-                  <div className="text-gray-300">{percent.toFixed(2)}%</div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
