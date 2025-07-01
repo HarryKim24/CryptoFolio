@@ -11,9 +11,10 @@ type Props = {
   isMobile?: boolean;
   view?: "chart" | "list";
   onToggleView?: () => void;
+  isChartSection?: boolean;
 };
 
-const CoinDetail = ({ market, isMobile = false, view = "chart", onToggleView }: Props) => {
+const CoinDetail = ({ market, isMobile = false, view = "chart", onToggleView, isChartSection }: Props) => {
   const { tickers, markets } = useUpbitTickerContext();
   const ticker = tickers[market];
   const marketInfo = markets.find((m: Market) => m.market === market);
@@ -57,7 +58,7 @@ const CoinDetail = ({ market, isMobile = false, view = "chart", onToggleView }: 
 
   return (
     <div className="border-b border-white/10">
-      <div className="h-[119px] p-4 pr-0 md:pr-4 flex justify-between items-start gap-2 lg:gap-4">
+      <div className={`h-[119px] p-4 ${isChartSection ? 'pr-4' : 'pr-0'} md:pr-4 flex justify-between items-start gap-2 lg:gap-4`}>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 font-medium whitespace-nowrap">
             <h2 className="text-2xl lg:text-3xl font-bold truncate">{marketInfo.korean_name}</h2>

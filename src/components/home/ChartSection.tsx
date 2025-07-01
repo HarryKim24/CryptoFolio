@@ -79,6 +79,7 @@ const ChartSection = () => {
           isMobile={isMobile}
           view={view}
           onToggleView={() => {}}
+          isChartSection={true}
         />
         <div className="flex-1 relative min-h-0">
           <CoinChart market={market} disableZoom />

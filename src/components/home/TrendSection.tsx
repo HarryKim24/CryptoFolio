@@ -127,7 +127,7 @@ const TrendSection = () => {
             {i + 1}. {coin.korean_name} ({coin.market})
           </span>
           <span className="flex flex-row pl-2">
-            ₩{coin.trade_price.toLocaleString()}
+            {coin.trade_price.toLocaleString()} 원
             <span className={`pl-2 min-w-[48px] text-right inline-block ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
               {(coin.signed_change_rate * 100).toFixed(2)}%
             </span>
