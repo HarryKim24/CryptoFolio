@@ -69,7 +69,11 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const { symbol, name, quantity, averagePrice, date, type } = input
-    if (symbol && name && quantity !== undefined && averagePrice !== undefined && date && type) {
+    if (!symbol || !name) {
+      alert('코인을 검색하고 목록에서 선택해주세요.')
+    } else if (quantity === undefined || averagePrice === undefined || !date || !type) {
+      alert('모든 필드를 올바르게 입력해주세요.')
+    } else {
       onSave({
         symbol,
         name,
@@ -79,18 +83,18 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
         type,
       })
       onClose()
-    } else {
-      alert('모든 필드를 올바르게 입력해주세요.')
     }
   }
 
   if (!show) return null
 
+  const isFormComplete = input.symbol && input.name && input.quantity !== undefined && input.averagePrice !== undefined && input.date && input.type
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
       <form
         onSubmit={handleSubmit}
-        className="bg-white/5 text-neutral-100 backdrop-blur-xl rounded-xl shadow-xl w-full max-w-md p-6"
+        className="bg-white/5 text-neutral-100 backdrop-blur-3xl rounded-xl shadow-xl w-full max-w-md p-6"
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">거래 추가</h2>
@@ -122,6 +126,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             onChange={e => {
               const value = e.target.value
               setInputValue(value)
+              setInput(prev => ({ ...prev, symbol: undefined, name: undefined }))
               setFilteredMarkets(
                 marketList.filter(m =>
                   [m.korean_name, m.english_name.toLowerCase(), m.market.replace('KRW-', '').toLowerCase()]
@@ -131,7 +136,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             }}
           />
           {filteredMarkets.length > 0 && (
-            <ul className="absolute z-50 w-full bg-portfolio mt-1 rounded-xl  shadow max-h-48 overflow-y-auto">
+            <ul className="absolute z-50 w-full bg-portfolio mt-1 rounded-xl shadow max-h-48 overflow-y-auto">
               {filteredMarkets.map((m, idx) => (
                 <li
                   key={idx}
@@ -191,7 +196,11 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
 
         <button
           type="submit"
-          className="w-full py-3 bg-portfolio hover:bg-portfolio/90 text-neutral-100 font-semibold rounded-xl transition focus:outline-none"
+          disabled={!isFormComplete}
+          className={`w-full py-3 font-semibold rounded-xl transition focus:outline-none
+                      ${isFormComplete
+                        ? 'bg-portfolio hover:bg-portfolio/90 text-neutral-100'
+                        : 'bg-gray-500 cursor-not-allowed'}`}
         >
           거래 추가
         </button>
