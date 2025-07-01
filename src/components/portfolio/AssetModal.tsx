@@ -98,7 +98,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">거래 추가</h2>
-          <button type="button" onClick={onClose} className="text-neutral-100 hover:text-neutral-200 text-2xl p-2">&times;</button>
+          <button type="button" onClick={onClose} className="text-neutral-100 hover:brightness-125 text-3xl p-2">&times;</button>
         </div>
 
         <div className="grid grid-cols-2 gap-2 mb-4 text-sm font-medium">
@@ -108,8 +108,8 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
               type="button"
               className={`rounded-xl py-2 text-sm font-semibold transition focus:outline-none
                 ${input.type === type
-                  ? 'bg-portfolio hover:bg-portfolio/90 text-neutral-100'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
+                  ? 'bg-portfolio hover:brightness-105 text-neutral-100'
+                  : 'bg-white/10 hover:brightness-105 text-gray-300'}`}
               onClick={() => handleChange('type', type)}
             >
               {type === 'buy' ? '구매' : '매도'}
@@ -140,7 +140,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
               {filteredMarkets.map((m, idx) => (
                 <li
                   key={idx}
-                  className="px-4 py-2 hover:bg-white/5 cursor-pointer"
+                  className="px-4 py-2 hover:brightness-105 cursor-pointer"
                   onClick={() => handleSelect(m)}
                 >
                   {m.korean_name} ({m.market.replace('KRW-', '')})
@@ -199,7 +199,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
           disabled={!isFormComplete}
           className={`w-full py-3 font-semibold rounded-xl transition focus:outline-none
                       ${isFormComplete
-                        ? 'bg-portfolio hover:bg-portfolio/90 text-neutral-100'
+                        ? 'bg-portfolio hover:brightness-105 text-neutral-100'
                         : 'bg-gray-500 cursor-not-allowed'}`}
         >
           거래 추가

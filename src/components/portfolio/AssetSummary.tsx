@@ -112,6 +112,7 @@ const AssetSummary = ({ assets }: Props) => {
                 stats.profitRate >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
               }`}
             >
+              {stats.profitRate >= 0 ? '+' : ''}
               {stats.profitRate.toFixed(2)}%
             </span>
           </div>

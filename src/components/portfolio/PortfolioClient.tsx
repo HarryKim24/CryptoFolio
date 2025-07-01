@@ -139,9 +139,9 @@ const PortfolioClient = () => {
             <button
               onClick={() => setShowModal(true)}
               className="w-full px-4 py-2 rounded-xl whitespace-nowrap bg-portfolio
-              text-neutral-100 hover:bg-portfolio/90 shadow transition"
+              text-neutral-100 hover:brightness-105 shadow transition"
             >
-              + 거래 추가
+              거래 추가
             </button>
           </div>
         </div>

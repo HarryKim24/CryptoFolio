@@ -115,7 +115,7 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
                     {d.profit >= 0 ? '+' : ''}{Math.floor(d.profit).toLocaleString()} 원
                   </td>
                   <td className={`py-2 pr-2 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {d.rate.toFixed(2)}%
+                    {d.rate >= 0 ? '+' : ''}{d.rate.toFixed(2)}%
                   </td>
                 </tr>
               ))}
