@@ -110,9 +110,9 @@ const RegisterPage = () => {
             className="absolute right-3 top-1/2 -translate-y-1/2"
           >
             {showPassword ? (
-              <EyeSlashIcon className="h-5 w-5 text-pink-200 hover:text-white" />
+              <EyeSlashIcon className="h-5 w-5 text-third focus:outline-none" />
             ) : (
-              <EyeIcon className="h-5 w-5 text-pink-200 hover:text-white" />
+              <EyeIcon className="h-5 w-5 text-third focus:outline-none" />
             )}
           </button>
         </div>
@@ -131,16 +131,16 @@ const RegisterPage = () => {
             className="absolute right-3 top-1/2 -translate-y-1/2"
           >
             {showConfirmPassword ? (
-              <EyeSlashIcon className="h-5 w-5 text-pink-200 hover:text-white" />
+              <EyeSlashIcon className="h-5 w-5 text-third focus:outline-none" />
             ) : (
-              <EyeIcon className="h-5 w-5 text-pink-200 hover:text-white" />
+              <EyeIcon className="h-5 w-5 text-third focus:outline-none" />
             )}
           </button>
         </div>
 
         <button
           onClick={handleRegister}
-          className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition"
+          className="w-full py-2 px-4 bg-secondary font-semibold rounded hover:brightness-105 transition focus:outline-none text-third focus:ring-2 focus:ring-third"
         >
           회원가입
         </button>
@@ -148,7 +148,7 @@ const RegisterPage = () => {
 
       <div className="text-sm text-center text-neutral-100 mt-6">
         이미 계정이 있으신가요?{" "}
-        <Link href="/login" className="text-secondary hover:underline">
+        <Link href="/login" className="text-secondary hover:underline focus:outline-none">
           로그인
         </Link>
       </div>
