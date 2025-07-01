@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react'
 import type { Asset } from './types'
 import DatePicker from 'react-datepicker'
 import { ko } from 'date-fns/locale'
+import { format } from 'date-fns'
 import 'react-datepicker/dist/react-datepicker.css'
-
 
 interface Market {
   market: string
@@ -173,7 +173,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
           <DatePicker
             selected={input.date ? new Date(input.date) : null}
             onChange={(date: Date | null) => {
-              handleChange('date', date ? date.toISOString().split('T')[0] : '')
+              handleChange('date', date ? format(date, 'yyyy-MM-dd') : '')
             }}
             dateFormat="yyyy-MM-dd"
             placeholderText="날짜 선택"
