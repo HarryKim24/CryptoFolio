@@ -57,14 +57,14 @@ const AssetSummary = ({ assets }: Props) => {
       <div className="lg:col-span-1 flex flex-col gap-4">
         <div className="w-full bg-white/5 transition shadow p-4 rounded-xl flex flex-row justify-between">
           <div className="text-lg text-gray-300">평가금액</div>
-          <div className="text-2xl font-bold mt-1">
+          <div className="text-2xl font-bold">
             {Math.floor(stats.evaluation).toLocaleString()} 원
           </div>
         </div>
 
         <div className="w-full bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
           <div className="text-lg text-gray-300">총 투자금</div>
-          <div className="text-2xl font-bold mt-1">
+          <div className="text-2xl font-bold">
             {Math.floor(stats.totalBuy).toLocaleString()} 원
           </div>
         </div>
@@ -82,9 +82,9 @@ const AssetSummary = ({ assets }: Props) => {
             {Math.floor(animatedProfit).toLocaleString()} 원
           </div>
         </div>
-        <div className="text-xs mt-1 text-gray-300 space-y-1 pl-1">
-          <div className="flex justify-between">
-            <span>실현 수익:</span>
+        <div className="text-xs mt-1 text-gray-300">
+          <div className="flex justify-between lg:text-base">
+            <span>실현 수익</span>
             <span
               className={`${
                 stats.realisedProfit >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
@@ -94,8 +94,8 @@ const AssetSummary = ({ assets }: Props) => {
               {Math.floor(stats.realisedProfit).toLocaleString()} 원
             </span>
           </div>
-          <div className="flex justify-between">
-            <span>미실현 수익:</span>
+          <div className="flex justify-between lg:text-base">
+            <span>미실현 수익</span>
             <span
               className={`${
                 stats.unrealisedProfit >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
@@ -105,8 +105,8 @@ const AssetSummary = ({ assets }: Props) => {
               {Math.floor(stats.unrealisedProfit).toLocaleString()} 원
             </span>
           </div>
-          <div className="flex justify-between">
-            <span>총 수익률:</span>
+          <div className="flex justify-between lg:text-base">
+            <span>총 수익률</span>
             <span
               className={`${
                 stats.profitRate >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'

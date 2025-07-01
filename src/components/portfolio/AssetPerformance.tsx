@@ -107,14 +107,14 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
               .sort((a, b) => b.profit - a.profit)
               .map((d, i) => (
                 <tr key={i} className="border-t border-gray-400">
-                  <td className="py-2 pr-2 truncate">{d.symbol} - {d.name}</td>
+                  <td className="py-2 pr-2 pl-2 truncate">{d.symbol} - {d.name}</td>
                   <td className="py-2 pr-2 text-right">{formatNumberForDisplay(d.quantity)}</td>
                   <td className="py-2 pr-2 text-right">{formatPrice(d.averagePrice)} 원</td>
                   <td className="py-2 pr-2 text-right">{formatPrice(d.currentPrice)} 원</td>
                   <td className={`py-2 pr-2 text-right ${d.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {d.profit >= 0 ? '+' : ''}{Math.floor(d.profit).toLocaleString()} 원
                   </td>
-                  <td className={`py-2 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <td className={`py-2 pr-2 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {d.rate.toFixed(2)}%
                   </td>
                 </tr>

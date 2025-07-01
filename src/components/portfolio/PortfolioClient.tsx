@@ -129,7 +129,7 @@ const PortfolioClient = () => {
 
 
   return (
-    <div className="p-6 space-y-8 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
+    <div className="p-6 space-y-6 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
       <div className="flex flex-col xs:px-20 lg:px-0 lg:flex-row items-stretch gap-6">
         <div className="w-full lg:w-5/6">
           <AssetSummary assets={assets} />
