@@ -138,7 +138,7 @@ const PortfolioClient = () => {
           <div className="mt-auto">
             <button
               onClick={() => setShowModal(true)}
-              className="w-full px-4 py-2 rounded-xl whitespace-nowrap bg-portfolio
+              className="w-full text-xl font-bold px-4 py-2 rounded-xl whitespace-nowrap bg-portfolio
               text-neutral-100 hover:brightness-105 shadow transition"
             >
               거래 추가

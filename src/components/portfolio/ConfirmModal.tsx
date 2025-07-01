@@ -34,7 +34,7 @@ const ConfirmModal = ({
   return (
     <div className="fixed inset-0 z-50 bg-gray/60 flex items-center justify-center px-12">
       <div className="bg-white/5 backdrop-blur-3xl rounded-xl shadow-xl p-6 w-full max-w-sm text-neutral-100">
-        <h2 className="text-lg font-semibold mb-2">{title}</h2>
+        <h2 className="text-xl font-bold mb-2">{title}</h2>
         {description && (
           <p className="text-sm text-neutral-300 mb-4">{description}</p>
         )}

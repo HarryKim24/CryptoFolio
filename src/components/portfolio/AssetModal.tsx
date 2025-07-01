@@ -97,7 +97,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
         className="bg-white/5 text-neutral-100 backdrop-blur-3xl rounded-xl shadow-xl w-full max-w-md p-6"
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">거래 추가</h2>
+          <h2 className="text-xl font-bold">거래 추가</h2>
           <button type="button" onClick={onClose} className="text-neutral-100 hover:brightness-125 text-3xl p-2">&times;</button>
         </div>
 

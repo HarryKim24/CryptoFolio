@@ -88,7 +88,7 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
       transition={{ duration: 1 }}
       className="bg-white/5 rounded-xl shadow p-4 h-[400px] flex flex-col overflow-hidden"
     >
-      <h3 className="text-lg text-gray-300 mb-2">보유 종목 수익</h3>
+      <h3 className="text-xl font-bold text-neutral-100 mb-2">보유 종목 수익</h3>
 
       <div className="flex-1 overflow-auto w-full">
         <table className="min-w-full table-fixed text-sm text-neutral-100 whitespace-nowrap">

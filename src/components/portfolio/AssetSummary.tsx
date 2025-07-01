@@ -55,15 +55,15 @@ const AssetSummary = ({ assets }: Props) => {
       className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full text-neutral-100"
     >
       <div className="lg:col-span-1 flex flex-col gap-4">
-        <div className="w-full bg-white/5 transition shadow p-4 rounded-xl flex flex-row justify-between">
-          <div className="text-lg text-gray-300">평가금액</div>
+        <div className="w-full items-center bg-white/5 transition shadow p-4 rounded-xl flex flex-row justify-between">
+          <div className="text-xl font-bold text-neutral-100">평가금액</div>
           <div className="text-2xl font-bold">
             {Math.floor(stats.evaluation).toLocaleString()} 원
           </div>
         </div>
 
-        <div className="w-full bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
-          <div className="text-lg text-gray-300">총 투자금</div>
+        <div className="w-full items-center bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
+          <div className="text-xl  font-bold text-neutral-100">총 투자금</div>
           <div className="text-2xl font-bold">
             {Math.floor(stats.totalBuy).toLocaleString()} 원
           </div>
@@ -72,7 +72,7 @@ const AssetSummary = ({ assets }: Props) => {
 
       <div className="w-full bg-white/5 shadow p-4 rounded-xl flex flex-col justify-between">
         <div className="flex justify-between items-center">
-          <div className="text-lg text-gray-300">총 수익</div>
+          <div className="text-xl font-bold text-neutral-100">총 수익</div>
           <div
             className={`text-2xl lg:text-3xl font-bold ${
               stats.allTimeProfit >= 0 ? 'text-green-400' : 'text-red-400'
