@@ -14,6 +14,7 @@ interface CoinInfo {
 
 const TopRise = () => {
   const [topCoins, setTopCoins] = useState<CoinInfo[]>([]);
+  const [isNarrow, setIsNarrow] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -49,6 +50,16 @@ const TopRise = () => {
     fetchTopDailyRisers();
   }, []);
 
+  // Window width listener
+  useEffect(() => {
+    const handleResize = () => {
+      setIsNarrow(window.innerWidth >= 1024 && window.innerWidth <= 1250);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleClick = (market: string) => {
     router.push(`/chart/${market}`);
   };
@@ -60,25 +71,33 @@ const TopRise = () => {
       </div>
       <ol className="space-y-2 text-sm">
         {topCoins.length > 0 ? (
-          topCoins.map((coin, i) => (
-            <li
-              key={coin.market}
-              onClick={() => handleClick(coin.market)}
-              className="flex justify-between cursor-pointer overflow-hidden"
-            >
-              <span className="truncate whitespace-nowrap overflow-hidden max-w-none [@media(max-width:1299px)]:max-w-[200px]">
-                {i + 1}. {coin.korean_name} ({coin.market})
-              </span>
-              <span className="text-right">
-                <span className="text-white mr-2">
-                  ₩{coin.trade_price.toLocaleString("ko-KR")}
+          topCoins.map((coin, i) => {
+            const displayName = `${coin.korean_name} (${coin.market})`;
+            const shouldShorten = isNarrow && displayName.length > 13;
+            const shortenedName = shouldShorten
+              ? displayName.slice(0, 12) + '…'
+              : displayName;
+
+            return (
+              <li
+                key={coin.market}
+                onClick={() => handleClick(coin.market)}
+                className="flex justify-between cursor-pointer overflow-hidden"
+              >
+                <span className="truncate whitespace-nowrap overflow-hidden max-w-none [@media(max-width:1299px)]:max-w-[200px]">
+                  {i + 1}. {shortenedName}
                 </span>
-                <span className="text-red-400 font-medium">
-                  +{(coin.signed_change_rate * 100).toFixed(2)}%
+                <span className="text-right">
+                  <span className="text-neutral-100 mr-2">
+                    {coin.trade_price.toLocaleString("ko-KR")} 원
+                  </span>
+                  <span className="text-red-400 font-medium">
+                    +{(coin.signed_change_rate * 100).toFixed(2)}%
+                  </span>
                 </span>
-              </span>
-            </li>
-          ))
+              </li>
+            )
+          })
         ) : (
           [...Array(10)].map((_, i) => (
             <li key={i} className="flex justify-between text-neutral-400 animate-pulse">

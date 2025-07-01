@@ -40,7 +40,7 @@ const CoinListHeader = ({ sortKey, sortDirection, setSortKey, setSortDirection }
               setSortDirection("desc");
             }
           }}
-          className={`flex items-center gap-1 ${
+          className={`flex items-center justify-center gap-1 text-center w-full h-full ${
             sortKey === key ? "text-neutral-100" : "text-gray-400"
           }`}
         >
