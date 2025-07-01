@@ -62,7 +62,7 @@ const MainSection = () => {
           trigger: sectionRef.current,
           start: 'center center',
           end: 'bottom top',
-          scrub: 0.8,
+          scrub: 0.2,
         },
       })
     }, sectionRef)
