@@ -48,7 +48,7 @@ const ConfirmModal = ({
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-semibold transition"
+            className="px-4 py-2 rounded-xl bg-red-500 hover:brightness-105 text-sm font-semibold transition"
           >
             삭제
           </button>

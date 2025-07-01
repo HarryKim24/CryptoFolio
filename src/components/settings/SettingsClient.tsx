@@ -129,7 +129,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
     placeholder: string
   ) => (
     <div>
-      <label className="block text-accent font-semibold pb-1">{label}</label>
+      <label className="block text-third font-semibold pb-1">{label}</label>
       <div className="relative">
         <input
           type={isVisible ? "text" : "password"}
@@ -191,13 +191,13 @@ const SettingsClient = ({ session }: { session: Session }) => {
                     setError("");
                     setIsEditing(false);
                   }}
-                  className="text-sm px-3 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition whitespace-nowrap"
+                  className="text-sm px-3 py-1.5 text-neutral-100 border border-neutral-100 rounded bg-setting hover:brightness-105 transition whitespace-nowrap"
                 >
                   취소
                 </button>
                 <button
                   onClick={handleSave}
-                  className="text-sm px-3 py-1.5 border border-accent text-accent hover:bg-accent/10 rounded transition whitespace-nowrap"
+                  className="text-sm px-3 py-1.5 text-setting bg-third hover:brightness-105 rounded transition whitespace-nowrap"
                 >
                   저장
                 </button>
@@ -205,7 +205,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="text-sm px-3 py-1.5 border border-neutral-300 rounded hover:bg-white/10 transition"
+                className="text-sm px-3 py-1.5 border border-neutral-100 bg-setting rounded hover:brightness-105 transition"
               >
                 수정
               </button>
@@ -234,7 +234,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
           {isEditing ? (
             <>
               <div className="pb-4">
-                <label className="block text-accent font-semibold pb-1">이름</label>
+                <label className="block text-third font-semibold pb-1">이름</label>
                 <input
                   type="text"
                   value={name}
@@ -251,10 +251,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
           ) : (
             <>
               <ul className="space-y-4 text-base sm:text-lg">
-                <li><span className="font-semibold text-accent">이름:</span> {session.user?.name ?? "-"}</li>
-                <li><span className="font-semibold text-accent">이메일:</span> {session.user?.email}</li>
-                <li><span className="font-semibold text-accent">가입일:</span> {formatDate(session.user?.createdAt)}</li>
-                <li><span className="font-semibold text-accent">최근 수정:</span> {formatDate(session.user?.updatedAt)}</li>
+                <li><span className="font-semibold text-third">이름:</span> {session.user?.name ?? "-"}</li>
+                <li><span className="font-semibold text-third">이메일:</span> {session.user?.email}</li>
+                <li><span className="font-semibold text-third">가입일:</span> {formatDate(session.user?.createdAt)}</li>
+                <li><span className="font-semibold text-third">최근 수정:</span> {formatDate(session.user?.updatedAt)}</li>
               </ul>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -264,7 +264,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
               >
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="text-sm text-warning hover:text-white border border-warning hover:bg-warning px-4 py-2 rounded transition"
+                  className="text-sm text-neutral-100 hover:brightness-105 bg-red-500 px-4 py-2 rounded transition"
                 >
                   회원 탈퇴
                 </button>
@@ -297,7 +297,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                     setShowDeleteModal(false);
                     setPasswordInput("");
                   }}
-                  className="text-sm font-extrabold px-4 py-1.5 rounded border border-neutral-100 text-neutral-100 transition"
+                  className="text-sm px-4 py-1.5 rounded transition border border-neutral-100 text-neutral-100 bg-setting hover:brightness-105"
                 >
                   취소
                 </button>
@@ -306,7 +306,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                     handleDeleteAccount();
                     setShowDeleteModal(false);
                   }}
-                  className="text-sm font-extrabold px-4 py-1.5 rounded border border-warning text-warning hover:text-neutral-100"
+                  className="text-sm px-4 py-1.5 rounded text-neutral-100 bg-red-500 hover:brightness-105"
                 >
                   탈퇴
                 </button>

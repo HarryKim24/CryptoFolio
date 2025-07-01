@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Asset } from './types'
+import { Asset } from '../../types/assetTypes'
 import { getTickerInfo } from '@/api/upbitApi'
 import { calculateStats, PortfolioStats } from '@/utils/calculateStats'
 import { motion } from 'framer-motion'

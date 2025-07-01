@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import type { Asset } from './types'
+import type { Asset } from '../../types/assetTypes'
 import DatePicker from 'react-datepicker'
 import { ko } from 'date-fns/locale'
 import { format } from 'date-fns'

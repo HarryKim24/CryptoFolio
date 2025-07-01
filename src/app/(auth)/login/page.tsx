@@ -65,7 +65,7 @@ const LoginPage = () => {
             placeholder="이메일"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-third"
           />
         </div>
 
@@ -75,7 +75,7 @@ const LoginPage = () => {
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 pr-10 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 pr-10 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-third"
           />
           <button
             type="button"

@@ -13,7 +13,6 @@ const config: Config = {
         primary: "#5731a8",
         secondary: "#c637b3",
         third: "#ffb84c",
-        accent: "#f6b072",
         chart: "#267187",
         trend: "#5a3a56",
         portfolio: "#7b5ea8",

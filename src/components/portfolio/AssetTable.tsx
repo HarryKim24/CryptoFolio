@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import type { Asset } from './types'
+import type { Asset } from '../../types/assetTypes'
 import { formatNumberForDisplay, formatPrice } from '@/utils/formatNumber'
 
 interface Props {
@@ -45,7 +45,7 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
         <h3 className="text-lg text-gray-300 mb-2">거래 내역</h3>
         <button
           onClick={onDeleteAll}
-          className="px-2 py-0.5 rounded-lg bg-red-600/40 hover:bg-red-600/70 text-neutral-100 transition text-sm"
+          className="px-2 py-0.5 rounded-lg bg-red-500 hover:brightness-105 text-neutral-100 transition text-sm"
         >
           모두 삭제
         </button>
@@ -87,7 +87,7 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
                     <td className="p-2 text-center">
                       <button
                         onClick={() => onDelete(a._id)}
-                        className="px-2 py-1 rounded-lg bg-red-500/40 hover:bg-red-500/70 text-neutral-100 transition text-sm"
+                        className="px-2 py-1 rounded-lg bg-red-500 hover:brightness-105 text-neutral-100 transition text-sm"
                         title="삭제"
                       >
                         ✕
