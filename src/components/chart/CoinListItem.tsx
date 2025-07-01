@@ -34,20 +34,20 @@ const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinL
   return (
     <div
       onClick={handleClick}
-      className="flex justify-between items-center p-2 rounded hover:ring-1 ring-white/10 hover:bg-white/5 cursor-pointer"
+      className="flex justify-between items-start px-2 py-1 rounded hover:ring-1 ring-white/10 hover:bg-white/5 cursor-pointer"
     >
       <div>
-        <div className="flex items-center gap-1 font-medium flex-wrap">
+        <div className="flex items-center gap-1 text-base font-medium flex-wrap">
           <span>{korean_name}</span>
           <CoinCautionBadge caution={caution} />
         </div>
-        <div className="text-xs text-gray-400">{ticker.market}</div>
+        <div className="text-sm text-gray-400">{ticker.market}</div>
       </div>
       <div className="text-right">
-        <div>
+        <div className="text-base">
           {typeof ticker.trade_price === "number" ? (
             ticker.market.startsWith("KRW") ? (
-              `${ticker.trade_price.toLocaleString()}₩`
+              `${ticker.trade_price.toLocaleString()} 원`
             ) : ticker.market.startsWith("BTC") ? (
               `${ticker.trade_price.toFixed(8)} BTC`
             ) : ticker.trade_price >= 1000 ? (
@@ -60,7 +60,7 @@ const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinL
           )}
         </div>
         <div
-          className={`text-xs ${
+          className={`text-sm ${
             ticker.signed_change_rate > 0
               ? "text-red-400"
               : ticker.signed_change_rate < 0

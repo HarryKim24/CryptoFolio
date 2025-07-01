@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Asset } from "@/components/portfolio/types"
+import { Asset } from "@/types/assetTypes"
 
 export function getDistribution(assets: Asset[], priceMap: Record<string, number>) {
   const result: Record<string, number> = {}

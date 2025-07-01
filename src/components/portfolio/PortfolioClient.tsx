@@ -6,7 +6,7 @@ import AssetTable from '@/components/portfolio/AssetTable'
 import AssetModal from '@/components/portfolio/AssetModal'
 import AssetDistribution from '@/components/portfolio/AssetDisturibution'
 import AssetPerformance from '@/components/portfolio/AssetPerformance'
-import { Asset } from '@/components/portfolio/types'
+import { Asset } from '@/types/assetTypes'
 import { getTickerInfo } from '@/api/upbitApi'
 import { getDistribution } from '@/utils/portfolioCharts'
 import ConfirmModal from '@/components/portfolio/ConfirmModal'
@@ -129,7 +129,7 @@ const PortfolioClient = () => {
 
 
   return (
-    <div className="p-6 space-y-8 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
+    <div className="p-6 space-y-6 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
       <div className="flex flex-col xs:px-20 lg:px-0 lg:flex-row items-stretch gap-6">
         <div className="w-full lg:w-5/6">
           <AssetSummary assets={assets} />
@@ -138,10 +138,10 @@ const PortfolioClient = () => {
           <div className="mt-auto">
             <button
               onClick={() => setShowModal(true)}
-              className="w-full px-4 py-2 rounded-xl whitespace-nowrap bg-portfolio
-              text-neutral-100 hover:bg-portfolio/90 shadow transition"
+              className="w-full text-xl font-bold px-4 py-2 rounded-xl whitespace-nowrap bg-portfolio
+              text-neutral-100 hover:brightness-105 shadow transition"
             >
-              + 거래 추가
+              거래 추가
             </button>
           </div>
         </div>

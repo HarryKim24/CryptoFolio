@@ -7,6 +7,7 @@ import CoinList from "@/components/chart/CoinList";
 import CoinChart from "@/components/chart/CoinChart";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 import { motion } from "framer-motion";
+import { Market } from "@/types/upbitTypes";
 
 type MarketTab = "KRW" | "BTC" | "USDT";
 
@@ -46,7 +47,7 @@ const ChartPage = () => {
   }
 
   const validTicker = tickers[market];
-  const validMarketInfo = markets.find((m) => m.market === market);
+  const validMarketInfo = markets.find((m: Market) => m.market === market);
 
   if (!validTicker || !validMarketInfo) {
     return (

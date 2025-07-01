@@ -89,7 +89,7 @@ if (!isReady) {
       transition={{ duration: 1 }}
       className="bg-white/5 shadow p-4 rounded-xl flex flex-col md:h-[400px] overflow-hidden"
     >
-      <h3 className="text-lg text-gray-300 mb-2">보유 종목 분포</h3>
+      <h3 className="text-xl font-bold text-neutral-100 mb-2">보유 종목 분포</h3>
   
       <div className="flex-1 w-full justify-center overflow-x-auto overflow-y-hidden">
         <div className="flex items-center gap-8 flex-col md:flex-row w-max mx-auto">

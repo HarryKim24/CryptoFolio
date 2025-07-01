@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Asset } from './types'
+import { Asset } from '../../types/assetTypes'
 import { formatNumberForDisplay, formatPrice } from '@/utils/formatNumber'
 
 interface Props {
@@ -88,7 +88,7 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
       transition={{ duration: 1 }}
       className="bg-white/5 rounded-xl shadow p-4 h-[400px] flex flex-col overflow-hidden"
     >
-      <h3 className="text-lg text-gray-300 mb-2">보유 종목 수익</h3>
+      <h3 className="text-xl font-bold text-neutral-100 mb-2">보유 종목 수익</h3>
 
       <div className="flex-1 overflow-auto w-full">
         <table className="min-w-full table-fixed text-sm text-neutral-100 whitespace-nowrap">
@@ -107,15 +107,15 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
               .sort((a, b) => b.profit - a.profit)
               .map((d, i) => (
                 <tr key={i} className="border-t border-gray-400">
-                  <td className="py-2 pr-2 truncate">{d.symbol} - {d.name}</td>
+                  <td className="py-2 pr-2 pl-2 truncate">{d.symbol} - {d.name}</td>
                   <td className="py-2 pr-2 text-right">{formatNumberForDisplay(d.quantity)}</td>
                   <td className="py-2 pr-2 text-right">{formatPrice(d.averagePrice)} 원</td>
                   <td className="py-2 pr-2 text-right">{formatPrice(d.currentPrice)} 원</td>
                   <td className={`py-2 pr-2 text-right ${d.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {d.profit >= 0 ? '+' : ''}{Math.floor(d.profit).toLocaleString()} 원
                   </td>
-                  <td className={`py-2 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {d.rate.toFixed(2)}%
+                  <td className={`py-2 pr-2 text-right ${d.rate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {d.rate >= 0 ? '+' : ''}{d.rate.toFixed(2)}%
                   </td>
                 </tr>
               ))}

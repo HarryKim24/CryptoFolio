@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import type { Asset } from './types'
+import type { Asset } from '../../types/assetTypes'
 import DatePicker from 'react-datepicker'
 import { ko } from 'date-fns/locale'
+import { format } from 'date-fns'
 import 'react-datepicker/dist/react-datepicker.css'
-
 
 interface Market {
   market: string
@@ -69,7 +69,11 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const { symbol, name, quantity, averagePrice, date, type } = input
-    if (symbol && name && quantity !== undefined && averagePrice !== undefined && date && type) {
+    if (!symbol || !name) {
+      alert('코인을 검색하고 목록에서 선택해주세요.')
+    } else if (quantity === undefined || averagePrice === undefined || !date || !type) {
+      alert('모든 필드를 올바르게 입력해주세요.')
+    } else {
       onSave({
         symbol,
         name,
@@ -79,22 +83,22 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
         type,
       })
       onClose()
-    } else {
-      alert('모든 필드를 올바르게 입력해주세요.')
     }
   }
 
   if (!show) return null
 
+  const isFormComplete = input.symbol && input.name && input.quantity !== undefined && input.averagePrice !== undefined && input.date && input.type
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
       <form
         onSubmit={handleSubmit}
-        className="bg-white/5 text-neutral-100 backdrop-blur-xl rounded-xl shadow-xl w-full max-w-md p-6"
+        className="bg-white/5 text-neutral-100 backdrop-blur-3xl rounded-xl shadow-xl w-full max-w-md p-6"
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">거래 추가</h2>
-          <button type="button" onClick={onClose} className="text-neutral-100 hover:text-neutral-200 text-2xl p-2">&times;</button>
+          <h2 className="text-xl font-bold">거래 추가</h2>
+          <button type="button" onClick={onClose} className="text-neutral-100 hover:brightness-125 text-3xl p-2">&times;</button>
         </div>
 
         <div className="grid grid-cols-2 gap-2 mb-4 text-sm font-medium">
@@ -104,8 +108,8 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
               type="button"
               className={`rounded-xl py-2 text-sm font-semibold transition focus:outline-none
                 ${input.type === type
-                  ? 'bg-portfolio hover:bg-portfolio/90 text-neutral-100'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
+                  ? 'bg-portfolio hover:brightness-105 text-neutral-100'
+                  : 'bg-white/10 hover:brightness-105 text-gray-300'}`}
               onClick={() => handleChange('type', type)}
             >
               {type === 'buy' ? '구매' : '매도'}
@@ -122,6 +126,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             onChange={e => {
               const value = e.target.value
               setInputValue(value)
+              setInput(prev => ({ ...prev, symbol: undefined, name: undefined }))
               setFilteredMarkets(
                 marketList.filter(m =>
                   [m.korean_name, m.english_name.toLowerCase(), m.market.replace('KRW-', '').toLowerCase()]
@@ -131,11 +136,11 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             }}
           />
           {filteredMarkets.length > 0 && (
-            <ul className="absolute z-50 w-full bg-portfolio mt-1 rounded-xl  shadow max-h-48 overflow-y-auto">
+            <ul className="absolute z-50 w-full bg-portfolio mt-1 rounded-xl shadow max-h-48 overflow-y-auto">
               {filteredMarkets.map((m, idx) => (
                 <li
                   key={idx}
-                  className="px-4 py-2 hover:bg-white/5 cursor-pointer"
+                  className="px-4 py-2 hover:brightness-105 cursor-pointer"
                   onClick={() => handleSelect(m)}
                 >
                   {m.korean_name} ({m.market.replace('KRW-', '')})
@@ -173,7 +178,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
           <DatePicker
             selected={input.date ? new Date(input.date) : null}
             onChange={(date: Date | null) => {
-              handleChange('date', date ? date.toISOString().split('T')[0] : '')
+              handleChange('date', date ? format(date, 'yyyy-MM-dd') : '')
             }}
             dateFormat="yyyy-MM-dd"
             placeholderText="날짜 선택"
@@ -191,7 +196,11 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
 
         <button
           type="submit"
-          className="w-full py-3 bg-portfolio hover:bg-portfolio/90 text-neutral-100 font-semibold rounded-xl transition focus:outline-none"
+          disabled={!isFormComplete}
+          className={`w-full py-3 font-semibold rounded-xl transition focus:outline-none
+                      ${isFormComplete
+                        ? 'bg-portfolio hover:brightness-105 text-neutral-100'
+                        : 'bg-gray-500 cursor-not-allowed'}`}
         >
           거래 추가
         </button>

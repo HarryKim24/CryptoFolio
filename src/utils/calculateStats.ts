@@ -1,4 +1,4 @@
-import { Asset } from '@/components/portfolio/types'
+import { Asset } from '@/types/assetTypes'
 
 export interface PortfolioStats {
   evaluation: number

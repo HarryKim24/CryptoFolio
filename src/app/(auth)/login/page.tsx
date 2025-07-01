@@ -65,7 +65,7 @@ const LoginPage = () => {
             placeholder="이메일"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-third"
           />
         </div>
 
@@ -75,7 +75,7 @@ const LoginPage = () => {
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 pr-10 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full px-4 py-2 pr-10 rounded bg-primary text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-third"
           />
           <button
             type="button"
@@ -83,16 +83,16 @@ const LoginPage = () => {
             className="absolute right-3 top-1/2 -translate-y-1/2"
           >
             {showPassword ? (
-              <EyeSlashIcon className="h-5 w-5 text-pink-200 hover:text-white" />
+              <EyeSlashIcon className="h-5 w-5 text-third focus:outline-none" />
             ) : (
-              <EyeIcon className="h-5 w-5 text-pink-200 hover:text-white" />
+              <EyeIcon className="h-5 w-5 text-third focus:outline-none" />
             )}
           </button>
         </div>
 
         <button
           onClick={handleLogin}
-          className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition"
+          className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition focus:outline-none focus:ring-2 focus:ring-third"
         >
           로그인
         </button>
@@ -100,7 +100,7 @@ const LoginPage = () => {
 
       <div className="text-sm text-center text-neutral-100 mt-6">
         계정이 없으신가요?{" "}
-        <Link href="/register" className="text-secondary hover:underline">
+        <Link href="/register" className="text-secondary hover:underline focus:outline-none">
           회원가입
         </Link>
       </div>
