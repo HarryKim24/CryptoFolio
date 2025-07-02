@@ -58,7 +58,7 @@ const CoinDetail = ({ market, isMobile = false, view = "chart", onToggleView, is
 
   return (
     <div className="border-b border-white/10">
-      <div className={`h-[119px] p-4 ${isChartSection ? 'pr-4' : 'pr-0'} md:pr-4 flex justify-between items-start gap-2 lg:gap-4`}>
+      <div className={`md:h-[119px] p-4 ${isChartSection ? 'pr-4' : 'pr-0'} md:pr-4 flex justify-between items-start gap-2 lg:gap-4`}>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 font-medium whitespace-nowrap">
             <h2 className="text-lg md:text-2xl lg:text-3xl font-bold truncate">{marketInfo.korean_name}</h2>
