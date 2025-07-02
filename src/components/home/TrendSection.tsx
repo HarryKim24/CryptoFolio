@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
@@ -7,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useInView } from 'framer-motion'
 import { useAnimatedNumber } from '@/utils/animatedNumber'
 import TrendDescription from "@/components/home/TrendDescription"
+import { Market } from '@/types/upbitTypes'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -43,9 +43,9 @@ const TrendSection = () => {
       try {
         const marketRes = await fetch('https://api.upbit.com/v1/market/all')
         const markets = await marketRes.json()
-        const krwMarkets = markets.filter((m: any) => m.market.startsWith('KRW-'))
+        const krwMarkets = markets.filter((m: Market) => m.market.startsWith('KRW-'))
 
-        const marketList = krwMarkets.map((m: any) => m.market).join(',')
+        const marketList = krwMarkets.map((m: Market) => m.market).join(',')
         const tickerRes = await fetch(`https://api.upbit.com/v1/ticker?markets=${marketList}`)
         const tickers: Ticker[] = await tickerRes.json()
 
@@ -53,7 +53,7 @@ const TrendSection = () => {
         let ubaiSum = 0
 
         const enriched: CoinChange[] = tickers.map(t => {
-          const info = krwMarkets.find((m: any) => m.market === t.market)
+          const info = krwMarkets.find((m: Market) => m.market === t.market)
           const volumeValue = t.trade_price * t.acc_trade_volume_24h
           ubmiSum += volumeValue
           if (t.market !== 'KRW-BTC') ubaiSum += volumeValue
@@ -126,9 +126,11 @@ const TrendSection = () => {
           <span className="truncate min-w-[200px]">
             {i + 1}. {coin.korean_name} ({coin.market})
           </span>
-          <span className="flex flex-row pl-2">
-            {coin.trade_price.toLocaleString()} 원
-            <span className={`pl-2 min-w-[48px] text-right inline-block ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
+          <span className="flex pl-2 gap-2">
+            <span className="min-w-16 text-right">
+              {coin.trade_price.toLocaleString()} 원
+            </span>
+            <span className={`w-16 pr-4 text-right ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
               {(coin.signed_change_rate * 100).toFixed(2)}%
             </span>
           </span>
@@ -139,10 +141,9 @@ const TrendSection = () => {
 
   return (
     <div ref={containerRef} className="text-center space-y-10 px-2">
-
-      <div className="flex flex-col justify-center items-stretch">
+      <div className="flex flex-col justify-center items-stretch px-6 md:px-0">
         <TrendDescription />
-        <div className='flex flex-col md:flex-row gap-6 md:gap-12 mt-6 md:mt-0'>
+        <div className="flex flex-col md:flex-row gap-6 md:gap-12 mt-6 md:mt-0">
           <div
             ref={leftRef}
             className="flex-1 bg-white/5 rounded-xl px-6 py-6 shadow flex flex-col gap-4 justify-center md:max-h-[280px]"
@@ -161,13 +162,13 @@ const TrendSection = () => {
               </div>
             </div>
           </div>
-  
+
           <div ref={rightRef} className="flex-1 grid sm:grid-cols-2 gap-6 md:gap-12">
-            <div className="bg-white/5 rounded-xl p-4 shadow">
+            <div className="bg-white/5 rounded-xl p-4 shadow min-w-[320px] md:min-w-0 overflow-x-auto whitespace-nowrap">
               <h3 className="text-xl font-semibold mb-4">오늘의 급등 Top 5</h3>
               {renderList(topRise, true)}
             </div>
-            <div className="bg-white/5 rounded-xl p-4 shadow">
+            <div className="bg-white/5 rounded-xl p-4 shadow min-w-[320px] md:min-w-0 overflow-x-auto whitespace-nowrap">
               <h3 className="text-xl font-semibold mb-4">오늘의 급락 Top 5</h3>
               {renderList(topFall, false)}
             </div>
