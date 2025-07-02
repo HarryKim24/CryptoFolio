@@ -21,6 +21,8 @@ const SettingsClient = ({ session }: { session: Session }) => {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteShake, setDeleteShake] = useState(false);
 
   const triggerError = (message: string) => {
     setError("");
@@ -28,6 +30,15 @@ const SettingsClient = ({ session }: { session: Session }) => {
     requestAnimationFrame(() => {
       setError(message);
       setShake(true);
+    });
+  };
+
+  const triggerDeleteError = (message: string) => {
+    setDeleteError("");
+    setDeleteShake(false);
+    requestAnimationFrame(() => {
+      setDeleteError(message);
+      setDeleteShake(true);
     });
   };
 
@@ -94,29 +105,31 @@ const SettingsClient = ({ session }: { session: Session }) => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!passwordInput) {
-      triggerError("비밀번호를 입력하세요.");
+    if (!passwordInput.trim()) {
+      triggerDeleteError("비밀번호를 입력하세요.");
       return;
     }
-
+  
     try {
       const res = await fetch("/api/settings/delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: passwordInput }),
       });
-
+  
       if (!res.ok) {
         const msg = await res.text();
-        triggerError(msg);
+        console.warn("서버 오류:", msg);
+  
+        triggerDeleteError("잘못된 비밀번호를 입력했습니다.");
         return;
       }
-
+  
       alert("탈퇴 완료. 메인 페이지로 이동합니다.");
       await signOut({ callbackUrl: "/" });
     } catch (err) {
       console.error(err);
-      triggerError("회원 탈퇴 중 오류 발생");
+      triggerDeleteError("회원 탈퇴 중 오류 발생");
     }
   };
 
@@ -282,7 +295,15 @@ const SettingsClient = ({ session }: { session: Session }) => {
               className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
             >
               <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
-        
+
+              <p
+                className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out ${
+                  deleteError ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+                } ${deleteShake ? "shake" : ""}`}
+              >
+                {deleteError || "‎"}
+              </p>
+
               <input
                 type="password"
                 placeholder="현재 비밀번호 입력"
@@ -290,12 +311,13 @@ const SettingsClient = ({ session }: { session: Session }) => {
                 onChange={(e) => setPasswordInput(e.target.value)}
                 className="w-full p-2 rounded bg-white/10 border border-white/20 text-neutral-100 placeholder:text-neutral-100 focus:outline-none"
               />
-        
+
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   onClick={() => {
                     setShowDeleteModal(false);
                     setPasswordInput("");
+                    setDeleteError("");
                   }}
                   className="text-sm px-4 py-1.5 rounded transition border border-neutral-100 text-neutral-100 bg-setting hover:brightness-105"
                 >
@@ -304,7 +326,6 @@ const SettingsClient = ({ session }: { session: Session }) => {
                 <button
                   onClick={() => {
                     handleDeleteAccount();
-                    setShowDeleteModal(false);
                   }}
                   className="text-sm px-4 py-1.5 rounded text-neutral-100 bg-red-500 hover:brightness-105"
                 >
