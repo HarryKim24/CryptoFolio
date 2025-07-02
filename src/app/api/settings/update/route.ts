@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { hashPassword, verifyPassword } from "@/lib/auth";
 import client from "@/lib/mongodb";
 import { NextResponse } from "next/server";
+import { authOptions } from "@/lib/authOptions";
 
 export async function PATCH(req: Request) {
   try {
@@ -12,7 +12,7 @@ export async function PATCH(req: Request) {
     }
 
     const { name, currentPassword, newPassword } = await req.json();
-    const db = (await client.connect()).db("cryptofolio");
+    const db = (await (await client).connect()).db("cryptofolio");
     const users = db.collection("users");
 
     const user = await users.findOne({ email: session.user.email });
