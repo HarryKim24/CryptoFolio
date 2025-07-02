@@ -140,16 +140,16 @@ const TrendSection = () => {
   )
 
   return (
-    <div ref={containerRef} className="text-center space-y-10 px-2">
+    <div ref={containerRef} className="text-center space-y-10 px-6">
       <div className="flex flex-col justify-center items-stretch px-6 md:px-0">
         <TrendDescription />
         <div className="flex flex-col md:flex-row gap-6 md:gap-12 mt-6 md:mt-0">
           <div
             ref={leftRef}
-            className="flex-1 bg-white/5 rounded-xl px-6 py-6 shadow flex flex-col gap-4 justify-center md:max-h-[280px]"
+            className="flex-1 bg-white/5 rounded-xl px-6 py-6 shadow flex flex-col gap-4 justify-center md:max-h-[300px]"
           >
             <div>
-              <h2 className="text-3xl font-bold text-neutral-100 mb-8">디지털 자산 거래규모</h2>
+              <h2 className="text-2xl font-bold text-neutral-100 mb-8">디지털 자산 거래규모</h2>
               <div className="space-y-6">
                 <div>
                   <p className="text-neutral-400 text-lg pb-1">Market 거래규모</p>
@@ -164,11 +164,11 @@ const TrendSection = () => {
           </div>
 
           <div ref={rightRef} className="flex-1 grid sm:grid-cols-2 gap-6 md:gap-12">
-            <div className="bg-white/5 rounded-xl p-4 shadow min-w-[320px] md:min-w-0 overflow-x-auto whitespace-nowrap">
+            <div className="bg-white/5 rounded-xl p-4 shadow min-w-[320px] md:w-[380px] overflow-x-auto whitespace-nowrap">
               <h3 className="text-xl font-semibold mb-4">오늘의 급등 Top 5</h3>
               {renderList(topRise, true)}
             </div>
-            <div className="bg-white/5 rounded-xl p-4 shadow min-w-[320px] md:min-w-0 overflow-x-auto whitespace-nowrap">
+            <div className="bg-white/5 rounded-xl p-4 shadow min-w-[320px] md:w-[380px] overflow-x-auto whitespace-nowrap">
               <h3 className="text-xl font-semibold mb-4">오늘의 급락 Top 5</h3>
               {renderList(topFall, false)}
             </div>
