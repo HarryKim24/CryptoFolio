@@ -84,7 +84,7 @@ const BitFlow = () => {
     <section className="bg-white/5 rounded-xl p-6 pb-4 shadow flex flex-col gap-6 min-h-[620px]">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">비트코인 트렌드</h2>
-        <span className="text-xl font-semibold text-neutral-100">
+        <span className="text-xl font-semibold text-red-400">
           {btcData.length > 0
             ? `${btcData[btcData.length - 1].y.toLocaleString("ko-KR")} 원`
             : "-"}

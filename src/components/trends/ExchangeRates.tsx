@@ -78,7 +78,7 @@ const ExchangeRates = () => {
                     <span className="text-[16px] font-bold text-neutral-100">
                       {currency.country}
                     </span>
-                    <span className="text-[16px] font-semibold text-neutral-100">
+                    <span className="text-[16px] font-semibold text-red-400">
                       {currency.rate !== "N/A" ? `${currency.rate} 원` : "N/A"}
                     </span>
                   </div>
