@@ -1,15 +1,19 @@
 export const formatNumberForDisplay = (value: number): string => {
+  if (isNaN(value)) return '-'
+
   const [intPart, fracPart = ''] = value.toString().split('.')
 
+  const intPartFormatted = Number(intPart).toLocaleString('ko-KR')
+
   if (intPart.length >= 6) {
-    return intPart
+    return intPartFormatted
   }
 
   if (parseInt(intPart) > 0) {
     const allowedFracLength = Math.max(0, 6 - intPart.length)
     return fracPart
-      ? `${intPart}.${fracPart.slice(0, allowedFracLength)}`
-      : intPart
+      ? `${intPartFormatted}.${fracPart.slice(0, allowedFracLength)}`
+      : intPartFormatted
   }
 
   let trimmedFrac = fracPart.slice(0, 6)
@@ -24,5 +28,5 @@ export const formatNumberForDisplay = (value: number): string => {
 
 export const formatPrice = (value: number): string => {
   if (isNaN(value)) return '-'
-  return Math.floor(value).toLocaleString()
+  return Math.floor(value).toLocaleString('ko-KR')
 }

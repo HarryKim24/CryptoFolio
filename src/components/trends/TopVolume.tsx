@@ -23,6 +23,7 @@ const TopVolume = () => {
   const [topCoins, setTopCoins] = useState<CoinVolume[]>([]);
   const [current, setCurrent] = useState(0);
   const [chartData, setChartData] = useState<Record<string, any>>({});
+
   const chartDataRef = useRef<Record<string, any>>({});
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -164,14 +165,21 @@ const TopVolume = () => {
                       scales: {
                         x: {
                           type: "time",
-                          time: { unit: "hour", displayFormats: { hour: "HH:mm" } },
-                          ticks: { color: "#aaa" },
+                          time: {
+                            unit: "hour",
+                            displayFormats: { hour: "HH시" },
+                          },
+                          ticks: {
+                            color: "#aaa",
+                            maxRotation: 0,
+                            minRotation: 0,
+                          },
                           grid: { color: "rgba(255,255,255,0.05)" },
                         },
                         y: {
                           ticks: {
                             color: "#aaa",
-                            callback: (val: any) => `₩${Number(val).toLocaleString("ko-KR")}`,
+                            callback: (val: any) => `${Number(val).toLocaleString("ko-KR")} 원`,
                           },
                           grid: { color: "rgba(255,255,255,0.05)" },
                         },

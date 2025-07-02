@@ -151,26 +151,29 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
         </div>
 
         <div className="grid grid-cols-2 gap-2 mb-4">
-          <input
-            type="number"
-            min="0"
-            step="any"
-            placeholder="수량"
-            className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 placeholder-neutral-100 focus:outline-none"
-            value={input.quantity ?? ''}
-            onChange={e => handleChange('quantity', e.target.value)}
-          />
+          <div className='relative w-full'>
+            <input
+              type="number"
+              min="0"
+              step="any"
+              placeholder="수량"
+              className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 pr-10 placeholder-neutral-100 focus:outline-none"
+              value={input.quantity ?? ''}
+              onChange={e => handleChange('quantity', e.target.value)}
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-md text-neutral-100">개</span>
+          </div>
           <div className="relative w-full">
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-md text-neutral-100">₩</span>
             <input
               type="number"
               min="0"
               step="any"
               placeholder="코인당 가격"
-              className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 pr-14 placeholder-neutral-100 focus:outline-none"
+              className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 pr-10 placeholder-neutral-100 focus:outline-none"
               value={input.averagePrice ?? ''}
               onChange={e => handleChange('averagePrice', e.target.value)}
             />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-md text-neutral-100">원</span>
           </div>
         </div>
 
@@ -180,7 +183,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             onChange={(date: Date | null) => {
               handleChange('date', date ? format(date, 'yyyy-MM-dd') : '')
             }}
-            dateFormat="yyyy-MM-dd"
+            dateFormat="yyyy년 MM월 dd일"
             placeholderText="날짜 선택"
             locale={ko}
             className="w-full bg-white/10 text-white rounded-xl px-4 py-3 focus:outline-none placeholder-neutral-100"
@@ -191,7 +194,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
 
         <div className="bg-white/10 rounded-xl p-4 mb-4">
           <p className="text-sm text-neutral-100">사용된 총액</p>
-          <p className="text-xl font-semibold">₩ {totalPrice.toLocaleString()}</p>
+          <p className="text-xl font-semibold">{totalPrice.toLocaleString()} 원</p>
         </div>
 
         <button

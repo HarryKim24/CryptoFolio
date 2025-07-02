@@ -130,8 +130,8 @@ const TrendSection = () => {
             <span className="min-w-16 text-right">
               {coin.trade_price.toLocaleString()} 원
             </span>
-            <span className={`w-16 pr-4 text-right ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
-              {(coin.signed_change_rate * 100).toFixed(2)}%
+            <span className={`w-16 pr-2 xs:pr-0 text-right ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
+              {(coin.signed_change_rate * 100).toFixed(1)}%
             </span>
           </span>
         </li>
@@ -153,11 +153,11 @@ const TrendSection = () => {
               <div className="space-y-6">
                 <div>
                   <p className="text-neutral-400 text-lg pb-1">Market 거래규모</p>
-                  <p className="text-3xl font-bold text-neutral-100">{(animatedUBMV / 1e8).toFixed(2)} 억 원</p>
+                  <p className="text-3xl font-bold text-neutral-100">{(animatedUBMV / 1e8).toFixed(0)}억 원</p>
                 </div>
                 <div>
                   <p className="text-neutral-400 text-lg pb-1">Altcoin 거래규모</p>
-                  <p className="text-3xl font-bold text-neutral-100">{(animatedUBAV / 1e8).toFixed(2)} 억 원</p>
+                  <p className="text-3xl font-bold text-neutral-100">{(animatedUBAV / 1e8).toFixed(0)}억 원</p>
                 </div>
               </div>
             </div>

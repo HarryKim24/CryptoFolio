@@ -32,6 +32,7 @@ type PricePoint = { x: Date; y: number };
 
 const BitFlow = () => {
   const [btcData, setBtcData] = useState<PricePoint[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
   const chartRef = useRef<any>(null);
   const [gradient, setGradient] = useState("rgba(96,165,250,0.2)");
 
@@ -54,6 +55,15 @@ const BitFlow = () => {
   }, []);
 
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
     if (!chartRef.current) return;
     const chart = chartRef.current;
     const ctx = chart.ctx;
@@ -63,10 +73,17 @@ const BitFlow = () => {
     setGradient(gradient);
   }, [btcData]);
 
+  const formatPrice = (value: number) => {
+    if (isMobile) {
+      return `${Math.round(value / 10000).toLocaleString("ko-KR")} 만원`;
+    }
+    return `${value.toLocaleString("ko-KR")} 원`;
+  };
+
   return (
     <section className="bg-white/5 rounded-xl p-6 pb-4 shadow flex flex-col gap-6 min-h-[620px]">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">비트코인 24시간 차트</h2>
+        <h2 className="text-xl font-bold">비트코인 트렌드</h2>
         <span className="text-xl font-semibold text-neutral-100">
           {btcData.length > 0
             ? `${btcData[btcData.length - 1].y.toLocaleString("ko-KR")} 원`
@@ -119,7 +136,7 @@ const BitFlow = () => {
                     time: {
                       unit: "hour",
                       displayFormats: {
-                        hour: "HH:mm",
+                        hour: "HH시",
                       },
                     },
                     ticks: {
@@ -128,6 +145,8 @@ const BitFlow = () => {
                         size: 12,
                         weight: "normal",
                       },
+                      maxRotation: 0,
+                      minRotation: 0,
                     },
                     grid: {
                       color: "rgba(255, 255, 255, 0.05)",
@@ -138,7 +157,7 @@ const BitFlow = () => {
                       color: "#aaa",
                       callback: (tickValue: string | number) =>
                         typeof tickValue === "number"
-                          ? `₩${tickValue.toLocaleString("ko-KR")}`
+                          ? formatPrice(tickValue)
                           : tickValue,
                       font: {
                         size: 12,
@@ -162,7 +181,7 @@ const BitFlow = () => {
                     borderWidth: 1,
                     padding: 10,
                     callbacks: {
-                      label: (ctx) => `₩${ctx.parsed.y.toLocaleString("ko-KR")}`,
+                      label: (ctx) => formatPrice(ctx.parsed.y),
                     },
                   },
                 },

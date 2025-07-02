@@ -50,7 +50,6 @@ const TopRise = () => {
     fetchTopDailyRisers();
   }, []);
 
-  // Window width listener
   useEffect(() => {
     const handleResize = () => {
       setIsNarrow(window.innerWidth >= 1024 && window.innerWidth <= 1250);
@@ -87,12 +86,12 @@ const TopRise = () => {
                 <span className="truncate whitespace-nowrap overflow-hidden max-w-none [@media(max-width:1299px)]:max-w-[200px]">
                   {i + 1}. {shortenedName}
                 </span>
-                <span className="text-right">
-                  <span className="text-neutral-100 mr-2">
+                <span className="flex gap-2 pl-2">
+                  <span className="w-16 text-right text-neutral-100">
                     {coin.trade_price.toLocaleString("ko-KR")} 원
                   </span>
-                  <span className="text-red-400 font-medium">
-                    +{(coin.signed_change_rate * 100).toFixed(2)}%
+                  <span className="w-16 text-right text-red-400 font-medium">
+                    +{(coin.signed_change_rate * 100).toFixed(1)}%
                   </span>
                 </span>
               </li>
