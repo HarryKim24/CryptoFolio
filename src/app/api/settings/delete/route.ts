@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { verifyPassword } from "@/lib/auth";
 import client from "@/lib/mongodb";
 import { NextResponse } from "next/server";
+import { authOptions } from "@/lib/authOptions";
 
 export async function DELETE(req: Request) {
   try {
@@ -17,7 +17,7 @@ export async function DELETE(req: Request) {
       return new NextResponse("비밀번호를 입력하세요", { status: 400 });
     }
 
-    const db = (await client.connect()).db("cryptofolio");
+    const db = (await (await client).connect()).db("cryptofolio");
     const users = db.collection("users");
 
     const user = await users.findOne({ email: session.user.email });
