@@ -27,7 +27,7 @@ export async function DELETE(req: Request) {
 
     const isMatch = await verifyPassword(password, user.password);
     if (!isMatch) {
-      return new NextResponse("비밀번호가 일치하지 않습니다", { status: 403 });
+      return new NextResponse("비밀번호가 일치하지 않습니다", { status: 401 });
     }
 
     await users.deleteOne({ email: session.user.email });
