@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { RiCopperCoinFill } from "react-icons/ri";
+import Navbar from "@/components/nav/Navbar";
+import SessionClientLayout from "@/components/session/SessionClientLayout";
 
 export const metadata: Metadata = {
   title: "CryptoFolio",
@@ -21,20 +22,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="ko">
       <head>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
       <body>
-        <header className="">
-          <RiCopperCoinFill size={28} style={{ color: "black" }} />
-          <span>CryptoFolio</span>
-        </header>
-        {children}
+        <SessionClientLayout>
+          <Navbar />
+          <main>{children}</main>
+        </SessionClientLayout>
       </body>
     </html>
   );
