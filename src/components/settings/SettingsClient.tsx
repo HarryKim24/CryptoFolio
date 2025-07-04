@@ -172,7 +172,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
         layout
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.7 }}
+        transition={{ duration: 0.5 }}
         className="w-full max-w-3xl min-w-[250px] bg-white/5 p-10 sm:p-12 rounded-xl shadow space-y-3"
       >
         <div className="flex items-center justify-between">
@@ -180,7 +180,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             key={isEditing ? "title-edit" : "title-view"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.7 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
             className="text-2xl md:text-4xl font-extrabold text-white"
           >
             {isEditing ? "프로필 수정" : "프로필"}
@@ -190,7 +190,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             key={isEditing ? "editing-controls" : "view-controls"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.7 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
             className="flex gap-2"
           >
             {isEditing ? (
@@ -241,7 +241,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
           layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.7 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
           className="text-white space-y-4"
         >
           {isEditing ? (
@@ -272,7 +272,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.7 }}
+                transition={{ delay: 0.8, duration: 0.5 }}
                 className="pt-4 flex justify-end"
               >
                 <button
@@ -291,7 +291,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1}}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.5 }}
               className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
             >
               <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
