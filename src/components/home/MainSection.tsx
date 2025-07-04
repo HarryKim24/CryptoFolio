@@ -87,7 +87,7 @@ const MainSection = () => {
             transition={{ duration: 1.2, ease: 'easeOut' }}
             className="text-3xl md:text-4xl font-bold leading-tight"
           >
-            신뢰할 수 있는 암호화폐 자산 포트폴리오 플랫폼
+            사용자 중심 암호화폐 자산 포트폴리오 플랫폼
           </motion.h1>
 
           <motion.p
@@ -97,7 +97,7 @@ const MainSection = () => {
             className="text-neutral-300 text-sm md:text-lg"
           >
             암호화폐 가격을 실시간으로 조회하고,
-            트렌드를 분석하여 맞춤형 포트폴리오를 만들어보세요.
+            트렌드를 분석하여 나만의 맞춤형 포트폴리오를 만들어보세요.
           </motion.p>
 
           <motion.div
