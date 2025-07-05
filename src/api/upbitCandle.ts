@@ -8,23 +8,18 @@ export const getUpbitCandles = async ({
   to,
   count = 100,
 }: GetCandlesOptions): Promise<upbitCandle[]> => {
-  const baseUrl = "https://api.upbit.com/v1/candles";
-
-  let url = `${baseUrl}/${candleType}`;
-  if (candleType === "minutes") {
-    if (!unit) throw new Error("단위가 지정되지 않았습니다: minutes 캔들은 unit이 필요합니다.");
-    url += `/${unit}`;
-  }
+  const baseUrl = "/api/proxy/candles";
 
   const params: Record<string, string | number> = {
     market,
+    candleType,
     count,
   };
-
+  if (unit) params.unit = unit;
   if (to) params.to = to;
 
   try {
-    const response = await axios.get<upbitCandle[]>(url, {
+    const response = await axios.get<upbitCandle[]>(baseUrl, {
       params,
       headers: { Accept: "application/json" },
     });
