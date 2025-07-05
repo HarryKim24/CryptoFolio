@@ -50,14 +50,14 @@ const useUpbitTicker = () => {
   }, [markets]);
 
   useEffect(() => {
-    if (markets.length === 0) return;
-
+    if (typeof window === "undefined" || markets.length === 0) return;
+  
     const codes = markets.map((m) => m.market);
     if (codes.length === 0) return;
-
+  
     const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
     socketRef.current = socket;
-
+  
     socket.onopen = () => {
       socket.send(
         JSON.stringify([
@@ -66,14 +66,14 @@ const useUpbitTicker = () => {
         ])
       );
     };
-
+  
     socket.onmessage = async (e) => {
       try {
         const buffer = await (e.data as Blob).arrayBuffer();
         const raw = JSON.parse(new TextDecoder().decode(buffer));
         const market = raw.code;
         const data: Ticker = { ...raw, market };
-
+  
         setTickers((prev) => {
           const prevData = prev[market];
           if (
@@ -92,12 +92,12 @@ const useUpbitTicker = () => {
         console.error("WebSocket 데이터 처리 실패:", err);
       }
     };
-
+  
     return () => {
       socket.close();
     };
   }, [markets]);
-
+  
   return {
     loading,
     markets,

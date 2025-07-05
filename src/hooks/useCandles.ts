@@ -31,11 +31,11 @@ const useCandles = (options: GetCandlesOptions) => {
   }, [options]);
 
   useEffect(() => {
-    if (!options.market || data.length === 0) return;
-
+    if (typeof window === "undefined" || !options.market || data.length === 0) return;
+  
     const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
     wsRef.current = socket;
-
+  
     socket.onopen = () => {
       const payload = [
         { ticket: "realtime-candle" },
@@ -43,31 +43,31 @@ const useCandles = (options: GetCandlesOptions) => {
       ];
       socket.send(JSON.stringify(payload));
     };
-
+  
     socket.onmessage = async (event) => {
       const buffer = await (event.data as Blob).arrayBuffer();
       const raw = JSON.parse(new TextDecoder().decode(buffer));
-
+  
       setData((prev) => {
         if (prev.length === 0) return prev;
         const updated = [...prev];
         const last = { ...updated[updated.length - 1] };
-
+  
         if (Math.abs(last.date.getTime() - raw.timestamp) < 1000 * 60 * 5) {
           last.close = raw.trade_price;
           last.volume += raw.trade_volume;
           updated[updated.length - 1] = last;
         }
-
+  
         return updated;
       });
     };
-
+  
     return () => {
       socket.close();
     };
   }, [options.market, data.length]);
-
+  
   useEffect(() => {
     if (!options.market || data.length === 0) return;
 
