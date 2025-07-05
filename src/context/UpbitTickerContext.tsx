@@ -21,7 +21,9 @@ export const UpbitTickerProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     const fetchMarkets = async () => {
       try {
-        const res = await axios.get<Market[]>("https://api.upbit.com/v1/market/all?isDetails=true");
+        const res = await axios.get<Market[]>("/api/proxy/market", {
+          params: { isDetails: true },
+        });
         const krwMarkets = res.data.filter((m) => m.market.startsWith("KRW-"));
         setMarkets(krwMarkets);
       } catch (err) {

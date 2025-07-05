@@ -28,16 +28,17 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
 
   useEffect(() => {
     if (show) {
-      fetch('https://api.upbit.com/v1/market/all?isDetails=true')
+      fetch('/api/proxy/market?isDetails=true')
         .then(res => res.json())
         .then(data => {
           const krwMarkets = data.filter((m: Market) => m.market.startsWith('KRW-'))
           setMarketList(krwMarkets)
         })
+  
       setInput({})
       setInputValue('')
       setFilteredMarkets([])
-
+  
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
