@@ -93,7 +93,7 @@ export const UpbitTickerProvider = ({ children }: { children: React.ReactNode })
 
     fetchPollingTickers();
 
-    const interval = setInterval(fetchPollingTickers, 10000);
+    const interval = setInterval(fetchPollingTickers, 1000);
     return () => clearInterval(interval);
   }, [markets]);
 
