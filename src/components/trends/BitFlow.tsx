@@ -39,18 +39,18 @@ const BitFlow = () => {
   useEffect(() => {
     const fetchBTC = async () => {
       try {
-        const res = await axios.get("https://api.upbit.com/v1/candles/minutes/30", {
+        const res = await axios.get("/api/proxy/v1/candles/minutes/30", {
           params: { market: "KRW-BTC", count: 48 },
-        });
+        })
         const formatted = res.data.reverse().map((item: any) => ({
           x: new Date(item.candle_date_time_kst),
           y: item.trade_price,
-        }));
-        setBtcData(formatted);
+        }))
+        setBtcData(formatted)
       } catch (err) {
-        console.error("BTC 데이터 로딩 실패:", err);
+        console.error("BTC 데이터 로딩 실패:", err)
       }
-    };
+    }
     fetchBTC();
   }, []);
 

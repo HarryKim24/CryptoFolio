@@ -56,12 +56,16 @@ const TopVolume = () => {
   useEffect(() => {
     const fetchTopVolumeCoins = async () => {
       try {
-        const marketRes = await axios.get("https://api.upbit.com/v1/market/all?isDetails=false");
+        const marketRes = await axios.get("/api/proxy/v1/market/all", {
+          params: { isDetails: false },
+        });
         const krwMarkets = marketRes.data.filter((m: any) => m.market.startsWith("KRW-"));
         const altMarkets = krwMarkets.filter((m: any) => m.market !== "KRW-BTC");
 
         const marketQuery = altMarkets.map((m: any) => m.market).join(",");
-        const tickerRes = await axios.get(`https://api.upbit.com/v1/ticker?markets=${marketQuery}`);
+        const tickerRes = await axios.get("/api/proxy/v1/ticker", {
+          params: { markets: marketQuery },
+        });
         const tickers = tickerRes.data.filter((t: any) => t.market !== "KRW-BTC");
 
         const sorted = tickers
@@ -87,7 +91,7 @@ const TopVolume = () => {
   useEffect(() => {
     const fetchChart = async (market: string) => {
       try {
-        const res = await axios.get("https://api.upbit.com/v1/candles/minutes/30", {
+        const res = await axios.get("/api/proxy/v1/candles/minutes/30", {
           params: { market, count: 48 },
         });
         const data = res.data.reverse().map((item: any) => ({
