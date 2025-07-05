@@ -34,17 +34,17 @@ export const UpbitTickerProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    if (markets.length === 0) return;
-
+    if (typeof window === "undefined" || markets.length === 0) return;
+  
     const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
     wsRef.current = socket;
-
+  
     socket.onopen = () => {
       const ticket = { ticket: "ticker" };
       const type = { type: "ticker", codes: markets.map((m) => m.market) };
       socket.send(JSON.stringify([ticket, type]));
     };
-
+  
     socket.onmessage = (event) => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -55,10 +55,10 @@ export const UpbitTickerProvider = ({ children }: { children: React.ReactNode })
       };
       reader.readAsText(event.data);
     };
-
+  
     return () => socket.close();
   }, [markets]);
-
+  
   return (
     <UpbitTickerContext.Provider value={{ tickers, markets, loading }}>
       {children}
