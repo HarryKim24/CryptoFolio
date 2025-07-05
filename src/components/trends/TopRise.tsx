@@ -20,13 +20,15 @@ const TopRise = () => {
   useEffect(() => {
     const fetchTopDailyRisers = async () => {
       try {
-        const marketRes = await axios.get<Market[]>("https://api.upbit.com/v1/market/all?isDetails=false");
+        const marketRes = await axios.get<Market[]>("/api/proxy/v1/market/all", {
+          params: { isDetails: false },
+        });
         const krwMarkets = marketRes.data.filter((m) => m.market.startsWith("KRW-"));
 
         const marketQuery = krwMarkets.map((m) => m.market).join(",");
-        const tickerRes = await axios.get<Ticker[]>(
-          `https://api.upbit.com/v1/ticker?markets=${marketQuery}`
-        );
+        const tickerRes = await axios.get<Ticker[]>("/api/proxy/v1/ticker", {
+          params: { markets: marketQuery },
+        });
 
         const sorted = tickerRes.data
           .map((ticker) => {
