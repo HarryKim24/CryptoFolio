@@ -92,15 +92,13 @@ const useCandles = (options: GetCandlesOptions) => {
           if (prev.length === 0) return newCandles;
 
           const existingTimestamps = new Set(prev.map(c => c.date.getTime()));
-          const merged = [...prev];
+          const newOnes = newCandles.filter(c => !existingTimestamps.has(c.date.getTime()));
 
-          newCandles.forEach((c) => {
-            if (!existingTimestamps.has(c.date.getTime())) {
-              merged.push(c);
-            }
-          });
+          if (newOnes.length === 0) {
+            return prev;
+          }
 
-          return merged.sort((a, b) => a.date.getTime() - b.date.getTime());
+          return [...prev, ...newOnes].sort((a, b) => a.date.getTime() - b.date.getTime());
         });
       } catch (err) {
         console.error("Polling으로 캔들 데이터 가져오기 실패:", err);
