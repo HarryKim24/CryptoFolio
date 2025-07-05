@@ -130,7 +130,7 @@ const useUpbitTicker = () => {
 
     fetchTickers();
 
-    const interval = setInterval(fetchTickers, 10000);
+    const interval = setInterval(fetchTickers, 1000);
     return () => clearInterval(interval);
   }, [markets]);
 
