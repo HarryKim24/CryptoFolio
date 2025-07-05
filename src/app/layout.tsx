@@ -6,18 +6,16 @@ import SessionClientLayout from "@/components/session/SessionClientLayout";
 export const metadata: Metadata = {
   title: "CryptoFolio",
   description:
-    "CryptoFolio는 실시간 암호화폐 시세 확인, 포트폴리오 관리, 차트 조회 기능을 제공하는 웹 애플리케이션입니다.",
-  authors: [{ name: "CryptoFolio Team" }],
-  creator: "CryptoFolio",
+    "CryptoFolio는 차트 조회, 트렌드 분석, 포트폴리오 만들기 제공하는 웹 사이트입니다.",
   openGraph: {
     title: "CryptoFolio | 실시간 암호화폐 포트폴리오",
-    description: "실시간 코인 시세 확인 및 포트폴리오 관리까지 한 곳에서!",
-    url: "https://your-domain.com",
+    description: "암호화폐 가격을 실시간으로 조회하고, 트렌드를 분석하여 나만의 맞춤형 포트폴리오를 만들어보세요.",
+    url: "https://crypto-folio-harrykim24.vercel.app/",
     siteName: "CryptoFolio",
     locale: "ko_KR",
     type: "website",
   },
-  metadataBase: new URL("https://your-domain.com"),
+  metadataBase: new URL("https://crypto-folio-harrykim24.vercel.app/"),
 };
 
 export default function RootLayout({
