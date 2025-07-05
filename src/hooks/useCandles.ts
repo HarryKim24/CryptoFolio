@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { GetCandlesOptions, NormalizedCandle } from "@/types/upbitCandle";
 import { fetchNormalizedCandles } from "@/utils/fetchCandles";
 
+const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === "true";
+
 const useCandles = (options: GetCandlesOptions) => {
   const [data, setData] = useState<NormalizedCandle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,11 +33,16 @@ const useCandles = (options: GetCandlesOptions) => {
   }, [options]);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !options.market || data.length === 0) return;
-  
+    if (
+      typeof window === "undefined" ||
+      !options.market ||
+      data.length === 0 ||
+      !enableWebSocket
+    ) return;
+
     const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
     wsRef.current = socket;
-  
+
     socket.onopen = () => {
       const payload = [
         { ticket: "realtime-candle" },
@@ -43,31 +50,57 @@ const useCandles = (options: GetCandlesOptions) => {
       ];
       socket.send(JSON.stringify(payload));
     };
-  
+
     socket.onmessage = async (event) => {
       const buffer = await (event.data as Blob).arrayBuffer();
       const raw = JSON.parse(new TextDecoder().decode(buffer));
-  
+
       setData((prev) => {
         if (prev.length === 0) return prev;
         const updated = [...prev];
         const last = { ...updated[updated.length - 1] };
-  
+
         if (Math.abs(last.date.getTime() - raw.timestamp) < 1000 * 60 * 5) {
           last.close = raw.trade_price;
           last.volume += raw.trade_volume;
           updated[updated.length - 1] = last;
         }
-  
+
         return updated;
       });
     };
-  
+
     return () => {
       socket.close();
     };
   }, [options.market, data.length]);
-  
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      !options.market ||
+      data.length === 0 ||
+      enableWebSocket
+    ) return;
+
+    const fetchPollingData = async () => {
+      try {
+        setLoading(true);
+        const candles = await fetchNormalizedCandles(options);
+        setData(candles);
+      } catch (err) {
+        console.error("Polling으로 캔들 데이터 가져오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPollingData();
+
+    const interval = setInterval(fetchPollingData, 10000);
+    return () => clearInterval(interval);
+  }, [options, data.length]);
+
   useEffect(() => {
     if (!options.market || data.length === 0) return;
 

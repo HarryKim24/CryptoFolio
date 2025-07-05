@@ -12,6 +12,8 @@ interface UpbitTickerContextValue {
   loading: boolean;
 }
 
+const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === "true";
+
 export const UpbitTickerProvider = ({ children }: { children: React.ReactNode }) => {
   const [tickers, setTickers] = useState<Record<string, Ticker>>({});
   const [markets, setMarkets] = useState<Market[]>([]);
@@ -34,17 +36,21 @@ export const UpbitTickerProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined" || markets.length === 0) return;
-  
+    if (
+      typeof window === "undefined" ||
+      markets.length === 0 ||
+      !enableWebSocket
+    ) return;
+
     const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
     wsRef.current = socket;
-  
+
     socket.onopen = () => {
       const ticket = { ticket: "ticker" };
       const type = { type: "ticker", codes: markets.map((m) => m.market) };
       socket.send(JSON.stringify([ticket, type]));
     };
-  
+
     socket.onmessage = (event) => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -55,10 +61,42 @@ export const UpbitTickerProvider = ({ children }: { children: React.ReactNode })
       };
       reader.readAsText(event.data);
     };
-  
+
     return () => socket.close();
   }, [markets]);
-  
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      markets.length === 0 ||
+      enableWebSocket
+    ) return;
+
+    const fetchPollingTickers = async () => {
+      try {
+        setLoading(true);
+        const codes = markets.map((m) => m.market);
+        const res = await axios.get<Ticker[]>("/api/proxy/ticker", {
+          params: { markets: codes.join(",") },
+        });
+        const map: Record<string, Ticker> = {};
+        res.data.forEach((t) => {
+          map[t.market] = t;
+        });
+        setTickers(map);
+      } catch (err) {
+        console.error("Polling으로 티커 가져오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPollingTickers();
+
+    const interval = setInterval(fetchPollingTickers, 10000);
+    return () => clearInterval(interval);
+  }, [markets]);
+
   return (
     <UpbitTickerContext.Provider value={{ tickers, markets, loading }}>
       {children}
