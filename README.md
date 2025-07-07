@@ -4,8 +4,11 @@
 
 ![홈 화면](https://github.com/HarryKim24/CryptoFolio/raw/main/public/homepage.png)
 
-> 📌 자세한 내용은 아래 **프로젝트 문서 페이지**에서 확인하실 수 있습니다.  
-> 👉 [📖 Notion 문서](https://tl9434.notion.site/CryptoFolio-229857f733818008bc5ff076fcc8a16f?pvs=74)
+> - 아래 링크에서 **웹사이트**를 확인하실 수 있습니다.  
+> 👉 https://crypto-folio-harrykim24.vercel.app
+
+> - 자세한 내용은 아래 **프로젝트 문서 페이지**에서 확인하실 수 있습니다.  
+> 👉 [Notion 문서](https://tl9434.notion.site/CryptoFolio-229857f733818008bc5ff076fcc8a16f?pvs=74)
 
 ---
 
@@ -52,9 +55,3 @@
 - **trends**: 트렌드 데이터 분석 페이지
 - **portfolio**: 사용자 포트폴리오 관리 페이지
 - **settings**: 계정 정보 설정 페이지
-
----
-
-## 🚀 배포 링크
-> 배포된 사이트에서 직접 기능을 확인하실 수 있습니다.  
-> 👉 **Live on Vercel**: [https://crypto-folio-harrykim24.vercel.app](https://crypto-folio-harrykim24.vercel.app)
