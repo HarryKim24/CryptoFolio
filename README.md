@@ -45,10 +45,9 @@
 - **Auth**: NextAuth.js
 - **API**: REST + Axios
 - **Database**: MongoDB, Mongoose (MongoDB Atlas)
+- **State Management**: React Context + Provider
 - **Charts**: Chart.js, react-chartjs-2, chartjs-plugin-zoom, chartjs-chart-financial
-- **Date Handling**: date-fns, react-datepicker
 - **Animation**: Framer Motion, GSAP
-- **Icons**: Lucide-react, React-icons, @heroicons/react
 - **Deployment**: Vercel
 
 ---
