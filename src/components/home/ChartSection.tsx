@@ -6,6 +6,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import CoinDetail from '@/components/chart/CoinDetail'
 import CoinChart from '@/components/chart/CoinChartWrapper'
+import ChartDescription from '@/components/home/ChartDescription'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -68,7 +69,7 @@ const ChartSection = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1, ease: 'easeOut' }}
-      className="w-full p-8 md:p-20 lg:p-40 min-w-[320px] flex items-end justify-center"
+      className="w-full p-8 md:p-20 lg:p-40 min-w-[320px] flex flex-col items-center justify-start gap-12"
     >
       <div
         ref={chartRef}
@@ -85,6 +86,8 @@ const ChartSection = () => {
           <CoinChart market={market} disableZoom />
         </div>
       </div>
+
+      <ChartDescription />
     </motion.div>
   )
 }

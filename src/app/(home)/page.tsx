@@ -1,7 +1,6 @@
 'use client'
 
 import ChartSection from "@/components/home/ChartSection";
-import ChartDescription from "@/components/home/ChartDescription";
 import MainSection from "@/components/home/MainSection";
 import PortfolioSection from "@/components/home/PortfolioSection";
 import TrendSection from "@/components/home/TrendSection";
@@ -17,7 +16,6 @@ export default function HomePage() {
         </section>
         <section className="panel h-[200vh] md:h-[150vh] flex flex-col items-center justify-center">
           <ChartSection />
-          <ChartDescription />
         </section>
 
         <section className="panel h-screen flex flex-col items-center justify-center">
