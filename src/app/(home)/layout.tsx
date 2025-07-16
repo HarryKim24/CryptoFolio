@@ -53,7 +53,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       <div className="bg-global bg-chart-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
       <div className="bg-global bg-trends-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
       <div className="bg-global bg-portfolio-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
-      <div className="bg-global bg-setting-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
+      <div className="bg-global fixed inset-0 z-0 opacity-0 pointer-events-none" />
       <div className="relative z-10">{children}</div>
     </div>
   )
