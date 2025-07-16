@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import type { Ticker } from "@/types/upbitTypes";
 import CoinCautionBadge from "./CautionBadge";
+import React from "react";
 
 interface CoinListItemProps {
   ticker: Ticker;
@@ -17,15 +18,21 @@ interface CoinListItemProps {
   onClickSameMarket?: () => void;
 }
 
-const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinListItemProps) => {
+const CoinListItem = ({
+  ticker,
+  korean_name,
+  caution,
+  onClickSameMarket,
+}: CoinListItemProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const targetPath = `/chart/${ticker.market}`;
 
+  const isActive = pathname === targetPath;
+
   const handleClick = () => {
-    if (pathname === targetPath) {
+    if (isActive) {
       onClickSameMarket?.();
-      router.replace(pathname);
     } else {
       router.push(targetPath);
     }
@@ -34,7 +41,9 @@ const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinL
   return (
     <div
       onClick={handleClick}
-      className="flex justify-between items-start px-2 py-1 rounded hover:ring-1 ring-white/10 hover:bg-white/5 cursor-pointer"
+      className={`flex justify-between items-start px-2 py-1 rounded cursor-pointer hover:ring-1 ring-white/10 hover:bg-white/5 ${
+        isActive ? "bg-white/10" : ""
+      }`}
     >
       <div>
         <div className="flex items-center gap-1 text-base font-medium flex-wrap">
@@ -43,6 +52,7 @@ const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinL
         </div>
         <div className="text-sm text-gray-400">{ticker.market}</div>
       </div>
+
       <div className="text-right">
         <div className="text-base">
           {typeof ticker.trade_price === "number" ? (
@@ -59,6 +69,7 @@ const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinL
             "-"
           )}
         </div>
+
         <div
           className={`text-sm ${
             ticker.signed_change_rate > 0
@@ -72,6 +83,7 @@ const CoinListItem = ({ ticker, korean_name, caution, onClickSameMarket }: CoinL
             ? `${(ticker.signed_change_rate * 100).toFixed(2)}%`
             : "-"}
         </div>
+
         <div className="text-[10px] text-gray-400">
           {typeof ticker.acc_trade_price_24h === "number" ? (
             ticker.market.startsWith("KRW") ? (

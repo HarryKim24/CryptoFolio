@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 import CoinListItem from "@/components/chart/CoinListItem";
 import CoinListHeader from "@/components/chart/CoinListHeader";
@@ -17,76 +17,81 @@ type Props = {
 
 const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   const { tickers, markets } = useUpbitTickerContext();
+
   const [activeTab, setActiveTab] = useState<MarketTab>(initialTab);
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const combined = Object.values(tickers)
-    .filter((t) => t.market.startsWith(`${activeTab}-`))
-    .map((t) => {
-      const marketInfo = markets.find((m) => m.market === t.market);
-      return marketInfo
-        ? {
-            ticker: t,
-            korean_name: marketInfo.korean_name,
-            caution: marketInfo.market_event?.caution,
-          }
-        : null;
-    })
-    .filter(Boolean) as {
-      ticker: typeof tickers[string];
-      korean_name: string;
-      caution?: {
-        PRICE_FLUCTUATIONS: boolean;
-        TRADING_VOLUME_SOARING: boolean;
-        DEPOSIT_AMOUNT_SOARING: boolean;
-        GLOBAL_PRICE_DIFFERENCES: boolean;
-        CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
-      };
-    }[];
+  const combined = useMemo(() => {
+    return Object.values(tickers)
+      .filter((t) => t.market.startsWith(`${activeTab}-`))
+      .map((t) => {
+        const marketInfo = markets.find((m) => m.market === t.market);
+        return marketInfo
+          ? {
+              ticker: t,
+              korean_name: marketInfo.korean_name,
+              caution: marketInfo.market_event?.caution,
+            }
+          : null;
+      })
+      .filter(Boolean) as {
+        ticker: typeof tickers[string];
+        korean_name: string;
+        caution?: {
+          PRICE_FLUCTUATIONS: boolean;
+          TRADING_VOLUME_SOARING: boolean;
+          DEPOSIT_AMOUNT_SOARING: boolean;
+          GLOBAL_PRICE_DIFFERENCES: boolean;
+          CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
+        };
+      }[];
+  }, [tickers, markets, activeTab]);
 
-  const sorted = [...combined].sort((a, b) => {
-    let aValue: string | number;
-    let bValue: string | number;
+  const sorted = useMemo(() => {
+    return [...combined].sort((a, b) => {
+      let aValue: string | number;
+      let bValue: string | number;
 
-    switch (sortKey) {
-      case "korean_name":
+      if (sortKey === "korean_name") {
         aValue = a.korean_name;
         bValue = b.korean_name;
-        break;
-      default:
+      } else {
         aValue = a.ticker[sortKey];
         bValue = b.ticker[sortKey];
-    }
+      }
 
-    if (typeof aValue === "string") {
+      if (typeof aValue === "string") {
+        return sortDirection === "asc"
+          ? aValue.localeCompare(bValue as string)
+          : (bValue as string).localeCompare(aValue);
+      }
+
       return sortDirection === "asc"
-        ? aValue.localeCompare(bValue as string)
-        : (bValue as string).localeCompare(aValue);
-    }
+        ? (aValue as number) - (bValue as number)
+        : (bValue as number) - (aValue as number);
+    });
+  }, [combined, sortKey, sortDirection]);
 
-    return sortDirection === "asc"
-      ? (aValue as number) - (bValue as number)
-      : (bValue as number) - (aValue as number);
-  });
-
-  const filtered = sorted.filter(({ ticker, korean_name }) => {
+  const filtered = useMemo(() => {
     const term = searchTerm.toLowerCase();
-    return (
-      ticker.market.toLowerCase().includes(term) ||
-      korean_name.toLowerCase().includes(term)
-    );
-  });
+    return sorted.filter(({ ticker, korean_name }) => {
+      return (
+        ticker.market.toLowerCase().includes(term) ||
+        korean_name.toLowerCase().includes(term)
+      );
+    });
+  }, [sorted, searchTerm]);
 
   return (
     <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
       <div className="sticky z-10">
         <div className="flex justify-center gap-12 border-b border-white/10 p-2">
-          {["KRW", "BTC", "USDT"].map((tab) => (
+          {(["KRW", "BTC", "USDT"] as MarketTab[]).map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as MarketTab)}
+              onClick={() => setActiveTab(tab)}
               className={`pb-1 font-semibold ${
                 activeTab === tab ? "border-b-2 border-neutral-100" : "text-gray-400"
               }`}
