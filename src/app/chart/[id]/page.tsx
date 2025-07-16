@@ -27,7 +27,25 @@ const ChartPage = () => {
   }, []);
 
   const market = params?.id;
-  if (!market || typeof market !== "string" || !market.includes("-")) {
+
+  const isInitialLoading =
+    !market ||
+    Object.keys(tickers).length === 0 ||
+    markets.length === 0;
+
+  if (isInitialLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="w-12 h-12 border-4 border-neutral-100 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (
+    typeof market !== "string" ||
+    !market.includes("-") ||
+    !markets.find((m: Market) => m.market === market)
+  ) {
     return (
       <div className="flex justify-center items-center h-full text-neutral-100">
         잘못된 경로입니다.
@@ -35,24 +53,11 @@ const ChartPage = () => {
     );
   }
 
-  const isLoading =
-    Object.keys(tickers).length === 0 || markets.length === 0;
-
-  if (isLoading) {
+  const validTicker = tickers[market];
+  if (!validTicker) {
     return (
       <div className="flex justify-center items-center h-full">
-        <div className="w-6 h-6 border-1 border-neutral-100 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  const validTicker = tickers[market];
-  const validMarketInfo = markets.find((m: Market) => m.market === market);
-
-  if (!validTicker || !validMarketInfo) {
-    return (
-      <div className="flex justify-center items-center h-full text-neutral-100">
-        해당 마켓 정보 없음
+        <div className="w-12 h-12 border-4 border-neutral-100 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -62,13 +67,13 @@ const ChartPage = () => {
   return (
     <div className="p-4 flex flex-1 h-full overflow-hidden flex-col md:flex-row relative">
       {(!isMobile || view === "chart") && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="w-full min-w-[320px] h-full p-2"
-        >
-          <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
+        <div className="w-full min-w-[320px] h-full p-2">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden"
+          >
             <CoinDetail
               market={market}
               isMobile={isMobile}
@@ -80,8 +85,8 @@ const ChartPage = () => {
             <div className="flex-1 relative min-h-0">
               <CoinChart market={market} />
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       )}
 
       {(!isMobile || view === "list") && (
