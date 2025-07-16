@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { GetCandlesOptions, NormalizedCandle } from "@/types/upbitCandle";
 import { fetchNormalizedCandles } from "@/utils/fetchCandles";
+import axios from "axios";
 
 const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === "true";
 
@@ -13,31 +14,38 @@ const useCandles = (options: GetCandlesOptions) => {
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    let ignore = false;
+    const controller = new AbortController();
 
     const fetchData = async () => {
       try {
         setLoading(true);
-        const candles = await fetchNormalizedCandles(options);
-        if (!ignore) setData(candles);
+        setError(null);
+
+        const candles = await fetchNormalizedCandles(options, controller.signal);
+        setData(candles);
       } catch (err) {
-        if (!ignore) setError(err as Error);
+        if (axios.isCancel(err) || (err instanceof DOMException && err.name === "AbortError")) {
+          return;
+        }
+        if (err instanceof Error) {
+          setError(err);
+        } else {
+          setError(new Error("Unknown error"));
+        }
       } finally {
-        if (!ignore) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchData();
-    return () => { ignore = true };
+
+    return () => {
+      controller.abort();
+    };
   }, [options]);
 
   useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      !options.market ||
-      data.length === 0 ||
-      !enableWebSocket
-    ) return;
+    if (!options.market || data.length === 0 || !enableWebSocket) return;
 
     const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
     wsRef.current = socket;

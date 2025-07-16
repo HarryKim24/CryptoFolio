@@ -20,7 +20,8 @@ const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
 };
 
 export const fetchNormalizedCandles = async (
-  options: GetCandlesOptions
+  options: GetCandlesOptions,
+  signal?: AbortSignal
 ): Promise<NormalizedCandle[]> => {
   const now = new Date();
   const paddedTo = new Date(now.getTime() + 2 * 60 * 1000).toISOString();
@@ -34,14 +35,21 @@ export const fetchNormalizedCandles = async (
   let nextTo = to;
 
   while (remaining > 0) {
+    if (signal?.aborted) {
+      throw new DOMException("Aborted", "AbortError");
+    }
+
     const batchCount = Math.min(400, remaining);
 
-    const batch = await getUpbitCandles({
-      ...rest,
-      candleType,
-      count: batchCount,
-      to: nextTo,
-    });
+    const batch = await getUpbitCandles(
+      {
+        ...rest,
+        candleType,
+        count: batchCount,
+        to: nextTo,
+      },
+      signal
+    );
 
     if (!batch.length) break;
 

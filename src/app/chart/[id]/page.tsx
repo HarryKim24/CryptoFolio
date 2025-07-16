@@ -3,8 +3,8 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import CoinDetail from "@/components/chart/CoinDetail";
-import CoinList from "@/components/chart/CoinList";
 import CoinChart from "@/components/chart/CoinChart";
+import CoinList from "@/components/chart/CoinList";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 import { motion } from "framer-motion";
 import { Market } from "@/types/upbitTypes";
@@ -26,12 +26,10 @@ const ChartPage = () => {
     return () => mq.removeEventListener("change", handleResize);
   }, []);
 
-  const market = params?.id;
+  const market = typeof params?.id === "string" ? params.id : "";
 
   const isInitialLoading =
-    !market ||
-    Object.keys(tickers).length === 0 ||
-    markets.length === 0;
+    !market || Object.keys(tickers).length === 0 || markets.length === 0;
 
   if (isInitialLoading) {
     return (
@@ -42,7 +40,6 @@ const ChartPage = () => {
   }
 
   if (
-    typeof market !== "string" ||
     !market.includes("-") ||
     !markets.find((m: Market) => m.market === market)
   ) {
@@ -65,7 +62,7 @@ const ChartPage = () => {
   const tab = market.split("-")[0] as MarketTab;
 
   return (
-    <div className="p-4 flex flex-1 h-full overflow-hidden flex-col md:flex-row relative">
+    <div className="flex-1 h-full overflow-hidden relative flex flex-col">
       {(!isMobile || view === "chart") && (
         <div className="w-full min-w-[320px] h-full p-2">
           <motion.div
@@ -89,7 +86,7 @@ const ChartPage = () => {
         </div>
       )}
 
-      {(!isMobile || view === "list") && (
+      {isMobile && view === "list" && (
         <div className="w-full min-w-[320px] lg:max-w-[320px] h-full p-2 mx-auto">
           <motion.div
             initial={{ x: 300 }}
@@ -101,7 +98,7 @@ const ChartPage = () => {
               <CoinList
                 initialTab={tab}
                 currentMarket={market}
-                onClickSameMarket={() => isMobile && setView("chart")}
+                onClickSameMarket={() => setView("chart")}
               />
             </div>
           </motion.div>
@@ -109,6 +106,6 @@ const ChartPage = () => {
       )}
     </div>
   );
-};
+}
 
 export default ChartPage;
