@@ -33,9 +33,11 @@ const ChartPage = () => {
   const tab = market.split("-")[0] as MarketTab;
 
   const isInvalidMarket =
-    !market.includes("-") || !markets.find((m: Market) => m.market === market);
+    !isInitialLoading &&
+    (!market.includes("-") || !markets.find((m: Market) => m.market === market));
 
   const validTicker = tickers[market];
+  const isChartLoading = isInitialLoading || !validTicker;
 
   return (
     <div className="flex-1 h-full overflow-hidden relative flex flex-col">
@@ -46,45 +48,45 @@ const ChartPage = () => {
             isMobile={isMobile}
             view={view}
             onToggleView={() => setView(view === "chart" ? "list" : "chart")}
-            isLoading={isInitialLoading || !validTicker}
+            isLoading={isChartLoading}
           />
+
           <div className="flex-1 relative min-h-0">
-            {isInitialLoading ? (
-              <div className="flex justify-center items-center h-full">
-                <div className="w-12 h-12 border-4 border-neutral-100 border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : isInvalidMarket ? (
+            {isInvalidMarket ? (
               <div className="flex justify-center items-center h-full text-neutral-100">
                 잘못된 경로입니다.
               </div>
-            ) : (
-              <>
-                {(!isMobile || view === "chart") ? (
-                  <motion.div
-                    key="chart"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-full h-full"
-                  >
-                    <CoinChart market={market} />
-                  </motion.div>
+            ) : !isMobile || view === "chart" ? (
+              <motion.div
+                key="chart"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="w-full h-full"
+              >
+                {isChartLoading ? (
+                  <div className="flex flex-col gap-4 h-full w-full p-4 animate-pulse">
+                    <div className="h-6 w-32 bg-gray-500/20 rounded" />
+                    <div className="flex-1 bg-gray-500/10 rounded-xl" />
+                  </div>
                 ) : (
-                  <motion.div
-                    key="list"
-                    initial={{ x: 300 }}
-                    animate={{ x: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="h-full overflow-y-auto"
-                  >
-                    <CoinList
-                      initialTab={tab}
-                      currentMarket={market}
-                      onClickSameMarket={() => setView("chart")}
-                    />
-                  </motion.div>
+                  <CoinChart market={market} />
                 )}
-              </>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="list"
+                initial={{ x: 300 }}
+                animate={{ x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="h-full overflow-y-auto"
+              >
+                <CoinList
+                  initialTab={tab}
+                  currentMarket={market}
+                  onClickSameMarket={() => setView("chart")}
+                />
+              </motion.div>
             )}
           </div>
         </div>

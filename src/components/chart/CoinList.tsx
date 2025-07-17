@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 import CoinListItem from "@/components/chart/CoinListItem";
 import CoinListHeader from "@/components/chart/CoinListHeader";
+import { CautionType } from "@/types/upbitTypes";
 
 type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
 type SortDirection = "asc" | "desc";
@@ -32,20 +33,14 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
           ? {
               ticker: t,
               korean_name: marketInfo.korean_name,
-              caution: marketInfo.market_event?.caution,
+              caution: marketInfo.market_event?.caution as CautionType | undefined,
             }
           : null;
       })
       .filter(Boolean) as {
         ticker: typeof tickers[string];
         korean_name: string;
-        caution?: {
-          PRICE_FLUCTUATIONS: boolean;
-          TRADING_VOLUME_SOARING: boolean;
-          DEPOSIT_AMOUNT_SOARING: boolean;
-          GLOBAL_PRICE_DIFFERENCES: boolean;
-          CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
-        };
+        caution?: CautionType;
       }[];
   }, [tickers, markets, activeTab]);
 
@@ -84,6 +79,8 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     });
   }, [sorted, searchTerm]);
 
+  const isLoading = combined.length === 0;
+
   return (
     <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
       <div className="sticky z-10">
@@ -120,17 +117,21 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1">
-        {filtered.map(({ ticker, korean_name, caution }) => (
-          <CoinListItem
-            key={ticker.market}
-            ticker={ticker}
-            korean_name={korean_name}
-            caution={caution ?? undefined}
-            onClickSameMarket={
-              ticker.market === currentMarket ? onClickSameMarket : undefined
-            }
-          />
-        ))}
+        {isLoading
+          ? Array.from({ length: 10 }).map((_, idx) => (
+              <CoinListItem key={idx} isLoading />
+            ))
+          : filtered.map(({ ticker, korean_name, caution }) => (
+              <CoinListItem
+                key={ticker.market}
+                ticker={ticker}
+                korean_name={korean_name}
+                caution={caution}
+                onClickSameMarket={
+                  ticker.market === currentMarket ? onClickSameMarket : undefined
+                }
+              />
+            ))}
       </div>
     </div>
   );
