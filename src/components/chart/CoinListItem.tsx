@@ -41,9 +41,7 @@ const CoinListItem = ({
   return (
     <div
       onClick={handleClick}
-      className={`flex justify-between items-start px-2 py-1 rounded cursor-pointer hover:ring-1 ring-white/10 hover:bg-white/5 ${
-        isActive ? "bg-white/10" : ""
-      }`}
+      className={`flex justify-between items-start px-2 py-1 rounded cursor-pointer hover:ring-1 ring-white/10 hover:bg-white/5`}
     >
       <div>
         <div className="flex items-center gap-1 text-base font-medium flex-wrap">
