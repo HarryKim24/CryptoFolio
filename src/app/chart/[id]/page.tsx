@@ -43,13 +43,16 @@ const ChartPage = () => {
     <div className="flex-1 h-full overflow-hidden relative flex flex-col">
       <div className="w-full min-w-[320px] h-full p-2">
         <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
-          <CoinDetail
-            market={market}
-            isMobile={isMobile}
-            view={view}
-            onToggleView={() => setView(view === "chart" ? "list" : "chart")}
-            isLoading={isChartLoading}
-          />
+          
+          {(!isMobile || view === "chart") && (
+            <CoinDetail
+              market={market}
+              isMobile={isMobile}
+              view={view}
+              onToggleView={() => setView(view === "chart" ? "list" : "chart")}
+              isLoading={isChartLoading}
+            />
+          )}
 
           <div className="flex-1 relative min-h-0">
             {isInvalidMarket ? (
@@ -66,7 +69,7 @@ const ChartPage = () => {
               >
                 {isChartLoading ? (
                   <div className="flex flex-col gap-4 h-full w-full p-4 animate-pulse">
-                    <div className="h-6 w-32 bg-gray-500/20 rounded" />
+                    <div className="h-6 w-16 xs:w-32 bg-gray-500/20 rounded" />
                     <div className="flex-1 bg-gray-500/10 rounded-xl" />
                   </div>
                 ) : (
