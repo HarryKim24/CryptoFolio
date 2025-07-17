@@ -64,10 +64,7 @@ const CoinDetail = ({
       >
         <div className="flex-1 min-w-0">
           {isLoading ? (
-            <div className="flex justify-between gap-2 items-start w-80 px-2 py-4 bg-white/5 animate-pulse">
-              <div className="h-6 w-full bg-gray-500/30 rounded" />
-              <div className="h-3 w-1/2 bg-gray-500/30 rounded" />
-            </div>
+            <div className="flex justify-between gap-2 items-start px-2 py-4 bg-white/5 animate-pulse" />
           ) : (
             <>
               <div className="flex items-center gap-1 font-medium whitespace-nowrap">
@@ -92,7 +89,7 @@ const CoinDetail = ({
 
         <div className="text-right space-y-0.5 lg:space-y-1 shrink-0 flex items-center">
           {isLoading ? (
-            <div className="flex flex-col gap-2 w-80 bg-white/5 animate-pulse">
+            <div className="flex flex-col gap-2 w-40 xs:w-80 bg-white/5 animate-pulse">
               <div className="h-6 w-full bg-gray-500/30 rounded" />
               <div className="h-4 w-2/3 bg-gray-500/20 rounded" />
               <div className="h-3 w-3/4 bg-gray-500/10 rounded" />
