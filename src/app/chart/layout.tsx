@@ -28,7 +28,7 @@ export default function ChartLayout({ children }: { children: React.ReactNode })
 
   return (
     <UpbitTickerContext.Provider value={{ loading, tickers, markets }}>
-      <div className="h-screen pt-16 w-full bg-chart-gradient text-neutral-100 overflow-hidden">
+      <div className="h-screen p-4 pt-16 w-full bg-chart-gradient text-neutral-100 overflow-hidden">
         <div className="flex h-full overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
             {view === "chart" && children}

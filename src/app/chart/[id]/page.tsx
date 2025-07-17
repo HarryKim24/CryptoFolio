@@ -27,85 +27,72 @@ const ChartPage = () => {
   }, []);
 
   const market = typeof params?.id === "string" ? params.id : "";
-
   const isInitialLoading =
     !market || Object.keys(tickers).length === 0 || markets.length === 0;
 
-  if (isInitialLoading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <div className="w-12 h-12 border-4 border-neutral-100 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  const tab = market.split("-")[0] as MarketTab;
 
-  if (
-    !market.includes("-") ||
-    !markets.find((m: Market) => m.market === market)
-  ) {
-    return (
-      <div className="flex justify-center items-center h-full text-neutral-100">
-        잘못된 경로입니다.
-      </div>
-    );
-  }
+  const isInvalidMarket =
+    !isInitialLoading &&
+    (!market.includes("-") || !markets.find((m: Market) => m.market === market));
 
   const validTicker = tickers[market];
-  if (!validTicker) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <div className="w-12 h-12 border-4 border-neutral-100 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  const tab = market.split("-")[0] as MarketTab;
+  const isChartLoading = isInitialLoading || !validTicker;
 
   return (
     <div className="flex-1 h-full overflow-hidden relative flex flex-col">
-      {(!isMobile || view === "chart") && (
-        <div className="w-full min-w-[320px] h-full p-2">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden"
-          >
-            <CoinDetail
-              market={market}
-              isMobile={isMobile}
-              view={view}
-              onToggleView={() =>
-                setView(view === "chart" ? "list" : "chart")
-              }
-            />
-            <div className="flex-1 relative min-h-0">
-              <CoinChart market={market} />
-            </div>
-          </motion.div>
-        </div>
-      )}
+      <div className="w-full min-w-[320px] h-full p-2">
+        <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
+          <CoinDetail
+            market={market}
+            isMobile={isMobile}
+            view={view}
+            onToggleView={() => setView(view === "chart" ? "list" : "chart")}
+            isLoading={isChartLoading}
+          />
 
-      {isMobile && view === "list" && (
-        <div className="w-full min-w-[320px] lg:max-w-[320px] h-full p-2 mx-auto">
-          <motion.div
-            initial={{ x: 300 }}
-            animate={{ x: 0 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="h-full"
-          >
-            <div className="h-full overflow-y-auto">
-              <CoinList
-                initialTab={tab}
-                currentMarket={market}
-                onClickSameMarket={() => setView("chart")}
-              />
-            </div>
-          </motion.div>
+          <div className="flex-1 relative min-h-0">
+            {isInvalidMarket ? (
+              <div className="flex justify-center items-center h-full text-neutral-100">
+                잘못된 경로입니다.
+              </div>
+            ) : !isMobile || view === "chart" ? (
+              <motion.div
+                key="chart"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="w-full h-full"
+              >
+                {isChartLoading ? (
+                  <div className="flex flex-col gap-4 h-full w-full p-4 animate-pulse">
+                    <div className="h-6 w-32 bg-gray-500/20 rounded" />
+                    <div className="flex-1 bg-gray-500/10 rounded-xl" />
+                  </div>
+                ) : (
+                  <CoinChart market={market} />
+                )}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="list"
+                initial={{ x: 300 }}
+                animate={{ x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="h-full overflow-y-auto"
+              >
+                <CoinList
+                  initialTab={tab}
+                  currentMarket={market}
+                  onClickSameMarket={() => setView("chart")}
+                />
+              </motion.div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
-}
+};
 
 export default ChartPage;
