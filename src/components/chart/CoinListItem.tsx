@@ -49,6 +49,34 @@ const CoinListItem = ({
     );
   }
 
+  const tradePrice = ticker.trade_price;
+  const changeRate = ticker.signed_change_rate;
+  const accVolume = ticker.acc_trade_price_24h;
+
+  const renderPrice = () => {
+    if (tradePrice == null) return "--";
+    if (ticker.market.startsWith("KRW")) return `${tradePrice.toLocaleString()} 원`;
+    if (ticker.market.startsWith("BTC")) return `${tradePrice.toFixed(8)} BTC`;
+    return tradePrice >= 1000
+      ? `$${Math.round(tradePrice).toLocaleString()}`
+      : `$${tradePrice.toFixed(3)}`;
+  };
+
+  const renderChangeRate = () => {
+    if (changeRate == null) return "--";
+    return `${(changeRate * 100).toFixed(2)}%`;
+  };
+
+  const renderVolume = () => {
+    if (accVolume == null) return "--";
+    if (ticker.market.startsWith("KRW"))
+      return `${Math.floor(accVolume / 1_0000_000).toLocaleString()}백만`;
+    if (ticker.market.startsWith("BTC")) return `${accVolume.toFixed(6)} BTC`;
+    return accVolume >= 1000
+      ? `$${Math.round(accVolume).toLocaleString()}`
+      : `$${accVolume.toFixed(4)}`;
+  };
+
   return (
     <div
       onClick={handleClick}
@@ -63,37 +91,19 @@ const CoinListItem = ({
       </div>
 
       <div className="text-right">
-        <div className="text-base">
-          {ticker.market.startsWith("KRW")
-            ? `${ticker.trade_price.toLocaleString()} 원`
-            : ticker.market.startsWith("BTC")
-            ? `${ticker.trade_price.toFixed(8)} BTC`
-            : ticker.trade_price >= 1000
-            ? `$${Math.round(ticker.trade_price).toLocaleString()}`
-            : `$${ticker.trade_price.toFixed(3)}`}
-        </div>
-
+        <div className="text-base">{renderPrice()}</div>
         <div
           className={`text-sm ${
-            ticker.signed_change_rate > 0
+            changeRate > 0
               ? "text-red-400"
-              : ticker.signed_change_rate < 0
+              : changeRate < 0
               ? "text-blue-400"
               : "text-gray-300"
           }`}
         >
-          {(ticker.signed_change_rate * 100).toFixed(2)}%
+          {renderChangeRate()}
         </div>
-
-        <div className="text-[10px] text-gray-400">
-          {ticker.market.startsWith("KRW")
-            ? `${Math.floor(ticker.acc_trade_price_24h / 1_0000_000).toLocaleString()}백만`
-            : ticker.market.startsWith("BTC")
-            ? `${ticker.acc_trade_price_24h.toFixed(6)} BTC`
-            : ticker.acc_trade_price_24h >= 1000
-            ? `$${Math.round(ticker.acc_trade_price_24h).toLocaleString()}`
-            : `$${ticker.acc_trade_price_24h.toFixed(4)}`}
-        </div>
+        <div className="text-[10px] text-gray-400">{renderVolume()}</div>
       </div>
     </div>
   );
