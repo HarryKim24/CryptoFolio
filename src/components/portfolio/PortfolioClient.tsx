@@ -6,60 +6,60 @@ import AssetTable from '@/components/portfolio/AssetTable'
 import AssetModal from '@/components/portfolio/AssetModal'
 import AssetDistribution from '@/components/portfolio/AssetDisturibution'
 import AssetPerformance from '@/components/portfolio/AssetPerformance'
-import { Asset } from '@/types/assetTypes'
-import { getTickerInfo } from '@/api/upbitApi'
-import { getDistribution } from '@/utils/portfolioCharts'
 import ConfirmModal from '@/components/portfolio/ConfirmModal'
 import EmptyPortfolioModal from '@/components/portfolio/EmptyPortfolioModal'
 
+import { Asset } from '@/types/assetTypes'
+import { getTickerInfo } from '@/api/upbitApi'
+import { getDistribution } from '@/utils/portfolioCharts'
+
 const PortfolioClient = () => {
   const [assets, setAssets] = useState<Asset[]>([])
-  const [showModal, setShowModal] = useState(false);
-  const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([]);
-  const [priceMap, setPriceMap] = useState<Record<string, number>>({});
-  const [showEmptyModal, setShowEmptyModal] = useState(false);
+  const [showModal, setShowModal] = useState(false)
+  const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([])
+  const [priceMap, setPriceMap] = useState<Record<string, number>>({})
+  const [showEmptyModal, setShowEmptyModal] = useState(false)
 
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmAllOpen, setConfirmAllOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | undefined>(undefined)
 
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmAllOpen, setConfirmAllOpen] = useState(false);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | undefined>(undefined);
+  const fetchAssets = async () => {
+    try {
+      const res = await fetch('/api/asset')
+      if (!res.ok) throw new Error('자산 불러오기 실패')
+  
+      const data: Asset[] = await res.json()
+      setAssets([...data])
+  
+      const symbols = [...new Set(data.map(a => a.symbol))]
+  
+      if (symbols.length === 0) {
+        setPriceMap({})
+        setDistribution([])
+        setShowEmptyModal(true)
+        return
+      }
+  
+      const tickers = await getTickerInfo(symbols.map(s => `KRW-${s}`))
+      const priceMap: Record<string, number> = {}
+      tickers.forEach(t => {
+        const symbol = t.market.replace('KRW-', '')
+        priceMap[symbol] = t.trade_price
+      })
+  
+      setPriceMap(priceMap)
+      setDistribution(getDistribution(data, priceMap))
+    } catch (err) {
+      console.error(err)
+      alert('자산을 불러오는 데 실패했습니다.')
+    }
+  }
+  
 
   useEffect(() => {
-    const fetchAssets = async () => {
-      try {
-        const res = await fetch('/api/asset')
-        if (!res.ok) throw new Error('자산 불러오기 실패')
-  
-        const data: Asset[] = await res.json()
-  
-        const symbols = [...new Set(data.map(a => a.symbol))]
-        if (symbols.length === 0) {
-          setAssets(data)
-          setPriceMap({})
-          setDistribution([])
-          setShowEmptyModal(true)
-          return
-        }
-  
-        const tickers = await getTickerInfo(symbols.map(s => `KRW-${s}`))
-        const priceMap: Record<string, number> = {}
-        tickers.forEach(t => {
-          const symbol = t.market.replace('KRW-', '')
-          priceMap[symbol] = t.trade_price
-        })
-  
-        setAssets(data)
-        setPriceMap(priceMap)
-        setDistribution(getDistribution(data, priceMap))
-      } catch (err) {
-        console.error(err)
-        alert('자산을 불러오는 데 실패했습니다.')
-      }
-    }
-  
     fetchAssets()
   }, [])
-
 
   const handleAddAsset = async (asset: Asset) => {
     try {
@@ -74,9 +74,9 @@ const PortfolioClient = () => {
         throw new Error(errorText || "자산 저장 실패")
       }
 
-      const savedAsset: Asset = await response.json()
-      setAssets(prev => [...prev, savedAsset])
+      await response.json()
       setShowModal(false)
+      fetchAssets()
     } catch (err) {
       console.error("자산 저장 실패:", err)
       alert("거래 저장 중 오류가 발생했습니다.")
@@ -95,38 +95,34 @@ const PortfolioClient = () => {
         method: 'DELETE',
       })
       if (!res.ok) throw new Error('삭제 실패')
-      setAssets(prev => prev.filter(a => a._id !== pendingDeleteId))
+      setConfirmOpen(false)
+      setPendingDeleteId(undefined)
+      fetchAssets()
     } catch (err) {
       console.error('삭제 오류:', err)
       alert('삭제 중 문제가 발생했습니다.')
-    } finally {
-      setConfirmOpen(false)
-      setPendingDeleteId(undefined)
     }
   }
 
   const requestDeleteAll = () => {
     setConfirmAllOpen(true)
   }
-  
+
   const confirmDeleteAll = async () => {
     try {
       const res = await fetch(`/api/asset`, {
         method: 'DELETE',
       })
-  
+
       if (!res.ok) throw new Error("전체 삭제 실패")
-  
-      setAssets([])
+
+      setConfirmAllOpen(false)
+      fetchAssets()
     } catch (err) {
       console.error("전체 삭제 오류:", err)
       alert("전체 삭제 중 문제가 발생했습니다.")
-    } finally {
-      setConfirmAllOpen(false)
     }
   }
-
-
 
   return (
     <div className="p-6 space-y-6 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
@@ -191,4 +187,4 @@ const PortfolioClient = () => {
   )
 }
 
-export default PortfolioClient;
+export default PortfolioClient
