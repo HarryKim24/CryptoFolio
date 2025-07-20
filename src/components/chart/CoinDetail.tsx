@@ -96,9 +96,12 @@ const CoinDetail = ({
             </div>
           ) : (
             <div className="flex flex-col gap-1">
-              <div className="text-lg md:text-xl lg:text-3xl font-semibold text-white truncate">
-                {formattedPrice}
-              </div>
+              <span
+                className="block text-lg md:text-xl lg:text-3xl font-semibold text-white truncate min-h-[1.5rem]"
+                aria-label="price"
+              >
+                {isLoading ? "\u00A0" : formattedPrice}
+              </span>
               <div className={`text-xs lg:text-base ${rateColor}`}>
                 {(changeRate * 100).toFixed(2)}% ({change > 0 ? "+" : ""}
                 {formattedChange})
