@@ -88,29 +88,21 @@ const CoinDetail = ({
         </div>
 
         <div className="text-right space-y-0.5 lg:space-y-1 shrink-0 flex items-center">
-          {isLoading ? (
-            <div className="flex flex-col gap-2 w-40 xs:w-80 bg-white/5 animate-pulse">
-              <div className="h-6 w-full bg-gray-500/30 rounded" />
-              <div className="h-4 w-2/3 bg-gray-500/20 rounded" />
-              <div className="h-3 w-3/4 bg-gray-500/10 rounded" />
+          <div className="flex flex-col gap-1">
+            <span
+              className="block text-lg md:text-xl lg:text-3xl font-semibold text-white truncate min-h-[1.5rem]"
+              aria-label="price"
+            >
+              {isLoading ? "\u00A0" : formattedPrice}
+            </span>
+            <div className={`text-xs lg:text-base ${rateColor}`}>
+              {(changeRate * 100).toFixed(2)}% ({change > 0 ? "+" : ""}
+              {formattedChange})
             </div>
-          ) : (
-            <div className="flex flex-col gap-1">
-              <span
-                className="block text-lg md:text-xl lg:text-3xl font-semibold text-white truncate min-h-[1.5rem]"
-                aria-label="price"
-              >
-                {isLoading ? "\u00A0" : formattedPrice}
-              </span>
-              <div className={`text-xs lg:text-base ${rateColor}`}>
-                {(changeRate * 100).toFixed(2)}% ({change > 0 ? "+" : ""}
-                {formattedChange})
-              </div>
-              <div className="text-[10px] lg:text-sm text-gray-400 truncate">
-                24H 거래대금: {formattedVolume}
-              </div>
+            <div className="text-[10px] lg:text-sm text-gray-400 truncate">
+              24H 거래대금: {formattedVolume}
             </div>
-          )}
+          </div>
 
           {isMobile && onToggleView && (
             <button
