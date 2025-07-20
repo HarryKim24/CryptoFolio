@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-static";
+
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import CoinDetail from "@/components/chart/CoinDetail";
