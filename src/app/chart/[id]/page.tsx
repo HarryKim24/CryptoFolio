@@ -62,21 +62,8 @@ const ChartPage = () => {
                 잘못된 경로입니다.
               </div>
             ) : !isMobile || view === "chart" ? (
-              <motion.div
-                key="chart"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                className="w-full h-full"
-              >
-                {isChartLoading ? (
-                  <div className="flex flex-col gap-4 h-full w-full p-4 animate-pulse">
-                    <div className="h-6 w-16 xs:w-32 bg-gray-500/20 rounded" />
-                    <div className="flex-1 bg-gray-500/10 rounded-xl" />
-                  </div>
-                ) : (
-                  <CoinChart market={market} />
-                )}
+              <motion.div key="chart" className="w-full h-full">
+                <CoinChart market={market} />
               </motion.div>
             ) : (
               <motion.div

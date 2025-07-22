@@ -46,6 +46,7 @@ const CoinDetail = ({
       : `$${value.toFixed(3)}`;
   };
 
+  const zeroPrice = formatPrice(0);
   const formattedPrice = formatPrice(price);
   const formattedChange = formatPrice(change);
   const formattedVolume =
@@ -64,7 +65,7 @@ const CoinDetail = ({
       >
         <div className="flex-1 min-w-0">
           {isLoading ? (
-            <div className="flex justify-between gap-2 items-start px-2 py-4 bg-white/5 animate-pulse" />
+            <div className="flex justify-between gap-2 w-40 md:w-80 h-10 md:h-16 items-start px-2 py-4 bg-white/5 animate-pulse" />
           ) : (
             <>
               <div className="flex items-center gap-1 font-medium whitespace-nowrap">
@@ -93,7 +94,7 @@ const CoinDetail = ({
               className="block text-lg md:text-xl lg:text-3xl font-semibold text-white truncate min-h-[1.5rem]"
               aria-label="price"
             >
-              {isLoading ? "\u00A0" : formattedPrice}
+              {isLoading ? zeroPrice : formattedPrice}
             </span>
             <div className={`text-xs lg:text-base ${rateColor}`}>
               {(changeRate * 100).toFixed(2)}% ({change > 0 ? "+" : ""}
@@ -104,12 +105,13 @@ const CoinDetail = ({
             </div>
           </div>
 
-          {isMobile && onToggleView && (
+          {isMobile && (
             <button
               onClick={onToggleView}
               className="p-1 text-neutral-100 bg-transparent border-none shadow-none"
+              disabled={!onToggleView}
             >
-              {view === "chart" ? <HiChevronRight size={40} /> : <HiChevronLeft size={20} />}
+              {view === "chart" ? <HiChevronRight size={40} /> : <HiChevronLeft size={40} />}
             </button>
           )}
         </div>
