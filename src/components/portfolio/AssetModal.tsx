@@ -7,6 +7,7 @@ import { ko } from 'date-fns/locale'
 import { format } from 'date-fns'
 import 'react-datepicker/dist/react-datepicker.css'
 import { AnimatePresence, motion } from 'framer-motion'
+import { getChosung } from '@/utils/getChosung'
 
 interface Market {
   market: string
@@ -34,11 +35,10 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
           const krwMarkets = data.filter((m: Market) => m.market.startsWith('KRW-'))
           setMarketList(krwMarkets)
         })
-  
+
       setInput({})
       setInputValue('')
       setFilteredMarkets([])
-  
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -86,14 +86,18 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
     }
   }
 
-  const isFormComplete = input.symbol && input.name && input.quantity !== undefined && input.averagePrice !== undefined && input.date && input.type
+  const isFormComplete =
+    input.symbol &&
+    input.name &&
+    input.quantity !== undefined &&
+    input.averagePrice !== undefined &&
+    input.date &&
+    input.type
 
   return (
     <AnimatePresence>
       {show && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-6"
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
           <motion.form
             onSubmit={handleSubmit}
             initial={{ opacity: 0 }}
@@ -104,7 +108,9 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">거래 추가</h2>
-              <button type="button" onClick={onClose} className="text-neutral-100 hover:brightness-125 text-3xl p-2">&times;</button>
+              <button type="button" onClick={onClose} className="text-neutral-100 hover:brightness-125 text-3xl p-2">
+                &times;
+              </button>
             </div>
 
             <div className="grid grid-cols-2 gap-2 mb-4 text-sm font-medium">
@@ -112,10 +118,11 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
                 <button
                   key={type}
                   type="button"
-                  className={`rounded-xl py-2 text-sm font-semibold transition focus:outline-none
-                    ${input.type === type
+                  className={`rounded-xl py-2 text-sm font-semibold transition focus:outline-none ${
+                    input.type === type
                       ? 'bg-portfolio hover:brightness-105 text-neutral-100'
-                      : 'bg-white/10 hover:brightness-105 text-gray-300'}`}
+                      : 'bg-white/10 hover:brightness-105 text-gray-300'
+                  }`}
                   onClick={() => handleChange('type', type)}
                 >
                   {type === 'buy' ? '구매' : '매도'}
@@ -133,11 +140,26 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
                   const value = e.target.value
                   setInputValue(value)
                   setInput(prev => ({ ...prev, symbol: undefined, name: undefined }))
+
+                  const lowerValue = value.toLowerCase()
+                  const isChosungOnly = /^[ㄱ-ㅎ]+$/.test(value)
+                  const choValue = isChosungOnly ? getChosung(value) : null
+
                   setFilteredMarkets(
-                    marketList.filter(m =>
-                      [m.korean_name, m.english_name.toLowerCase(), m.market.replace('KRW-', '').toLowerCase()]
-                        .some(field => field.includes(value.toLowerCase()))
-                    )
+                    marketList.filter(m => {
+                      const symbol = m.market.replace('KRW-', '').toLowerCase()
+                      const korean = m.korean_name
+                      const english = m.english_name.toLowerCase()
+                      const lowerKorean = korean.toLowerCase()
+                      const choKorean = getChosung(korean)
+
+                      return (
+                        lowerKorean.includes(lowerValue) ||
+                        english.includes(lowerValue) ||
+                        symbol.includes(lowerValue) ||
+                        (isChosungOnly && choKorean.includes(choValue!))
+                      )
+                    })
                   )
                 }}
               />
@@ -157,7 +179,7 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             </div>
 
             <div className="grid grid-cols-2 gap-2 mb-4">
-              <div className='relative w-full'>
+              <div className="relative w-full">
                 <input
                   type="number"
                   min="0"
@@ -206,10 +228,11 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
             <button
               type="submit"
               disabled={!isFormComplete}
-              className={`w-full py-3 font-semibold rounded-xl transition focus:outline-none
-                          ${isFormComplete
-                            ? 'bg-portfolio hover:brightness-105 text-neutral-100'
-                            : 'bg-gray-500 cursor-not-allowed'}`}
+              className={`w-full py-3 font-semibold rounded-xl transition focus:outline-none ${
+                isFormComplete
+                  ? 'bg-portfolio hover:brightness-105 text-neutral-100'
+                  : 'bg-gray-500 cursor-not-allowed'
+              }`}
             >
               거래 추가
             </button>
