@@ -7,6 +7,7 @@ import useCandles from '@/hooks/useCandles';
 import { CandleType, GetCandlesOptions } from '@/types/upbitCandle';
 import { ApexOptions } from 'apexcharts';
 import { fetchNormalizedCandles } from '@/utils/fetchCandles';
+import { formatNumberForDisplay } from '@/utils/formatNumber';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -85,10 +86,8 @@ const CoinChart = ({ market }: Props) => {
       tooltip: { enabled: true },
       labels: {
         style: { colors: '#fff' },
-        offsetX: 8,
         minWidth: 60,
-        formatter: (val: number) =>
-          val.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+        formatter: (val: number) => String(formatNumberForDisplay(val)),
       },
     },
     grid: {
@@ -113,6 +112,14 @@ const CoinChart = ({ market }: Props) => {
     theme: {
       mode: 'dark',
     },
+    plotOptions: {
+      candlestick: {
+        colors: {
+          upward: '#3FB68B',
+          downward: '#F46A6A',
+        },
+      },
+    },
   };
 
   const volumeOptions: ApexOptions = {
@@ -132,10 +139,8 @@ const CoinChart = ({ market }: Props) => {
       show: true,
       labels: {
         style: { colors: '#fff' },
-        offsetX: 8,
         minWidth: 60,
-        formatter: (val: number) =>
-          val.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+        formatter: () => '',
       },
     },
     dataLabels: {
@@ -144,7 +149,7 @@ const CoinChart = ({ market }: Props) => {
     tooltip: {
       enabled: true,
       y: {
-        formatter: (val: number) => `거래량: ${val.toLocaleString()}`,
+        formatter: (val: number) => formatNumberForDisplay(val),
       },
     },
     plotOptions: {
@@ -158,6 +163,7 @@ const CoinChart = ({ market }: Props) => {
     theme: {
       mode: 'dark',
     },
+    
   };
 
   return (
@@ -215,17 +221,19 @@ const CoinChart = ({ market }: Props) => {
         )}
       </div>
 
-      <div className="flex flex-col flex-1 overflow-hidden rounded-xl shadow">
-        <div className="flex-[3] bg-[#0b0f19]">
+      <div className="flex flex-col overflow-hidden rounded-xl shadow">
+        <div className="h-[600px] bg-[#0b0f19]">
           <ReactApexChart
+            key={`${market}-${candleType}-${unit}-price`}
             options={candlestickOptions}
             series={[{ data: ohlc, name: '가격' }]}
             type="candlestick"
             height="100%"
           />
         </div>
-        <div className="flex-[1] bg-[#0b0f19]">
+        <div className="h-[120px] bg-[#0b0f19]">
           <ReactApexChart
+            key={`${market}-${candleType}-${unit}-volume`}
             options={volumeOptions}
             series={[{ data: volume, name: '거래량' }]}
             type="bar"
