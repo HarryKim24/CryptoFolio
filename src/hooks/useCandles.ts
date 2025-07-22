@@ -1,11 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { GetCandlesOptions, NormalizedCandle } from "@/types/upbitCandle";
-import { fetchNormalizedCandles } from "@/utils/fetchCandles";
-import axios from "axios";
+import { useEffect, useRef, useState } from 'react';
+import { GetCandlesOptions, NormalizedCandle } from '@/types/upbitCandle';
+import { fetchNormalizedCandles } from '@/utils/fetchCandles';
+import axios from 'axios';
 
-const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === "true";
+const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
+
+const candleCache = new Map<string, NormalizedCandle[]>();
+
+const makeCacheKey = (options: GetCandlesOptions) => {
+  const { market, candleType, unit } = options;
+  return `${market}_${candleType}_${unit ?? 'default'}`;
+};
 
 const useCandles = (options: GetCandlesOptions) => {
   const [data, setData] = useState<NormalizedCandle[]>([]);
@@ -15,45 +22,42 @@ const useCandles = (options: GetCandlesOptions) => {
 
   useEffect(() => {
     const controller = new AbortController();
+    const key = makeCacheKey(options);
 
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const candles = await fetchNormalizedCandles(options, controller.signal);
-        setData(candles);
-      } catch (err) {
-        if (axios.isCancel(err) || (err instanceof DOMException && err.name === "AbortError")) {
-          return;
-        }
-        if (err instanceof Error) {
-          setError(err);
+        if (candleCache.has(key)) {
+          setData(candleCache.get(key)!);
         } else {
-          setError(new Error("Unknown error"));
+          const candles = await fetchNormalizedCandles(options, controller.signal);
+          candleCache.set(key, candles);
+          setData(candles);
         }
+      } catch (err) {
+        if (axios.isCancel(err) || (err instanceof DOMException && err.name === 'AbortError')) return;
+        setError(err instanceof Error ? err : new Error('Unknown error'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [options]);
 
   useEffect(() => {
     if (!options.market || data.length === 0 || !enableWebSocket) return;
 
-    const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
+    const socket = new WebSocket('wss://api.upbit.com/websocket/v1');
     wsRef.current = socket;
 
     socket.onopen = () => {
       const payload = [
-        { ticket: "realtime-candle" },
-        { type: "trade", codes: [options.market] }
+        { ticket: 'realtime-candle' },
+        { type: 'trade', codes: [options.market] },
       ];
       socket.send(JSON.stringify(payload));
     };
@@ -82,7 +86,7 @@ const useCandles = (options: GetCandlesOptions) => {
     };
   }, [options.market, data.length]);
 
-  return { data, loading, error };
+  return { data, loading, error, cache: candleCache };
 };
 
 export default useCandles;
