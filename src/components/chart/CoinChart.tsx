@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Chart } from 'react-chartjs-2';
 import {
   ChartOptions,
@@ -94,7 +95,7 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
     [market, candleType, unit, count]
   );
 
-  const { data, loading } = useCandles(options);
+  const { data } = useCandles(options);
 
   useEffect(() => {
     import('chartjs-plugin-zoom').then((module) => {
@@ -352,22 +353,16 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
         className="flex-1 relative rounded-xl shadow-md m-4 bg-slate-900"
         style={{ height: '100%', minHeight: '300px' }}
       >
-        {loading || data.length === 0 ? (
-          <div className="flex justify-center items-center h-full p-4">
-            <div className="w-6 h-6 border-2 border-t-transparent border-white/20 rounded-full animate-spin" />
-          </div>
-        ) : (
-          <Chart
-            type="candlestick"
-            data={chartData}
-            options={chartOptions}
-            width={dimensions.width}
-            height={dimensions.height}
-          />
-        )}
+        <Chart
+          type="candlestick"
+          data={chartData}
+          options={chartOptions}
+          width={dimensions.width}
+          height={dimensions.height}
+        />
       </div>
     </div>
   );
 };
 
-export default CoinChart;
+export default React.memo(CoinChart);
