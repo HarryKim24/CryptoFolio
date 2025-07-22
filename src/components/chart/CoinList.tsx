@@ -5,6 +5,7 @@ import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 import CoinListItem from "@/components/chart/CoinListItem";
 import CoinListHeader from "@/components/chart/CoinListHeader";
 import { CautionType } from "@/types/upbitTypes";
+import { getChosung } from "@/utils/getChosung";
 
 type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
 type SortDirection = "asc" | "desc";
@@ -33,6 +34,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
           ? {
               ticker: t,
               korean_name: marketInfo.korean_name,
+              english_name: marketInfo.english_name,
               caution: marketInfo.market_event?.caution as CautionType | undefined,
             }
           : null;
@@ -40,6 +42,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
       .filter(Boolean) as {
         ticker: typeof tickers[string];
         korean_name: string;
+        english_name: string;
         caution?: CautionType;
       }[];
   }, [tickers, markets, activeTab]);
@@ -71,13 +74,21 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
 
   const filtered = useMemo(() => {
     const term = searchTerm.toLowerCase();
-    return sorted.filter(({ ticker, korean_name }) => {
+    const isChosungOnly = /^[ㄱ-ㅎ]+$/.test(term);
+    const choTerm = isChosungOnly ? getChosung(term) : null;
+  
+    return sorted.filter(({ ticker, korean_name, english_name }) => {
+      const symbol = ticker.market.replace(`${activeTab}-`, "").toLowerCase();
+      const choName = getChosung(korean_name);
+  
       return (
-        ticker.market.toLowerCase().includes(term) ||
-        korean_name.toLowerCase().includes(term)
+        korean_name.toLowerCase().includes(term) ||
+        english_name.toLowerCase().includes(term) ||
+        symbol.includes(term) ||
+        (isChosungOnly && choName.includes(choTerm!))
       );
     });
-  }, [sorted, searchTerm]);
+  }, [sorted, searchTerm, activeTab]);
 
   const isLoading = combined.length === 0;
 
