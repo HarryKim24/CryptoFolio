@@ -43,7 +43,7 @@ const ChartPage = () => {
 
   return (
     <div className="flex-1 h-full overflow-hidden relative flex flex-col">
-      <div className="w-full min-w-[320px] h-full p-2">
+      <div className="w-full min-w-[320px] h-full p-4">
         <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
           
           {(!isMobile || view === "chart") && (

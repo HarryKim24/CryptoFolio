@@ -33,7 +33,7 @@ export default function ChartLayout({ children }: { children: React.ReactNode })
           <div className="flex-1 overflow-hidden relative">
             {view === "chart" && children}
           </div>
-          <div className="w-[320px] hidden md:block h-full p-2">
+          <div className="w-[320px] hidden md:block h-full pl-0 p-4">
             <CoinList
               initialTab={initialTab}
               currentMarket={currentMarket}
