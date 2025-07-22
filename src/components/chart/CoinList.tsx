@@ -128,21 +128,25 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1">
-        {isLoading
-          ? Array.from({ length: 10 }).map((_, idx) => (
-              <CoinListItem key={idx} isLoading />
-            ))
-          : filtered.map(({ ticker, korean_name, caution }) => (
-              <CoinListItem
-                key={ticker.market}
-                ticker={ticker}
-                korean_name={korean_name}
-                caution={caution}
-                onClickSameMarket={
-                  ticker.market === currentMarket ? onClickSameMarket : undefined
-                }
-              />
-            ))}
+        {isLoading ? (
+          Array.from({ length: 10 }).map((_, idx) => (
+            <CoinListItem key={idx} isLoading />
+          ))
+        ) : filtered.length === 0 ? (
+          <div className="text-center text-gray-400 py-8">검색 결과가 없습니다.</div>
+        ) : (
+          filtered.map(({ ticker, korean_name, caution }) => (
+            <CoinListItem
+              key={ticker.market}
+              ticker={ticker}
+              korean_name={korean_name}
+              caution={caution}
+              onClickSameMarket={
+                ticker.market === currentMarket ? onClickSameMarket : undefined
+              }
+            />
+          ))
+        )}
       </div>
     </div>
   );
