@@ -65,7 +65,19 @@ const CoinDetail = ({
       >
         <div className="flex-1 min-w-0">
           {isLoading ? (
-            <div className="flex justify-between gap-2 w-40 md:w-80 h-10 md:h-16 items-start px-2 py-4 bg-white/5 animate-pulse" />
+            <>
+              <div className="flex items-center gap-1 font-medium whitespace-nowrap">
+                <h2 className="text-lg md:text-2xl lg:text-3xl font-bold truncate">
+                  종목명
+                </h2>
+                <span className="text-lg md:text-2xl lg:text-3xl text-gray-400">
+                  (심볼)
+                </span>
+              </div>
+              <div className="text-sm md:text-base lg:text-xl text-gray-400 truncate">
+                마켓
+              </div>
+            </>
           ) : (
             <>
               <div className="flex items-center gap-1 font-medium whitespace-nowrap">
