@@ -11,6 +11,8 @@ import { formatNumberForDisplay } from '@/utils/formatNumber';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
+type ChartData = { x: Date; y: number | [number, number, number, number] };
+
 type Props = {
   market: string;
   disableZoom?: boolean;
@@ -49,23 +51,23 @@ const CoinChart = ({ market }: Props) => {
     });
   };
 
-  const ohlc = useMemo(
-    () =>
-      candles.map((c) => ({
-        x: new Date(c.date),
+const [ohlc, volume] = useMemo((): [ChartData[], ChartData[]] => {
+  return candles.reduce<[ChartData[], ChartData[]]>(
+    ([ohlcAcc, volumeAcc], c) => {
+      const date = new Date(c.date);
+      ohlcAcc.push({
+        x: date,
         y: [c.open, c.high, c.low, c.close],
-      })),
-    [candles]
-  );
-
-  const volume = useMemo(
-    () =>
-      candles.map((c) => ({
-        x: new Date(c.date),
+      });
+      volumeAcc.push({
+        x: date,
         y: c.volume,
-      })),
-    [candles]
+      });
+      return [ohlcAcc, volumeAcc];
+    },
+    [[], []]
   );
+}, [candles]);
 
   const candlestickOptions: ApexOptions = {
     chart: {
