@@ -53,6 +53,13 @@ const CoinListItem = ({
   const changeRate = ticker.signed_change_rate;
   const accVolume = ticker.acc_trade_price_24h;
 
+  const getCautionCount = (cautionObj: CautionType | undefined): number => {
+    if (!cautionObj) return 0;
+    return Object.values(cautionObj).filter(Boolean).length;
+  };
+
+  const isCompact = korean_name.length >= 7 || getCautionCount(caution) >= 2;
+
   const renderPrice = () => {
     if (tradePrice == null) return "--";
     if (ticker.market.startsWith("KRW")) return `${tradePrice.toLocaleString()} 원`;
@@ -82,15 +89,15 @@ const CoinListItem = ({
       onClick={handleClick}
       className="flex justify-between items-start px-2 py-1 rounded cursor-pointer hover:ring-1 ring-white/10 hover:bg-white/5"
     >
-      <div>
-        <div className="flex items-center gap-1 text-base font-medium flex-wrap">
-          <span>{korean_name}</span>
-          <CoinCautionBadge caution={caution} />
+      <div className="max-w-[180px]">
+        <div className="flex items-center gap-1 text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+          <span className="truncate">{korean_name}</span>
+          <CoinCautionBadge caution={caution} compact={isCompact} />
         </div>
         <div className="text-sm text-gray-400">{ticker.market}</div>
       </div>
 
-      <div className="text-right">
+      <div className="text-right whitespace-nowrap">
         <div className="text-base">{renderPrice()}</div>
         <div
           className={`text-sm ${
