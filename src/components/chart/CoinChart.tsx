@@ -132,7 +132,16 @@ const CoinChart = ({ market }: Props) => {
     },
     xaxis: {
       type: 'datetime',
-      labels: { style: { colors: '#ccc' } },
+      labels: {
+        style: { colors: '#ccc' },
+        datetimeFormatter: {
+          year: 'yyyy',
+          month: 'yyyy-MM',
+          day: 'MM-dd',
+          hour: 'HH:mm',
+          minute: 'HH:mm',
+        },
+      },
     },
     yaxis: {
       opposite: true,
