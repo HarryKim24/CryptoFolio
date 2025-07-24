@@ -11,6 +11,7 @@ interface CoinListItemProps {
   caution?: CautionType;
   onClickSameMarket?: () => void;
   isLoading?: boolean;
+  market?: string;
 }
 
 const CoinListItem = ({
@@ -19,6 +20,7 @@ const CoinListItem = ({
   caution,
   onClickSameMarket,
   isLoading = false,
+  market,
 }: CoinListItemProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -34,16 +36,33 @@ const CoinListItem = ({
   };
 
   if (isLoading || !ticker || !korean_name) {
+    const marketType = (ticker?.market || market || "KRW").split("-")[0];
+
+    const getLoadingPrice = () => {
+      if (marketType === "BTC") return "0.00000000 BTC";
+      if (marketType === "USDT") return "$0.00";
+      return "0 원";
+    };
+
+    const getLoadingVolume = () => {
+      if (marketType === "BTC") return "0.000000 BTC";
+      if (marketType === "USDT") return "$0.0000";
+      return "0백만";
+    };
+
     return (
-      <div className="flex justify-between items-start px-2 py-3 rounded bg-white/5 animate-pulse">
-        <div className="space-y-1">
-          <div className="w-24 h-4 bg-gray-500/30 rounded" />
-          <div className="w-16 h-3 bg-gray-500/20 rounded" />
+      <div className="flex justify-between items-start px-2 py-1 rounded">
+        <div className="max-w-[180px]">
+          <div className="flex items-center gap-1 text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+            <span className="truncate text-neutral-100">종목명</span>
+          </div>
+          <div className="text-sm text-gray-400">{market || "마켓"}</div>
         </div>
-        <div className="space-y-1 text-right">
-          <div className="w-16 h-4 bg-gray-500/30 rounded" />
-          <div className="w-12 h-3 bg-gray-500/20 rounded" />
-          <div className="w-24 h-3 bg-gray-500/10 rounded" />
+
+        <div className="text-right whitespace-nowrap">
+          <div className="text-base text-neutral-100">{getLoadingPrice()}</div>
+          <div className="text-sm text-gray-400">0.00%</div>
+          <div className="text-[10px] text-gray-400">{getLoadingVolume()}</div>
         </div>
       </div>
     );
@@ -71,7 +90,8 @@ const CoinListItem = ({
 
   const renderChangeRate = () => {
     if (changeRate == null) return "--";
-    return `${(changeRate * 100).toFixed(2)}%`;
+    const percent = (changeRate * 100).toFixed(2);
+    return `${changeRate > 0 ? "+" : ""}${percent}%`;
   };
 
   const renderVolume = () => {
