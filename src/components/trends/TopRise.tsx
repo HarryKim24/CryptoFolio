@@ -88,12 +88,16 @@ const TopRise = () => {
                 <span className="truncate whitespace-nowrap overflow-hidden max-w-none [@media(max-width:1299px)]:max-w-[200px]">
                   {i + 1}. {shortenedName}
                 </span>
-                <span className="flex gap-2 pl-2">
-                  <span className="w-16 text-right text-neutral-100">
+                <span className="flex gap-2 pl-2 whitespace-nowrap">
+                  <span className="min-w-[80px] text-right text-neutral-100 truncate">
                     {coin.trade_price.toLocaleString("ko-KR")} 원
                   </span>
-                  <span className="w-16 text-right text-red-400 font-medium">
-                    +{(coin.signed_change_rate * 100).toFixed(1)}%
+                  <span
+                    className={`min-w-[60px] text-right font-medium ${
+                      coin.signed_change_rate >= 0 ? "text-red-400" : "text-blue-400"
+                    }`}
+                  >
+                    {(coin.signed_change_rate >= 0 ? "+" : "") + (coin.signed_change_rate * 100).toFixed(1)}%
                   </span>
                 </span>
               </li>
