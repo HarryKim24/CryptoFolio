@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 import CoinListItem from "@/components/chart/CoinListItem";
 import CoinListHeader from "@/components/chart/CoinListHeader";
@@ -20,10 +20,24 @@ type Props = {
 const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   const { tickers, markets } = useUpbitTickerContext();
 
-  const [activeTab, setActiveTab] = useState<MarketTab>(initialTab);
+  const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("activeTab") as MarketTab | null;
+    if (stored && ["KRW", "BTC", "USDT"].includes(stored)) {
+      setActiveTab(stored);
+    } else {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  const handleTabClick = (tab: MarketTab) => {
+    localStorage.setItem("activeTab", tab);
+    setActiveTab(tab);
+  };
 
   const combined = useMemo(() => {
     return Object.values(tickers)
@@ -76,11 +90,11 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     const term = searchTerm.toLowerCase();
     const isChosungOnly = /^[ㄱ-ㅎ]+$/.test(term);
     const choTerm = isChosungOnly ? getChosung(term) : null;
-  
+
     return sorted.filter(({ ticker, korean_name, english_name }) => {
       const symbol = ticker.market.replace(`${activeTab}-`, "").toLowerCase();
       const choName = getChosung(korean_name);
-  
+
       return (
         korean_name.toLowerCase().includes(term) ||
         english_name.toLowerCase().includes(term) ||
@@ -99,7 +113,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
           {(["KRW", "BTC", "USDT"] as MarketTab[]).map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleTabClick(tab)}
               className={`pb-1 font-semibold ${
                 activeTab === tab ? "border-b-2 border-neutral-100" : "text-gray-400"
               }`}
@@ -130,7 +144,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
       <div className="flex-1 overflow-y-auto space-y-1">
         {isLoading ? (
           Array.from({ length: 10 }).map((_, idx) => (
-            <CoinListItem key={idx} isLoading />
+            <CoinListItem key={idx} isLoading market={`${activeTab}-LOADING`} />
           ))
         ) : filtered.length === 0 ? (
           <div className="text-center text-gray-400 py-8">검색 결과가 없습니다.</div>
@@ -141,6 +155,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
               ticker={ticker}
               korean_name={korean_name}
               caution={caution}
+              market={ticker.market}
               onClickSameMarket={
                 ticker.market === currentMarket ? onClickSameMarket : undefined
               }
