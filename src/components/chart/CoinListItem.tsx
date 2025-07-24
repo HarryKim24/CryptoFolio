@@ -51,7 +51,7 @@ const CoinListItem = ({
     };
 
     return (
-      <div className="flex justify-between items-start px-2 py-1 rounded bg-white/5">
+      <div className="flex justify-between items-start px-2 py-1 rounded">
         <div className="max-w-[180px]">
           <div className="flex items-center gap-1 text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
             <span className="truncate text-neutral-100">종목명</span>
