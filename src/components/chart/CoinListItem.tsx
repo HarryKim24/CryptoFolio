@@ -71,7 +71,8 @@ const CoinListItem = ({
 
   const renderChangeRate = () => {
     if (changeRate == null) return "--";
-    return `${(changeRate * 100).toFixed(2)}%`;
+    const percent = (changeRate * 100).toFixed(2);
+    return `${changeRate > 0 ? '+' : ''}${percent}%`;
   };
 
   const renderVolume = () => {
