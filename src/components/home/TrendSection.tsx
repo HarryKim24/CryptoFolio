@@ -124,14 +124,15 @@ const TrendSection = () => {
     <ol className="space-y-2 text-sm text-left">
       {coins.map((coin, i) => (
         <li key={coin.market} className="flex justify-between">
-          <span className="truncate min-w-[200px]">
+          <span className="truncate min-w-[160px] xs:min-w-[200px]">
             {i + 1}. {coin.korean_name} ({coin.market})
           </span>
-          <span className="flex pl-2 gap-2">
+          <span className="flex pl-1 gap-1">
             <span className="min-w-16 text-right">
               {coin.trade_price.toLocaleString()} 원
             </span>
             <span className={`w-16 pr-2 xs:pr-0 text-right ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
+              {isRise ? '+' : ''}
               {(coin.signed_change_rate * 100).toFixed(1)}%
             </span>
           </span>
