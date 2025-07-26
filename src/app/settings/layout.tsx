@@ -8,11 +8,6 @@ const SettingsLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const isRenderable =
-    typeof children === "string" ||
-    typeof children === "number" ||
-    React.isValidElement(children);
-
   return (
     <div className="min-h-screen pt-16 bg-setting-gradient text-neutral-100 overflow-hidden">
       <motion.div
@@ -20,7 +15,7 @@ const SettingsLayout = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: "easeOut" }}
       >
-        {isRenderable ? children : null}
+        {children}
       </motion.div>
     </div>
   );
