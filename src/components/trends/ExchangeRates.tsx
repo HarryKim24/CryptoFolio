@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
 
 type CurrencyRate = {
   country: string;
@@ -75,40 +74,39 @@ const ExchangeRates = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 items-center">
-        {isLoading ? (
-          currencies.map((_, i) => (
+        {currencies.map((currency, i) => {
+          const rateData = rates.find((r) => r.pair === currency.pair);
+          const displayRate = isLoading
+            ? "0 원"
+            : rateData?.rate !== "N/A"
+            ? `${rateData?.rate} 원`
+            : "N/A";
+
+          return (
             <div
               key={i}
-              className="bg-white/10 px-3 py-3 rounded min-h-[72px] animate-pulse space-y-2"
-            />
-          ))
-        ) : (
-          <AnimatePresence>
-            {rates.map((currency, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-                className="bg-white/10 px-3 py-3 rounded flex flex-col justify-center min-h-[72px]"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[16px] font-bold text-neutral-100">
-                    {currency.country ?? "국가 없음"}
-                  </span>
-                  <span className="text-[16px] font-semibold text-red-400">
-                    {currency.rate !== "N/A"
-                      ? `${currency.rate} 원`
-                      : "N/A"}
-                  </span>
-                </div>
-                <div className="text-[12px] lg:text-[14px] text-gray-300">
-                  {currency.pair ?? "통화쌍 없음"}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        )}
+              className="bg-white/10 px-3 py-3 rounded flex flex-col justify-center min-h-[72px]"
+            >
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[16px] font-bold text-neutral-100">
+                  {currency.country}
+                </span>
+                <span
+                  className={`text-[16px] font-semibold ${
+                    isLoading
+                      ? "text-gray-400 animate-pulse"
+                      : "text-red-400"
+                  }`}
+                >
+                  {displayRate}
+                </span>
+              </div>
+              <div className="text-[12px] lg:text-[14px] text-gray-300">
+                {currency.pair}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
