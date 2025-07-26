@@ -6,5 +6,7 @@ export default function SettingsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <SettingsLayoutClient>{children}</SettingsLayoutClient>;
+  return <SettingsLayoutClient>
+    <>{children}</>
+  </SettingsLayoutClient>;
 }
