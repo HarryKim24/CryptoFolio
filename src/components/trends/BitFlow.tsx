@@ -41,16 +41,28 @@ const BitFlow = () => {
       try {
         const res = await axios.get("/api/proxy/v1/candles/minutes/30", {
           params: { market: "KRW-BTC", count: 48 },
-        })
-        const formatted = res.data.reverse().map((item: any) => ({
-          x: new Date(item.candle_date_time_kst),
-          y: item.trade_price,
-        }))
-        setBtcData(formatted)
+        });
+
+        const formatted = Array.isArray(res.data)
+          ? res.data
+              .reverse()
+              .filter(
+                (item: any) =>
+                  item?.candle_date_time_kst && typeof item.trade_price === "number"
+              )
+              .map((item: any) => ({
+                x: new Date(item.candle_date_time_kst),
+                y: item.trade_price,
+              }))
+          : [];
+
+        setBtcData(formatted);
       } catch (err) {
-        console.error("BTC 데이터 로딩 실패:", err)
+        console.error("BTC 데이터 로딩 실패:", err);
+        setBtcData([]);
       }
-    }
+    };
+
     fetchBTC();
   }, []);
 
@@ -65,12 +77,16 @@ const BitFlow = () => {
 
   useEffect(() => {
     if (!chartRef.current) return;
-    const chart = chartRef.current;
-    const ctx = chart.ctx;
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, "rgba(96,165,250,0.35)");
-    gradient.addColorStop(1, "rgba(96,165,250,0.02)");
-    setGradient(gradient);
+
+    const chart = chartRef.current.chart ?? chartRef.current;
+    const ctx = chart?.ctx;
+
+    if (!ctx) return;
+
+    const grad = ctx.createLinearGradient(0, 0, 0, 400);
+    grad.addColorStop(0, "rgba(96,165,250,0.35)");
+    grad.addColorStop(1, "rgba(96,165,250,0.02)");
+    setGradient(grad);
   }, [btcData]);
 
   const formatPrice = (value: number) => {
@@ -80,14 +96,14 @@ const BitFlow = () => {
     return `${value.toLocaleString("ko-KR")} 원`;
   };
 
+  const latestPrice = btcData?.[btcData.length - 1]?.y;
+
   return (
     <section className="bg-white/5 rounded-xl p-6 pb-4 shadow flex flex-col gap-6 min-h-[620px]">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">비트코인 트렌드</h2>
         <span className="text-xl font-semibold text-red-400">
-          {btcData.length > 0
-            ? `${btcData[btcData.length - 1].y.toLocaleString("ko-KR")} 원`
-            : "-"}
+          {latestPrice != null ? formatPrice(latestPrice) : "-"}
         </span>
       </div>
 
