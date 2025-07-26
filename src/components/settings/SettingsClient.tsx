@@ -239,10 +239,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
         <div className="text-center">
           <p
             className={`text-warning text-sm leading-tight transition-all duration-300 ease-out ${
-              error ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+              typeof error === "string" && error.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
             } ${shake ? "shake" : ""}`}
           >
-            {error ?? "‎"}
+            {typeof error === "string" && error.trim() !== "" ? error : " "}
           </p>
         </div>
 
@@ -276,7 +276,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
           ) : (
             <>
               <ul className="space-y-4 text-base sm:text-lg">
-                <li><span className="font-semibold text-third">이름:</span> {localUser.name || "-"}</li>
+                <li><span className="font-semibold text-third">이름:</span> {localUser.name ?? "-"}</li>
                 <li><span className="font-semibold text-third">이메일:</span> {localUser.email ?? "-"}</li>
                 <li><span className="font-semibold text-third">가입일:</span> {formatDate(localUser.createdAt) ?? "-"}</li>
                 <li><span className="font-semibold text-third">최근 수정:</span> {formatDate(localUser.updatedAt) ?? "-"}</li>
@@ -309,9 +309,13 @@ const SettingsClient = ({ session }: { session: Session }) => {
                 className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
               >
                 <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
-                <p className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out ${deleteError ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"} ${deleteShake ? "shake" : ""}`}>
-                  {deleteError ?? "‎"}
-                </p>
+                  <p
+                    className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out ${
+                      typeof deleteError === "string" && deleteError.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+                    } ${deleteShake ? "shake" : ""}`}
+                  >
+                    {typeof deleteError === "string" && deleteError.trim() !== "" ? deleteError : " "}
+                  </p>
                 <input
                   type="password"
                   placeholder="현재 비밀번호 입력"
