@@ -79,6 +79,21 @@ const TopRise = () => {
               ? displayName.slice(0, 12) + '…'
               : displayName;
 
+            const formattedPrice =
+              coin.trade_price != null
+                ? `${coin.trade_price.toLocaleString("ko-KR")} 원`
+                : "-";
+
+            const formattedRate =
+              coin.signed_change_rate != null
+                ? `${coin.signed_change_rate >= 0 ? "+" : ""}${(coin.signed_change_rate * 100).toFixed(1)}%`
+                : "0.0%";
+
+            const rateColor =
+              coin.signed_change_rate != null && coin.signed_change_rate >= 0
+                ? "text-red-400"
+                : "text-blue-400";
+
             return (
               <li
                 key={coin.market}
@@ -90,18 +105,14 @@ const TopRise = () => {
                 </span>
                 <span className="flex gap-2 pl-2 whitespace-nowrap">
                   <span className="min-w-[80px] text-right text-neutral-100 truncate">
-                    {coin.trade_price.toLocaleString("ko-KR")} 원
+                    {formattedPrice}
                   </span>
-                  <span
-                    className={`min-w-[60px] text-right font-medium ${
-                      coin.signed_change_rate >= 0 ? "text-red-400" : "text-blue-400"
-                    }`}
-                  >
-                    {(coin.signed_change_rate >= 0 ? "+" : "") + (coin.signed_change_rate * 100).toFixed(1)}%
+                  <span className={`min-w-[60px] text-right font-medium ${rateColor}`}>
+                    {formattedRate}
                   </span>
                 </span>
               </li>
-            )
+            );
           })
         ) : (
           [...Array(10)].map((_, i) => (
