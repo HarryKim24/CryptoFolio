@@ -9,7 +9,13 @@ import { signOut } from "next-auth/react";
 
 const SettingsClient = ({ session }: { session: Session }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(session.user?.name ?? "");
+  const [localUser, setLocalUser] = useState(() => ({
+    name: session.user?.name ?? "",
+    email: session.user?.email ?? "",
+    createdAt: session.user?.createdAt,
+    updatedAt: session.user?.updatedAt,
+  }));
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -43,7 +49,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
   };
 
   const handleSave = async () => {
-    const isNameChanged = name !== session.user.name;
+    const isNameChanged = localUser.name !== session.user.name;
     const isPasswordChanged = !!newPassword;
 
     if (newPassword && newPassword !== confirmPassword) {
@@ -57,12 +63,12 @@ const SettingsClient = ({ session }: { session: Session }) => {
     }
 
     if (isNameChanged && !isPasswordChanged) {
-      if (!session.user.updatedAt) {
+      if (!localUser.updatedAt) {
         triggerError("최근 수정일 정보를 불러올 수 없습니다.");
         return;
       }
 
-      const lastUpdated = new Date(session.user.updatedAt);
+      const lastUpdated = new Date(localUser.updatedAt);
       const now = new Date();
       const oneMonth = 30 * 24 * 60 * 60 * 1000;
 
@@ -77,7 +83,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
+          name: localUser.name,
           currentPassword,
           newPassword,
         }),
@@ -90,8 +96,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
       }
 
       alert("수정 완료");
-      session.user.name = name;
-      session.user.updatedAt = new Date().toISOString();
+      setLocalUser((prev) => ({
+        ...prev,
+        updatedAt: new Date().toISOString(),
+      }));
 
       setCurrentPassword("");
       setNewPassword("");
@@ -109,22 +117,21 @@ const SettingsClient = ({ session }: { session: Session }) => {
       triggerDeleteError("비밀번호를 입력하세요.");
       return;
     }
-  
+
     try {
       const res = await fetch("/api/settings/delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: passwordInput }),
       });
-  
+
       if (!res.ok) {
         const msg = await res.text();
         console.warn("서버 오류:", msg);
-  
         triggerDeleteError("잘못된 비밀번호를 입력했습니다.");
         return;
       }
-  
+
       alert("탈퇴 완료. 메인 페이지로 이동합니다.");
       await signOut({ callbackUrl: "/" });
     } catch (err) {
@@ -197,7 +204,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
               <>
                 <button
                   onClick={() => {
-                    setName(session.user?.name ?? "");
+                    setLocalUser((prev) => ({
+                      ...prev,
+                      name: session.user?.name ?? "",
+                    }));
                     setCurrentPassword("");
                     setNewPassword("");
                     setConfirmPassword("");
@@ -229,10 +239,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
         <div className="text-center">
           <p
             className={`text-warning text-sm leading-tight transition-all duration-300 ease-out ${
-              error ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+              typeof error === "string" && error.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
             } ${shake ? "shake" : ""}`}
           >
-            {error || "‎"}
+            {typeof error === "string" && error.trim() !== "" ? error : " "}
           </p>
         </div>
 
@@ -250,8 +260,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
                 <label className="block text-third font-semibold pb-1">이름</label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={localUser.name}
+                  onChange={(e) =>
+                    setLocalUser((prev) => ({ ...prev, name: e.target.value }))
+                  }
                   placeholder="이름 입력"
                   className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
                 />
@@ -264,10 +276,10 @@ const SettingsClient = ({ session }: { session: Session }) => {
           ) : (
             <>
               <ul className="space-y-4 text-base sm:text-lg">
-                <li><span className="font-semibold text-third">이름:</span> {session.user?.name ?? "-"}</li>
-                <li><span className="font-semibold text-third">이메일:</span> {session.user?.email}</li>
-                <li><span className="font-semibold text-third">가입일:</span> {formatDate(session.user?.createdAt)}</li>
-                <li><span className="font-semibold text-third">최근 수정:</span> {formatDate(session.user?.updatedAt)}</li>
+                <li><span className="font-semibold text-third">이름:</span> {localUser.name ?? "-"}</li>
+                <li><span className="font-semibold text-third">이메일:</span> {localUser.email ?? "-"}</li>
+                <li><span className="font-semibold text-third">가입일:</span> {formatDate(localUser.createdAt) ?? "-"}</li>
+                <li><span className="font-semibold text-third">최근 수정:</span> {formatDate(localUser.updatedAt) ?? "-"}</li>
               </ul>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -286,62 +298,53 @@ const SettingsClient = ({ session }: { session: Session }) => {
           )}
         </motion.div>
 
-<AnimatePresence>
-  {showDeleteModal && (
-    <div
-      className="fixed inset-0 px-6 z-50 flex items-center justify-center"
-    >
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
-      >
-        <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
-
-        <p
-          className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out ${
-            deleteError ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
-          } ${deleteShake ? "shake" : ""}`}
-        >
-          {deleteError || "‎"}
-        </p>
-
-        <input
-          type="password"
-          placeholder="현재 비밀번호 입력"
-          value={passwordInput}
-          onChange={(e) => setPasswordInput(e.target.value)}
-          className="w-full p-2 rounded bg-white/10 border border-white/20 text-neutral-100 placeholder:text-neutral-100 focus:outline-none"
-        />
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            onClick={() => {
-              setShowDeleteModal(false);
-              setPasswordInput("");
-              setDeleteError("");
-            }}
-            className="text-sm px-4 py-1.5 rounded transition border border-neutral-100 text-neutral-100 bg-setting hover:brightness-105"
-          >
-            취소
-          </button>
-          <button
-            onClick={() => {
-              handleDeleteAccount();
-            }}
-            className="text-sm px-4 py-1.5 rounded text-neutral-100 bg-red-500 hover:brightness-105"
-          >
-            탈퇴
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  )}
-</AnimatePresence>
-
-
+        <AnimatePresence>
+          {showDeleteModal && (
+            <div className="fixed inset-0 px-6 z-50 flex items-center justify-center">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
+              >
+                <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
+                  <p
+                    className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out ${
+                      typeof deleteError === "string" && deleteError.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+                    } ${deleteShake ? "shake" : ""}`}
+                  >
+                    {typeof deleteError === "string" && deleteError.trim() !== "" ? deleteError : " "}
+                  </p>
+                <input
+                  type="password"
+                  placeholder="현재 비밀번호 입력"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className="w-full p-2 rounded bg-white/10 border border-white/20 text-neutral-100 placeholder:text-neutral-100 focus:outline-none"
+                />
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setPasswordInput("");
+                      setDeleteError("");
+                    }}
+                    className="text-sm px-4 py-1.5 rounded transition border border-neutral-100 text-neutral-100 bg-setting hover:brightness-105"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="text-sm px-4 py-1.5 rounded text-neutral-100 bg-red-500 hover:brightness-105"
+                  >
+                    탈퇴
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );

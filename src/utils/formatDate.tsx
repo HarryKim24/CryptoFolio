@@ -1,7 +1,8 @@
 export const formatDate = (isoString?: string) => {
-  if (!isoString) return "-";
+  if (!isoString || typeof isoString !== "string") return "-";
 
   const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "-";
 
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");

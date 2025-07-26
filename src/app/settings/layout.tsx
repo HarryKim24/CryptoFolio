@@ -1,24 +1,12 @@
-"use client";
-
+import SettingsLayoutClient from "@/components/settings/SettingsLayoutClient";
 import React from "react";
-import { motion } from "framer-motion";
 
-const SettingsLayout = ({
+export default function SettingsLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) => {
-  return (
-    <div className="min-h-screen pt-16 bg-setting-gradient text-neutral-100 overflow-hidden">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-      >
-        {children}
-      </motion.div>
-    </div>
-  );
-};
-
-export default SettingsLayout;
+}) {
+  return <SettingsLayoutClient>
+    <>{children}</>
+  </SettingsLayoutClient>;
+}

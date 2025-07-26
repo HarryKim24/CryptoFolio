@@ -5,14 +5,28 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
 import {
-  Chart as ChartJS, CategoryScale, LinearScale, TimeScale,
-  PointElement, LineElement, Tooltip, Legend
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  TimeScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
 } from "chart.js";
-import 'chartjs-adapter-date-fns';
+import "chartjs-adapter-date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-ChartJS.register(CategoryScale, LinearScale, TimeScale, PointElement, LineElement, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  TimeScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+);
 
 interface CoinVolume {
   market: string;
@@ -59,14 +73,20 @@ const TopVolume = () => {
         const marketRes = await axios.get("/api/proxy/v1/market/all", {
           params: { isDetails: false },
         });
-        const krwMarkets = marketRes.data.filter((m: any) => m.market.startsWith("KRW-"));
-        const altMarkets = krwMarkets.filter((m: any) => m.market !== "KRW-BTC");
+        const krwMarkets = marketRes.data.filter((m: any) =>
+          m.market.startsWith("KRW-")
+        );
+        const altMarkets = krwMarkets.filter(
+          (m: any) => m.market !== "KRW-BTC"
+        );
 
         const marketQuery = altMarkets.map((m: any) => m.market).join(",");
         const tickerRes = await axios.get("/api/proxy/v1/ticker", {
           params: { markets: marketQuery },
         });
-        const tickers = tickerRes.data.filter((t: any) => t.market !== "KRW-BTC");
+        const tickers = tickerRes.data.filter(
+          (t: any) => t.market !== "KRW-BTC"
+        );
 
         const sorted = tickers
           .sort((a: any, b: any) => b.acc_trade_price_24h - a.acc_trade_price_24h)
@@ -94,10 +114,12 @@ const TopVolume = () => {
         const res = await axios.get("/api/proxy/v1/candles/minutes/30", {
           params: { market, count: 48 },
         });
-        const data = res.data.reverse().map((item: any) => ({
-          x: new Date(item.candle_date_time_kst),
-          y: item.trade_price,
-        }));
+        const data = res.data
+          .reverse()
+          .map((item: any) => ({
+            x: new Date(item.candle_date_time_kst),
+            y: item.trade_price,
+          }));
 
         setChartData((prev) => {
           const updated = { ...prev, [market]: data };
@@ -127,6 +149,9 @@ const TopVolume = () => {
     };
   }, [topCoins, startAutoSlide]);
 
+  const currentCoin = topCoins[current] ?? null;
+  const currentMarket = currentCoin?.market ?? "";
+
   return (
     <section className="bg-white/5 rounded-xl p-6 shadow flex flex-col gap-4 flex-1">
       <div>
@@ -135,70 +160,66 @@ const TopVolume = () => {
 
       <div className="relative flex-1 overflow-hidden min-h-[297px]">
         <AnimatePresence mode="sync">
-          {topCoins.length > 0 ? (
-            chartData[topCoins[current].market]?.length ? (
-              <motion.div
-                key={topCoins[current].market}
-                initial={{ opacity: 0, x: 534 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -534 }}
-                transition={{ duration: 1.5 }}
-                className="absolute inset-0 flex flex-col h-full"
-              >
-                <h3 className="text-lg font-semibold mb-2">
-                  {topCoins[current].korean_name} ({topCoins[current].market})
-                </h3>
-                <div className="flex-1">
-                  <Line
-                    data={{
-                      datasets: [
-                        {
-                          label: "가격",
-                          data: chartData[topCoins[current].market],
-                          borderColor: "#34D399",
-                          backgroundColor: "rgba(52, 211, 153, 0.1)",
-                          fill: true,
-                          tension: 0.4,
-                          pointRadius: 0,
-                        },
-                      ],
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        x: {
-                          type: "time",
-                          time: {
-                            unit: "hour",
-                            displayFormats: { hour: "HH시" },
-                          },
-                          ticks: {
-                            color: "#aaa",
-                            maxRotation: 0,
-                            minRotation: 0,
-                          },
-                          grid: { color: "rgba(255,255,255,0.05)" },
-                        },
-                        y: {
-                          ticks: {
-                            color: "#aaa",
-                            callback: (val: any) => `${Number(val).toLocaleString("ko-KR")} 원`,
-                          },
-                          grid: { color: "rgba(255,255,255,0.05)" },
-                        },
+          {currentCoin && chartData[currentMarket]?.length ? (
+            <motion.div
+              key={currentMarket}
+              initial={{ opacity: 0, x: 534 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -534 }}
+              transition={{ duration: 1.5 }}
+              className="absolute inset-0 flex flex-col h-full"
+            >
+              <h3 className="text-lg font-semibold mb-2">
+                {currentCoin.korean_name} ({currentCoin.market})
+              </h3>
+              <div className="flex-1">
+                <Line
+                  data={{
+                    datasets: [
+                      {
+                        label: "가격",
+                        data: chartData[currentMarket],
+                        borderColor: "#34D399",
+                        backgroundColor: "rgba(52, 211, 153, 0.1)",
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
                       },
-                      plugins: { legend: { display: false } },
-                    }}
-                  />
-                </div>
-              </motion.div>
-            ) : (
-              <div className="flex flex-col gap-2 h-full animate-pulse">
-                <div className="h-5 w-2/5 bg-white/10 rounded" />
-                <div className="flex-1 bg-white/5 rounded" />
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      x: {
+                        type: "time",
+                        time: {
+                          unit: "hour",
+                          displayFormats: { hour: "HH시" },
+                        },
+                        ticks: {
+                          color: "#aaa",
+                          maxRotation: 0,
+                          minRotation: 0,
+                        },
+                        grid: { color: "rgba(255,255,255,0.05)" },
+                      },
+                      y: {
+                        ticks: {
+                          color: "#aaa",
+                          callback: (val: any) =>
+                            typeof val === "number" && !isNaN(val)
+                              ? `${val.toLocaleString("ko-KR")} 원`
+                              : "- 원",
+                        },
+                        grid: { color: "rgba(255,255,255,0.05)" },
+                      },
+                    },
+                    plugins: { legend: { display: false } },
+                  }}
+                />
               </div>
-            )
+            </motion.div>
           ) : (
             <div className="flex flex-col gap-2 h-full animate-pulse">
               <div className="h-5 w-1/3 bg-white/10 rounded" />
