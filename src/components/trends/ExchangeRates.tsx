@@ -25,7 +25,18 @@ const ExchangeRates = () => {
     const fetchRates = async () => {
       try {
         const res = await axios.get("/api/exchange");
-        setRates(res.data);
+
+        const validRates = Array.isArray(res.data)
+          ? res.data.filter(
+              (r): r is CurrencyRate =>
+                r &&
+                typeof r.country === "string" &&
+                typeof r.pair === "string" &&
+                typeof r.rate === "string"
+            )
+          : [];
+
+        setRates(validRates);
       } catch (err) {
         console.error("환율 불러오기 실패", err);
         setRates(
@@ -46,7 +57,14 @@ const ExchangeRates = () => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-  const weekday = date.toLocaleDateString("ko-KR", { weekday: "short" });
+
+  let weekday = "요일";
+  try {
+    weekday = date.toLocaleDateString("ko-KR", { weekday: "short" });
+  } catch {
+    weekday = date.toLocaleDateString(undefined, { weekday: "short" });
+  }
+
   const today = `${year}. ${month}. ${day} (${weekday})`;
 
   return (
@@ -55,39 +73,42 @@ const ExchangeRates = () => {
         <h2 className="text-xl font-bold">KRW 기준 환율</h2>
         <span className="text-sm text-gray-300">{today}</span>
       </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 items-center">
-        {isLoading
-          ? currencies.map((_, i) => (
-              <div
+        {isLoading ? (
+          currencies.map((_, i) => (
+            <div
+              key={i}
+              className="bg-white/10 px-3 py-3 rounded min-h-[72px] animate-pulse space-y-2"
+            />
+          ))
+        ) : (
+          <AnimatePresence>
+            {rates.map((currency, i) => (
+              <motion.div
                 key={i}
-                className="bg-white/10 px-3 py-3 rounded min-h-[72px] animate-pulse space-y-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className="bg-white/10 px-3 py-3 rounded flex flex-col justify-center min-h-[72px]"
               >
-                <div className="h-4 rounded w-2/3" />
-                <div className="h-3 rounded w-1/2" />
-              </div>
-            ))
-          : rates.map((currency, i) => (
-              <AnimatePresence key={i}>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1 }}
-                  className="bg-white/10 px-3 py-3 rounded flex flex-col justify-center min-h-[72px]"
-                >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[16px] font-bold text-neutral-100">
-                      {currency.country}
-                    </span>
-                    <span className="text-[16px] font-semibold text-red-400">
-                      {currency.rate !== "N/A" ? `${currency.rate} 원` : "N/A"}
-                    </span>
-                  </div>
-                  <div className="text-[12px] lg:text-[14px] text-gray-300">
-                    {currency.pair}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[16px] font-bold text-neutral-100">
+                    {currency.country ?? "국가 없음"}
+                  </span>
+                  <span className="text-[16px] font-semibold text-red-400">
+                    {currency.rate !== "N/A"
+                      ? `${currency.rate} 원`
+                      : "N/A"}
+                  </span>
+                </div>
+                <div className="text-[12px] lg:text-[14px] text-gray-300">
+                  {currency.pair ?? "통화쌍 없음"}
+                </div>
+              </motion.div>
             ))}
+          </AnimatePresence>
+        )}
       </div>
     </section>
   );
