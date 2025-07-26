@@ -242,7 +242,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
               error ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
             } ${shake ? "shake" : ""}`}
           >
-            {error || "‎"}
+            {error ?? "‎"}
           </p>
         </div>
 
@@ -277,9 +277,9 @@ const SettingsClient = ({ session }: { session: Session }) => {
             <>
               <ul className="space-y-4 text-base sm:text-lg">
                 <li><span className="font-semibold text-third">이름:</span> {localUser.name || "-"}</li>
-                <li><span className="font-semibold text-third">이메일:</span> {localUser.email}</li>
-                <li><span className="font-semibold text-third">가입일:</span> {formatDate(localUser.createdAt)}</li>
-                <li><span className="font-semibold text-third">최근 수정:</span> {formatDate(localUser.updatedAt)}</li>
+                <li><span className="font-semibold text-third">이메일:</span> {localUser.email ?? "-"}</li>
+                <li><span className="font-semibold text-third">가입일:</span> {formatDate(localUser.createdAt) ?? "-"}</li>
+                <li><span className="font-semibold text-third">최근 수정:</span> {formatDate(localUser.updatedAt) ?? "-"}</li>
               </ul>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -310,7 +310,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
               >
                 <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
                 <p className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out ${deleteError ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"} ${deleteShake ? "shake" : ""}`}>
-                  {deleteError || "‎"}
+                  {deleteError ?? "‎"}
                 </p>
                 <input
                   type="password"
