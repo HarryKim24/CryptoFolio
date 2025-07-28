@@ -1,40 +1,63 @@
 'use client';
 
-import ChartSection from "@/components/home/ChartSection";
-import MainSection from "@/components/home/MainSection";
-import PortfolioSection from "@/components/home/PortfolioSection";
-import TrendSection from "@/components/home/TrendSection";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { UpbitTickerProvider } from "@/context/UpbitTickerContext";
-import Footer from "@/components/home/Footer";
+
+const MainSection = dynamic(() => import("@/components/home/MainSection"), {
+  ssr: true,
+});
+const ChartSection = dynamic(() => import("@/components/home/ChartSection"), {
+  ssr: true,
+});
+const TrendSection = dynamic(() => import("@/components/home/TrendSection"), {
+  ssr: true,
+});
+const PortfolioSection = dynamic(() => import("@/components/home/PortfolioSection"), {
+  ssr: true,
+});
+const Footer = dynamic(() => import("@/components/home/Footer"), {
+  ssr: true,
+});
 
 const HomePage = () => {
   return (
     <UpbitTickerProvider>
       <div>
         <section className="panel h-screen flex items-center justify-center">
-          <MainSection />
+          <Suspense fallback={null}>
+            <MainSection />
+          </Suspense>
         </section>
 
         <section className="h-96" />
 
         <section className="panel h-screen flex flex-col items-center justify-center">
-          <ChartSection />
+          <Suspense fallback={null}>
+            <ChartSection />
+          </Suspense>
         </section>
 
         <section className="h-32" />
 
         <section className="panel h-screen flex flex-col items-center justify-center">
-          <TrendSection />
+          <Suspense fallback={null}>
+            <TrendSection />
+          </Suspense>
         </section>
 
         <section className="h-32" />
 
         <section className="panel h-screen flex items-center justify-center">
-          <PortfolioSection />
+          <Suspense fallback={null}>
+            <PortfolioSection />
+          </Suspense>
         </section>
 
         <section className="panel flex flex-col items-center justify-center">
-          <Footer />
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
         </section>
       </div>
     </UpbitTickerProvider>
