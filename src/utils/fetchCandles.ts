@@ -19,7 +19,7 @@ const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
   years: 400,
 };
 
-export const fetchNormalizedCandles = async (
+const fetchNormalizedCandles = async (
   options: GetCandlesOptions,
   signal?: AbortSignal
 ): Promise<NormalizedCandle[]> => {
@@ -73,3 +73,5 @@ export const fetchNormalizedCandles = async (
 
   return deduplicated;
 };
+
+export { normalizeCandles, fetchNormalizedCandles };

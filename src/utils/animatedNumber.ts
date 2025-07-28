@@ -1,29 +1,31 @@
-import { useEffect, useState } from 'react'
-import { useMotionValue, animate } from 'framer-motion'
+import { useEffect, useState } from 'react';
+import { useMotionValue, animate } from 'framer-motion';
 
 type Options = {
-  duration?: number
-  trigger?: unknown
-}
+  duration?: number;
+  trigger?: unknown;
+};
 
-export function useAnimatedNumber(target: number, options?: Options) {
-  const motionValue = useMotionValue(0)
-  const [displayValue, setDisplayValue] = useState(0)
+const useAnimatedNumber = (target: number, options?: Options): number => {
+  const motionValue = useMotionValue(0);
+  const [displayValue, setDisplayValue] = useState(0);
 
-  const duration = options?.duration ?? 1000
-  const trigger = options?.trigger
+  const duration = options?.duration ?? 1000;
+  const trigger = options?.trigger;
 
   useEffect(() => {
     const controls = animate(motionValue, target, {
       duration: duration / 1000,
       ease: 'easeOut',
       onUpdate: (latest) => {
-        setDisplayValue(Math.round(latest))
+        setDisplayValue(Math.round(latest));
       },
-    })
+    });
 
-    return () => controls.stop()
-  }, [motionValue, target, duration, trigger])
+    return () => controls.stop();
+  }, [motionValue, target, duration, trigger]);
 
-  return displayValue
-}
+  return displayValue;
+};
+
+export { useAnimatedNumber };

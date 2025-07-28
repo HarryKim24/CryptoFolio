@@ -1,4 +1,4 @@
-export const formatDate = (isoString?: string) => {
+const formatDate = (isoString?: string): string => {
   if (!isoString || typeof isoString !== "string") return "-";
 
   const date = new Date(isoString);
@@ -12,3 +12,5 @@ export const formatDate = (isoString?: string) => {
 
   return `${year}. ${month}. ${day}. ${hour}:${minute}`;
 };
+
+export { formatDate };

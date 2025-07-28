@@ -4,7 +4,7 @@ const CHO = [
   "ㅌ", "ㅍ", "ㅎ",
 ];
 
-export const getChosung = (text: string) => {
+const getChosung = (text: string): string => {
   return text
     .split("")
     .map((char) => {
@@ -17,3 +17,5 @@ export const getChosung = (text: string) => {
     })
     .join("");
 };
+
+export { getChosung };
