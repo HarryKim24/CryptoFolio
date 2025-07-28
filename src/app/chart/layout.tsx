@@ -1,10 +1,14 @@
 "use client";
 
+import { Suspense, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import useUpbitTicker from "@/hooks/useUpbitTicker";
 import { UpbitTickerContext } from "@/context/UpbitTickerContext";
-import CoinList from "@/components/chart/CoinList";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+
+const CoinList = dynamic(() => import("@/components/chart/CoinList"), {
+  ssr: false,
+});
 
 type MarketTab = "KRW" | "BTC" | "USDT";
 
@@ -17,7 +21,6 @@ const ChartLayout = ({ children }: { children: React.ReactNode }) => {
   const { loading, tickers, markets } = useUpbitTicker();
   const params = useParams();
   const currentMarket = typeof params?.id === "string" ? params.id : "";
-
   const [view, setView] = useState<"chart" | "list">("chart");
 
   const handleClickSameMarket = () => {
@@ -26,19 +29,31 @@ const ChartLayout = ({ children }: { children: React.ReactNode }) => {
 
   const initialTab = toMarketTab(currentMarket.split("-")[0]);
 
+  const contextValue = useMemo(
+    () => ({ loading, tickers, markets }),
+    [loading, tickers, markets]
+  );
+
   return (
-    <UpbitTickerContext.Provider value={{ loading, tickers, markets }}>
+    <UpbitTickerContext.Provider value={contextValue}>
       <div className="h-screen p-4 pt-16 w-full bg-chart-gradient text-neutral-100 overflow-hidden">
         <div className="flex h-full overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
-            {view === "chart" && children}
+            {view === "chart" && (
+              <Suspense fallback={null}>
+                {children}
+              </Suspense>
+            )}
           </div>
+
           <div className="w-[320px] hidden md:block h-full pl-0 p-4">
-            <CoinList
-              initialTab={initialTab}
-              currentMarket={currentMarket}
-              onClickSameMarket={handleClickSameMarket}
-            />
+            <Suspense fallback={null}>
+              <CoinList
+                initialTab={initialTab}
+                currentMarket={currentMarket}
+                onClickSameMarket={handleClickSameMarket}
+              />
+            </Suspense>
           </div>
         </div>
       </div>

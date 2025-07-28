@@ -12,7 +12,6 @@ type Props = {
   view?: "chart" | "list";
   onToggleView?: () => void;
   isChartSection?: boolean;
-  isLoading?: boolean;
 };
 
 const CoinDetail = ({
@@ -21,7 +20,6 @@ const CoinDetail = ({
   view = "chart",
   onToggleView,
   isChartSection,
-  isLoading = false,
 }: Props) => {
   const { tickers, markets } = useUpbitTickerContext();
   const ticker = tickers[market];
@@ -46,7 +44,6 @@ const CoinDetail = ({
       : `$${value.toFixed(3)}`;
   };
 
-  const zeroPrice = formatPrice(0);
   const formattedPrice = formatPrice(price);
   const formattedChange = formatPrice(change);
   const formattedVolume =
@@ -64,40 +61,22 @@ const CoinDetail = ({
         className={`md:h-[119px] p-4 ${isChartSection ? "pr-4" : "pr-0"} md:pr-4 flex justify-between items-start gap-2 lg:gap-4`}
       >
         <div className="flex-1 min-w-0">
-          {isLoading ? (
-            <>
-              <div className="flex items-center gap-1 font-medium whitespace-nowrap">
-                <h2 className="text-lg md:text-2xl lg:text-3xl font-bold truncate">
-                  종목명
-                </h2>
-                <span className="text-lg md:text-2xl lg:text-3xl text-gray-400">
-                  (심볼)
-                </span>
-              </div>
-              <div className="text-sm md:text-base lg:text-xl text-gray-400 truncate">
-                마켓
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center gap-1 font-medium whitespace-nowrap">
-                <h2 className="text-lg md:text-2xl lg:text-3xl font-bold truncate">
-                  {marketInfo?.korean_name ?? "--"}
-                </h2>
-                <span className="text-lg md:text-2xl lg:text-3xl text-gray-400">
-                  ({coinSymbol})
-                </span>
-              </div>
-              <div className="text-sm md:text-base lg:text-xl text-gray-400 truncate">
-                {market}
-              </div>
-              <div className="mt-1 min-h-[20px]">
-                {marketInfo && (
-                  <CoinCautionBadge caution={marketInfo.market_event?.caution} />
-                )}
-              </div>
-            </>
-          )}
+          <div className="flex items-center gap-1 font-medium whitespace-nowrap">
+            <h2 className="text-lg md:text-2xl lg:text-3xl font-bold truncate">
+              {marketInfo?.korean_name ?? "--"}
+            </h2>
+            <span className="text-lg md:text-2xl lg:text-3xl text-gray-400">
+              ({coinSymbol})
+            </span>
+          </div>
+          <div className="text-sm md:text-base lg:text-xl text-gray-400 truncate">
+            {market}
+          </div>
+          <div className="mt-1 min-h-[20px]">
+            {marketInfo && (
+              <CoinCautionBadge caution={marketInfo.market_event?.caution} />
+            )}
+          </div>
         </div>
 
         <div className="text-right space-y-0.5 lg:space-y-1 shrink-0 flex items-center">
@@ -106,7 +85,7 @@ const CoinDetail = ({
               className="block text-lg md:text-xl lg:text-3xl font-semibold text-white truncate min-h-[1.5rem]"
               aria-label="price"
             >
-              {isLoading ? zeroPrice : formattedPrice}
+              {formattedPrice}
             </span>
             <div className={`text-xs lg:text-base ${rateColor}`}>
               {(changeRate * 100).toFixed(2)}% ({change > 0 ? "+" : ""}
