@@ -4,17 +4,17 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import type { Market, Ticker } from "@/types/upbitTypes";
 
-export const UpbitTickerContext = createContext<UpbitTickerContextValue | null>(null);
-
 interface UpbitTickerContextValue {
   tickers: Record<string, Ticker>;
   markets: Market[];
   loading: boolean;
 }
 
+const UpbitTickerContext = createContext<UpbitTickerContextValue | null>(null);
+
 const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === "true";
 
-export const UpbitTickerProvider = ({ children }: { children: React.ReactNode }) => {
+const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tickers, setTickers] = useState<Record<string, Ticker>>({});
   const [markets, setMarkets] = useState<Market[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,10 +104,16 @@ export const UpbitTickerProvider = ({ children }: { children: React.ReactNode })
   );
 };
 
-export const useUpbitTickerContext = () => {
+const useUpbitTickerContext = () => {
   const ctx = useContext(UpbitTickerContext);
   if (!ctx) {
     throw new Error("useUpbitTickerContext must be used within a UpbitTickerProvider");
   }
   return ctx;
+};
+
+export {
+  UpbitTickerProvider,
+  useUpbitTickerContext,
+  UpbitTickerContext
 };
