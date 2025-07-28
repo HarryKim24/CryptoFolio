@@ -14,7 +14,7 @@ interface UpbitTickerContextValue {
 
 const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === "true";
 
-export const UpbitTickerProvider = ({ children }: { children: React.ReactNode }) => {
+export const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tickers, setTickers] = useState<Record<string, Ticker>>({});
   const [markets, setMarkets] = useState<Market[]>([]);
   const [loading, setLoading] = useState(true);
