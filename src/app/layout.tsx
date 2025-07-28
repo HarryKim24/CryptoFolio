@@ -20,11 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://crypto-folio-harrykim24.vercel.app/"),
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="ko">
       <head>
@@ -45,4 +41,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

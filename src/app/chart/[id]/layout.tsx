@@ -1,5 +1,7 @@
 "use client";
 
-export default function ChartIdLayout({ children }: { children: React.ReactNode }) {
+const ChartIdLayout = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
-}
+};
+
+export default ChartIdLayout;
