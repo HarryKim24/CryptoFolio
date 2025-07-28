@@ -8,12 +8,12 @@ import { useState } from "react";
 
 type MarketTab = "KRW" | "BTC" | "USDT";
 
-function toMarketTab(value: string): MarketTab {
+const toMarketTab = (value: string): MarketTab => {
   if (value === "KRW" || value === "BTC" || value === "USDT") return value;
   return "KRW";
-}
+};
 
-export default function ChartLayout({ children }: { children: React.ReactNode }) {
+const ChartLayout = ({ children }: { children: React.ReactNode }) => {
   const { loading, tickers, markets } = useUpbitTicker();
   const params = useParams();
   const currentMarket = typeof params?.id === "string" ? params.id : "";
@@ -44,4 +44,6 @@ export default function ChartLayout({ children }: { children: React.ReactNode })
       </div>
     </UpbitTickerContext.Provider>
   );
-}
+};
+
+export default ChartLayout;

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import ChartSection from "@/components/home/ChartSection";
 import MainSection from "@/components/home/MainSection";
@@ -7,7 +7,7 @@ import TrendSection from "@/components/home/TrendSection";
 import { UpbitTickerProvider } from "@/context/UpbitTickerContext";
 import Footer from "@/components/home/Footer";
 
-export default function HomePage() {
+const HomePage = () => {
   return (
     <UpbitTickerProvider>
       <div>
@@ -39,4 +39,6 @@ export default function HomePage() {
       </div>
     </UpbitTickerProvider>
   );
-}
+};
+
+export default HomePage;
