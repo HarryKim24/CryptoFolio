@@ -53,10 +53,10 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
     updatePrices(initialAssets);
   }, [initialAssets]);
 
-  const handleAddAsset = async (asset: Asset) => {
+  const handleAddAsset = async (asset: Omit<Asset, 'userId' | '_id'>) => {
     if (isAdding) return;
     setIsAdding(true);
-
+  
     try {
       const newId = await addAsset({ ...asset, userId });
       setAssets((prev) => [...prev, { ...asset, userId, _id: newId }]);
