@@ -103,7 +103,7 @@ const BitFlow = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">비트코인 트렌드</h2>
         <span className="text-xl font-semibold text-red-400">
-          {latestPrice != null ? formatPrice(latestPrice) : "-"}
+          {latestPrice != null ? formatPrice(latestPrice) : "0 원"}
         </span>
       </div>
 

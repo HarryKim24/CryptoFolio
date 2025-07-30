@@ -25,6 +25,11 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const isLoading = Object.keys(tickers).length === 0 || markets.length === 0;
+  if (isLoading) {
+    throw Promise.resolve();
+  }
+
   useEffect(() => {
     const stored = localStorage.getItem("activeTab") as MarketTab | null;
     if (stored && ["KRW", "BTC", "USDT"].includes(stored)) {
