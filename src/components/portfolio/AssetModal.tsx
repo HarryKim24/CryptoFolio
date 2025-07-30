@@ -18,7 +18,7 @@ interface Market {
 interface Props {
   show: boolean
   onClose: () => void
-  onSave: (asset: Asset) => void
+  onSave: (asset: Omit<Asset, 'userId' | '_id'>) => void
 }
 
 const AssetModal = ({ show, onClose, onSave }: Props) => {

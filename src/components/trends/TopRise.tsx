@@ -117,8 +117,15 @@ const TopRise = () => {
         ) : (
           [...Array(10)].map((_, i) => (
             <li key={i} className="flex justify-between text-neutral-400 animate-pulse">
-              <span>{i + 1}. 코인명 (KRW-ABC)</span>
-              <span>₩0 +00.00%</span>
+              <span>{i + 1}. 코인명 (KRW-COIN)</span>
+              <span className="flex gap-2 pl-2 whitespace-nowrap">
+                <span className="min-w-[80px] text-right text-neutral-100 truncate">
+                  0 원
+                </span>
+                <span className="min-w-[60px] text-right font-medium text-red-400">
+                  +0.0%
+                </span>
+              </span>
             </li>
           ))
         )}

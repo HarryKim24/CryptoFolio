@@ -221,9 +221,47 @@ const TopVolume = () => {
               </div>
             </motion.div>
           ) : (
-            <div className="flex flex-col gap-2 h-full animate-pulse">
-              <div className="h-5 w-1/3 bg-white/10 rounded" />
-              <div className="flex-1 bg-white/5 rounded" />
+            <div className="absolute inset-0 flex flex-col h-full">
+              <h3 className="text-lg font-semibold mb-2">
+                코인명 (KRW-COIN)
+              </h3>
+              <div className="flex-1">
+                <Line
+                  data={{
+                    datasets: [],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      x: {
+                        type: "time",
+                        time: {
+                          unit: "hour",
+                          displayFormats: { hour: "HH시" },
+                        },
+                        ticks: {
+                          color: "#aaa",
+                          maxRotation: 0,
+                          minRotation: 0,
+                        },
+                        grid: { color: "rgba(255,255,255,0.05)" },
+                      },
+                      y: {
+                        ticks: {
+                          color: "#aaa",
+                          callback: (val: any) =>
+                            typeof val === "number" && !isNaN(val)
+                              ? `${val.toLocaleString("ko-KR")} 원`
+                              : "- 원",
+                        },
+                        grid: { color: "rgba(255,255,255,0.05)" },
+                      },
+                    },
+                    plugins: { legend: { display: false } },
+                  }}
+                />
+              </div>
             </div>
           )}
         </AnimatePresence>

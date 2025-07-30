@@ -9,8 +9,6 @@ type Props = {
 
 const CoinListSkeleton = ({ count = 10, marketPrefix }: Props) => {
 
-  console.log('CoinListSkeleton', CoinListSkeleton);
-
   return (
     <div className="space-y-1 px-1">
       {Array.from({ length: count }).map((_, idx) => (
