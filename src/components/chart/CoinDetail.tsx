@@ -26,7 +26,12 @@ const CoinDetail = ({
   const marketInfo = markets.find((m: Market) => m.market === market);
 
   const activeTab = market.split("-")[0] as "KRW" | "BTC" | "USDT";
-  const coinSymbol = market.split("-")[1] ?? "--";
+  const [prefix, symbol] = market.split("-");
+  const validMarkets = ["KRW", "BTC", "USDT"] as const;
+  
+  const coinSymbol = validMarkets.includes(prefix as typeof validMarkets[number])
+    ? symbol ?? "N/A"
+    : "N/A";
 
   const price = ticker?.trade_price ?? 0;
   const changeRate = ticker?.signed_change_rate ?? 0;
@@ -63,7 +68,7 @@ const CoinDetail = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 font-medium whitespace-nowrap">
             <h2 className="text-lg md:text-2xl lg:text-3xl font-bold truncate">
-              {marketInfo?.korean_name ?? "--"}
+              {marketInfo?.korean_name ?? "알수없음"}
             </h2>
             <span className="text-lg md:text-2xl lg:text-3xl text-gray-400">
               ({coinSymbol})
