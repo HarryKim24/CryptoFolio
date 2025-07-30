@@ -27,7 +27,9 @@ const RegisterPage = () => {
     });
   };
 
-  const handleRegister = async () => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     const result = validateRegisterInputs(email, password, name, confirmPassword);
 
     if (!result.valid) {
@@ -61,7 +63,7 @@ const RegisterPage = () => {
 
       <ErrorMessage message={error} shake={shake} />
 
-      <div className="space-y-4">
+      <form className="space-y-4" onSubmit={handleRegister}>
         <TextInput
           type="text"
           placeholder="이름"
@@ -86,12 +88,12 @@ const RegisterPage = () => {
         />
 
         <button
-          onClick={handleRegister}
+          type="submit"
           className="w-full py-2 px-4 bg-secondary font-semibold rounded hover:brightness-105 transition focus:outline-none text-third focus:ring-2 focus:ring-third"
         >
           회원가입
         </button>
-      </div>
+      </form>
 
       <div className="text-sm text-center text-neutral-100 mt-6">
         이미 계정이 있으신가요?{" "}
