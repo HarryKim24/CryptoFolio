@@ -256,7 +256,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
         >
           {isEditing ? (
             <>
-              <div className="pb-4">
+              <div className="pb-4 mt-8">
                 <label className="block text-third font-semibold pb-1">이름</label>
                 <input
                   type="text"
@@ -275,7 +275,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             </>
           ) : (
             <>
-              <ul className="space-y-4 text-base sm:text-lg">
+              <ul className="space-y-4 mt-8 text-base sm:text-lg">
                 <li><span className="font-semibold text-third">이름:</span> {localUser.name ?? "-"}</li>
                 <li><span className="font-semibold text-third">이메일:</span> {localUser.email ?? "-"}</li>
                 <li><span className="font-semibold text-third">가입일:</span> {formatDate(localUser.createdAt) ?? "-"}</li>
