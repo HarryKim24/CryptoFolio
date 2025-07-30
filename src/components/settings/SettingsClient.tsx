@@ -237,13 +237,13 @@ const SettingsClient = ({ session }: { session: Session }) => {
         </div>
 
         <div className="text-center">
-          <p
-            className={`text-warning text-sm leading-tight transition-all duration-300 ease-out ${
-              typeof error === "string" && error.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
-            } ${shake ? "shake" : ""}`}
-          >
-            {typeof error === "string" && error.trim() !== "" ? error : " "}
-          </p>
+        <p
+          className={`text-warning text-sm leading-tight transition-all duration-300 ease-out min-h-[20px] ${
+            typeof error === "string" && error.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+          } ${shake ? "shake" : ""}`}
+        >
+          {typeof error === "string" && error.trim() !== "" ? error : " "}
+        </p>
         </div>
 
         <motion.div
@@ -256,7 +256,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
         >
           {isEditing ? (
             <>
-              <div className="pb-4 mt-8">
+              <div className="pb-4">
                 <label className="block text-third font-semibold pb-1">이름</label>
                 <input
                   type="text"
@@ -275,7 +275,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             </>
           ) : (
             <>
-              <ul className="space-y-4 mt-8 text-base sm:text-lg">
+              <ul className="space-y-4 text-base sm:text-lg">
                 <li><span className="font-semibold text-third">이름:</span> {localUser.name ?? "-"}</li>
                 <li><span className="font-semibold text-third">이메일:</span> {localUser.email ?? "-"}</li>
                 <li><span className="font-semibold text-third">가입일:</span> {formatDate(localUser.createdAt) ?? "-"}</li>
@@ -309,13 +309,13 @@ const SettingsClient = ({ session }: { session: Session }) => {
                 className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
               >
                 <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
-                  <p
-                    className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out ${
-                      typeof deleteError === "string" && deleteError.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
-                    } ${deleteShake ? "shake" : ""}`}
-                  >
-                    {typeof deleteError === "string" && deleteError.trim() !== "" ? deleteError : " "}
-                  </p>
+                <p
+                  className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out min-h-[20px] ${
+                    typeof deleteError === "string" && deleteError.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+                  } ${deleteShake ? "shake" : ""}`}
+                >
+                  {typeof deleteError === "string" && deleteError.trim() !== "" ? deleteError : " "}
+                </p>
                 <input
                   type="password"
                   placeholder="현재 비밀번호 입력"
