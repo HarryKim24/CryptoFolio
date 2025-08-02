@@ -8,7 +8,7 @@ test('home', async ({ page }) => {
 
   await page.waitForSelector('section.panel', { state: 'visible' });
 
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(2000);
 
   const maxScroll = await page.evaluate(() =>
     document.documentElement.scrollHeight - window.innerHeight
