@@ -2,7 +2,9 @@
 
 암호화폐 차트 조회, 트렌드 분석, 포트폴리오 만들기를 제공하는 웹 사이트입니다.
 
-![홈 화면](https://github.com/HarryKim24/CryptoFolio/raw/main/public/homepage.png)
+<p align="center">
+  <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/home.gif" width="600">
+</p>
 
 > - 아래 링크에서 **웹사이트**를 확인하실 수 있습니다.  
 > 👉 https://crypto-folio-harrykim24.vercel.app
