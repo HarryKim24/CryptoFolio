@@ -108,7 +108,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   }, [sorted, searchTerm, activeTab]);
 
   const dummyList = Array.from({ length: 10 }).map((_, idx) => ({
-    market: `${activeTab}-DUMMY${idx}`,
+    market: `${activeTab}-MARKET${idx}`,
   }));
 
   return (
