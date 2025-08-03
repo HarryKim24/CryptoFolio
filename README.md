@@ -3,7 +3,7 @@
 - 암호화폐 차트 조회, 트렌드 분석, 포트폴리오 만들기를 제공하는 웹 사이트입니다.
 
 <p align="center">
-  <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/main.gif" width="600">
+  <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/main.gif" width="800">
 </p>
 
 > - 아래 링크에서 **웹사이트**를 확인하실 수 있습니다.  
@@ -20,13 +20,14 @@
   - 서비스와 주요 기능을 소개하고 각 페이지로 이동할 수 있는 링크
   - 섹션별 배경의 부드러운 전환 애니메이션 효과
   <p align="start">
-    <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/home.gif" width="500">
+    <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/home.gif" width="600">
   </p>
 
 - **차트 페이지**  
   - 암호화폐 실시간 시세 및 차트, 종목 목록 탐색 기능
+  - 한글 초성 검색 기능 지원으로 원하는 종목을 쉽고 빠르게 검색
   <p align="start">
-    <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/chart.gif" width="500">
+    <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/chart.gif" width="600">
   </p>
 
 - **트렌드 페이지**  
