@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import useUpbitTicker from "@/hooks/useUpbitTicker";
 import { UpbitTickerContext } from "@/context/UpbitTickerContext";
@@ -39,21 +39,15 @@ const ChartLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="h-screen p-4 pt-16 w-full bg-chart-gradient text-neutral-100 overflow-hidden">
         <div className="flex h-full overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
-            {view === "chart" && (
-              <Suspense fallback={null}>
-                {children}
-              </Suspense>
-            )}
+            {view === "chart" && children}
           </div>
 
           <div className="w-[320px] hidden md:block h-full pl-0 p-4">
-            <Suspense fallback={null}>
-              <CoinList
-                initialTab={initialTab}
-                currentMarket={currentMarket}
-                onClickSameMarket={handleClickSameMarket}
-              />
-            </Suspense>
+            <CoinList
+              initialTab={initialTab}
+              currentMarket={currentMarket}
+              onClickSameMarket={handleClickSameMarket}
+            />
           </div>
         </div>
       </div>
