@@ -44,7 +44,6 @@ const ChartPage = () => {
     <div className="flex-1 h-full overflow-hidden relative flex flex-col">
       <div className="w-full min-w-[320px] h-full p-4">
         <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
-
           {(!isMobile || view === "chart") && (
             <CoinDetail
               market={market}
@@ -54,13 +53,13 @@ const ChartPage = () => {
             />
           )}
 
-          <div className="flex-1 relative min-h-0">
+          <div className="flex-1 relative min-h-0 flex flex-col overflow-hidden">
             {isInvalidMarket ? (
               <div className="flex justify-center items-center h-full text-neutral-100">
                 잘못된 경로입니다.
               </div>
             ) : !isMobile || view === "chart" ? (
-              <motion.div key="chart">
+              <motion.div key="chart" className="flex-1 overflow-hidden">
                 <CoinChart market={market} />
               </motion.div>
             ) : (
