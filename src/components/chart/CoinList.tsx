@@ -26,9 +26,6 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const isLoading = Object.keys(tickers).length === 0 || markets.length === 0;
-  if (isLoading) {
-    throw Promise.resolve();
-  }
 
   useEffect(() => {
     const stored = localStorage.getItem("activeTab") as MarketTab | null;
@@ -45,6 +42,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   };
 
   const combined = useMemo(() => {
+    if (isLoading) return [];
     return Object.values(tickers)
       .filter((t) => t.market.startsWith(`${activeTab}-`))
       .map((t) => {
@@ -64,7 +62,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
         english_name: string;
         caution?: CautionType;
       }[];
-  }, [tickers, markets, activeTab]);
+  }, [tickers, markets, activeTab, isLoading]);
 
   const sorted = useMemo(() => {
     return [...combined].sort((a, b) => {
@@ -109,6 +107,10 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     });
   }, [sorted, searchTerm, activeTab]);
 
+  const dummyList = Array.from({ length: 10 }).map((_, idx) => ({
+    market: `${activeTab}-MARKET${idx}`,
+  }));
+
   return (
     <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
       <div className="sticky z-10">
@@ -145,22 +147,27 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1">
-        {filtered.length === 0 ? (
-          <div className="text-center text-gray-400 py-8">검색 결과가 없습니다.</div>
-        ) : (
-          filtered.map(({ ticker, korean_name, caution }) => (
-            <CoinListItem
-              key={ticker.market}
-              ticker={ticker}
-              korean_name={korean_name}
-              caution={caution}
-              market={ticker.market}
-              onClickSameMarket={
-                ticker.market === currentMarket ? onClickSameMarket : undefined
-              }
-            />
-          ))
-        )}
+        {isLoading
+          ? dummyList.map((dummy) => (
+              <CoinListItem key={dummy.market} market={dummy.market} isLoading />
+            ))
+          : filtered.length === 0
+          ? (
+            <div className="text-center text-gray-400 py-8">검색 결과가 없습니다.</div>
+          ) : (
+            filtered.map(({ ticker, korean_name, caution }) => (
+              <CoinListItem
+                key={ticker.market}
+                ticker={ticker}
+                korean_name={korean_name}
+                caution={caution}
+                market={ticker.market}
+                onClickSameMarket={
+                  ticker.market === currentMarket ? onClickSameMarket : undefined
+                }
+              />
+            ))
+          )}
       </div>
     </div>
   );

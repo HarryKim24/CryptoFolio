@@ -3,7 +3,7 @@
 export const dynamic = "force-static";
 
 import { useParams } from "next/navigation";
-import { useMemo, useState, Suspense } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
 import { Market } from "@/types/upbitTypes";
@@ -14,9 +14,6 @@ import _dynamic from "next/dynamic";
 const CoinDetail = _dynamic(() => import("@/components/chart/CoinDetail"), { ssr: false });
 const CoinChart = _dynamic(() => import("@/components/chart/CoinChart"), { ssr: false });
 const CoinList = _dynamic(() => import("@/components/chart/CoinList"), { ssr: false });
-
-const CoinDetailSkeleton = _dynamic(() => import("@/components/chart/skeleton/CoinDetailSkeleton"), { ssr: false });
-const CoinListSkeleton = _dynamic(() => import("@/components/chart/skeleton/CoinListSkeleton"), { ssr: false });
 
 type MarketTab = "KRW" | "BTC" | "USDT";
 
@@ -48,43 +45,37 @@ const ChartPage = () => {
       <div className="w-full min-w-[320px] h-full p-4">
         <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
           {(!isMobile || view === "chart") && (
-            <Suspense fallback={<CoinDetailSkeleton />}>
-              <CoinDetail
-                market={market}
-                isMobile={isMobile}
-                view={view}
-                onToggleView={() => setView(view === "chart" ? "list" : "chart")}
-              />
-            </Suspense>
+            <CoinDetail
+              market={market}
+              isMobile={isMobile}
+              view={view}
+              onToggleView={() => setView(view === "chart" ? "list" : "chart")}
+            />
           )}
 
-          <div className="flex-1 relative min-h-0">
+          <div className="flex-1 relative min-h-0 flex flex-col overflow-hidden">
             {isInvalidMarket ? (
               <div className="flex justify-center items-center h-full text-neutral-100">
                 잘못된 경로입니다.
               </div>
             ) : !isMobile || view === "chart" ? (
-              <Suspense fallback={null}>
-                <motion.div key="chart" className="w-full h-full">
-                  <CoinChart market={market} />
-                </motion.div>
-              </Suspense>
+              <motion.div key="chart" className="flex-1 overflow-hidden">
+                <CoinChart market={market} />
+              </motion.div>
             ) : (
-              <Suspense fallback={<CoinListSkeleton marketPrefix={tab} />}>
-                <motion.div
-                  key="list"
-                  initial={{ x: 300 }}
-                  animate={{ x: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="h-full overflow-y-auto"
-                >
-                  <CoinList
-                    initialTab={tab}
-                    currentMarket={market}
-                    onClickSameMarket={() => setView("chart")}
-                  />
-                </motion.div>
-              </Suspense>
+              <motion.div
+                key="list"
+                initial={{ x: 300 }}
+                animate={{ x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="h-full overflow-y-auto"
+              >
+                <CoinList
+                  initialTab={tab}
+                  currentMarket={market}
+                  onClickSameMarket={() => setView("chart")}
+                />
+              </motion.div>
             )}
           </div>
         </div>

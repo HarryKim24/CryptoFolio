@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:home": "node scripts/home.mjs"
+    "test:home": "node scripts/home.mjs",
+    "test:main": "node scripts/main.mjs",
+    "test:chart": "node scripts/chart.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

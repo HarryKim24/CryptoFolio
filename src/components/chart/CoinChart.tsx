@@ -52,153 +52,54 @@ const CoinChart = ({ market }: Props) => {
     });
   };
 
-const [ohlc, volume] = useMemo((): [ChartData[], ChartData[]] => {
-  return candles.reduce<[ChartData[], ChartData[]]>(
-    ([ohlcAcc, volumeAcc], c) => {
-      const date = new Date(c.date);
-      ohlcAcc.push({
-        x: date,
-        y: [c.open, c.high, c.low, c.close],
-      });
-      volumeAcc.push({
-        x: date,
-        y: c.volume,
-      });
-      return [ohlcAcc, volumeAcc];
-    },
-    [[], []]
-  );
-}, [candles]);
+  const [ohlc, volume] = useMemo((): [ChartData[], ChartData[]] => {
+    return candles.reduce<[ChartData[], ChartData[]]>(
+      ([ohlcAcc, volumeAcc], c) => {
+        const date = new Date(c.date);
+        ohlcAcc.push({ x: date, y: [c.open, c.high, c.low, c.close] });
+        volumeAcc.push({ x: date, y: c.volume });
+        return [ohlcAcc, volumeAcc];
+      },
+      [[], []]
+    );
+  }, [candles]);
 
   const candlestickOptions: ApexOptions = {
-    chart: {
-      id: 'candlestick-chart',
-      type: 'candlestick',
-      background: '#0b0f19',
-      toolbar: { show: false },
-      zoom: { enabled: false },
-    },
-    xaxis: {
-      type: 'datetime',
-      labels: { show: false },
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-    },
-    yaxis: {
-      opposite: true,
-      tooltip: { enabled: true },
-      labels: {
-        style: { colors: '#fff' },
-        minWidth: 60,
-        formatter: (val: number) => String(formatNumberForDisplay(val)),
-      },
-    },
-    grid: {
-      borderColor: '#222',
-    },
-    tooltip: {
-      shared: true,
-      custom: ({ dataPointIndex }: { dataPointIndex: number }) => {
-        const d = candles[dataPointIndex];
-        if (!d) return '';
-        return `
-          <div>
-            <strong>${format(d.date, 'yyyy-MM-dd HH:mm')}</strong><br/>
-            시가: ${d.open}<br/>
-            고가: ${d.high}<br/>
-            저가: ${d.low}<br/>
-            종가: ${d.close}
-          </div>
-        `;
-      },
-    },
-    theme: {
-      mode: 'dark',
-    },
-    plotOptions: {
-      candlestick: {
-        colors: {
-          upward: '#3FB68B',
-          downward: '#F46A6A',
-        },
-      },
-    },
+    chart: { id: 'candlestick-chart', type: 'candlestick', background: '#0b0f19', toolbar: { show: false }, zoom: { enabled: false } },
+    xaxis: { type: 'datetime', labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } },
+    yaxis: { opposite: true, tooltip: { enabled: true }, labels: { style: { colors: '#fff' }, minWidth: 60, formatter: (val: number) => String(formatNumberForDisplay(val)) } },
+    grid: { borderColor: '#222' },
+    tooltip: { shared: true, custom: ({ dataPointIndex }) => {
+      const d = candles[dataPointIndex];
+      if (!d) return '';
+      return `<div><strong>${format(d.date, 'yyyy-MM-dd HH:mm')}</strong><br/>시가: ${d.open}<br/>고가: ${d.high}<br/>저가: ${d.low}<br/>종가: ${d.close}</div>`;
+    }},
+    theme: { mode: 'dark' },
+    plotOptions: { candlestick: { colors: { upward: '#3FB68B', downward: '#F46A6A' } } },
   };
 
   const volumeOptions: ApexOptions = {
-    chart: {
-      id: 'volume-chart',
-      type: 'bar',
-      background: '#0b0f19',
-      toolbar: { show: false },
-      zoom: { enabled: false },
-    },
-    xaxis: {
-      type: 'datetime',
-      labels: {
-        style: { colors: '#ccc' },
-        datetimeFormatter: {
-          year: 'yyyy',
-          month: 'yyyy-MM',
-          day: 'MM-dd',
-          hour: 'HH:mm',
-          minute: 'HH:mm',
-        },
-      },
-    },
-    yaxis: {
-      opposite: true,
-      show: true,
-      labels: {
-        style: { colors: '#fff' },
-        minWidth: 60,
-        formatter: () => '',
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    tooltip: {
-      enabled: true,
-      y: {
-        formatter: (val: number) => formatNumberForDisplay(val),
-      },
-    },
-    plotOptions: {
-      bar: {
-        columnWidth: '75%',
-      },
-    },
-    grid: {
-      borderColor: '#222',
-    },
-    theme: {
-      mode: 'dark',
-    },
-    
+    chart: { id: 'volume-chart', type: 'bar', background: '#0b0f19', toolbar: { show: false }, zoom: { enabled: false } },
+    xaxis: { type: 'datetime', labels: { style: { colors: '#ccc' }, datetimeFormatter: { year: 'yyyy', month: 'yyyy-MM', day: 'MM-dd', hour: 'HH:mm', minute: 'HH:mm' } } },
+    yaxis: { opposite: true, show: true, labels: { style: { colors: '#fff' }, minWidth: 60, formatter: () => '' } },
+    dataLabels: { enabled: false },
+    tooltip: { enabled: true, y: { formatter: (val: number) => formatNumberForDisplay(val) } },
+    plotOptions: { bar: { columnWidth: '75%' } },
+    grid: { borderColor: '#222' },
+    theme: { mode: 'dark' },
   };
 
   return (
-    <div className="flex flex-col h-full w-full px-2 py-2">
+    <div className="flex flex-col flex-1 min-h-0 h-full w-full px-2 py-2 overflow-hidden">
       <div className="flex flex-wrap justify-end gap-2 px-2 text-sm mb-2">
         {['minutes', 'days', 'weeks', 'months', 'years'].map((type) => (
           <button
             key={type}
             onClick={() => setCandleType(type as CandleType)}
             onMouseEnter={() => prefetch(type as CandleType, unit)}
-            className={`px-3 py-1 border rounded ${
-              candleType === type
-                ? 'bg-white text-black'
-                : 'text-white border-white/20'
-            }`}
+            className={`px-3 py-1 border rounded ${candleType === type ? 'bg-white text-black' : 'text-white border-white/20'}`}
           >
-            {{
-              minutes: '분',
-              days: '일',
-              weeks: '주',
-              months: '월',
-              years: '년',
-            }[type as CandleType]}
+            {{ minutes: '분', days: '일', weeks: '주', months: '월', years: '년' }[type as CandleType]}
           </button>
         ))}
       </div>
@@ -210,11 +111,7 @@ const [ohlc, volume] = useMemo((): [ChartData[], ChartData[]] => {
               key={u}
               onClick={() => setUnit(u)}
               onMouseEnter={() => prefetch('minutes', u)}
-              className={`px-2 py-1 text-xs border rounded ${
-                unit === u
-                  ? 'bg-white text-black'
-                  : 'text-white border-white/20'
-              }`}
+              className={`px-2 py-1 text-xs border rounded ${unit === u ? 'bg-white text-black' : 'text-white border-white/20'}`}
             >
               {u}분
             </button>
@@ -222,10 +119,7 @@ const [ohlc, volume] = useMemo((): [ChartData[], ChartData[]] => {
         ) : (
           <div className="invisible flex gap-2">
             {[1, 3, 5, 10, 15, 30, 60, 240].map((u) => (
-              <button
-                key={u}
-                className="px-2 py-1 text-xs border rounded border-transparent"
-              >
+              <button key={u} className="px-2 py-1 text-xs border rounded border-transparent">
                 {u}분
               </button>
             ))}
@@ -233,8 +127,8 @@ const [ohlc, volume] = useMemo((): [ChartData[], ChartData[]] => {
         )}
       </div>
 
-      <div className="flex flex-col overflow-hidden rounded-xl shadow">
-        <div className="h-[600px] bg-[#0b0f19]">
+      <div className="flex flex-col flex-1 overflow-hidden rounded-xl shadow">
+        <div className="flex-1 bg-[#0b0f19]">
           <ReactApexChart
             key={`${market}-${candleType}-${unit}-price`}
             options={candlestickOptions}
