@@ -10,7 +10,8 @@
     "test:main": "node scripts/main.mjs",
     "test:chart": "node scripts/chart.mjs",
     "test:trends": "node scripts/trends.mjs",
-    "test:portfolio": "node scripts/portfolio.mjs"
+    "test:portfolio": "node scripts/portfolio.mjs",
+    "test:settings": "node scripts/settings.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
