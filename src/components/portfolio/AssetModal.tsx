@@ -145,22 +145,35 @@ const AssetModal = ({ show, onClose, onSave }: Props) => {
                   const isChosungOnly = /^[ㄱ-ㅎ]+$/.test(value)
                   const choValue = isChosungOnly ? getChosung(value) : null
 
-                  setFilteredMarkets(
-                    marketList.filter(m => {
-                      const symbol = m.market.replace('KRW-', '').toLowerCase()
-                      const korean = m.korean_name
-                      const english = m.english_name.toLowerCase()
-                      const lowerKorean = korean.toLowerCase()
-                      const choKorean = getChosung(korean)
+                  const filtered = marketList.filter(m => {
+                    const symbol = m.market.replace('KRW-', '').toLowerCase()
+                    const korean = m.korean_name
+                    const english = m.english_name.toLowerCase()
+                    const lowerKorean = korean.toLowerCase()
+                    const choKorean = getChosung(korean)
 
-                      return (
-                        lowerKorean.includes(lowerValue) ||
-                        english.includes(lowerValue) ||
-                        symbol.includes(lowerValue) ||
-                        (isChosungOnly && choKorean.includes(choValue!))
-                      )
-                    })
+                    return (
+                      lowerKorean.includes(lowerValue) ||
+                      english.includes(lowerValue) ||
+                      symbol.includes(lowerValue) ||
+                      (isChosungOnly && choKorean.includes(choValue!))
+                    )
+                  })
+
+                  setFilteredMarkets(filtered)
+
+                  const matchedMarket = marketList.find(
+                    m => value === `${m.korean_name} (${m.market.replace('KRW-', '')})`
                   )
+
+                  if (matchedMarket) {
+                    setInput({
+                      ...input,
+                      symbol: matchedMarket.market.replace('KRW-', ''),
+                      name: matchedMarket.korean_name,
+                    })
+                    setFilteredMarkets([])
+                  }
                 }}
               />
               {filteredMarkets.length > 0 && (
