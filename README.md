@@ -53,6 +53,9 @@
 
 - **로그인/회원가입 페이지**  
   - NextAuth를 이용한 사용자 인증
+  <p align="start">
+    <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/auth.gif" width="600">
+  </p>
 
 ---
 
