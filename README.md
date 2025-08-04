@@ -47,6 +47,9 @@
 
 - **세팅 페이지**  
   - 사용자 프로필 확인 및 수정 (이름, 비밀번호 변경), 회원탈퇴 기능
+  <p align="start">
+    <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/settings.gif" width="600">
+  </p>
 
 - **로그인/회원가입 페이지**  
   - NextAuth를 이용한 사용자 인증
