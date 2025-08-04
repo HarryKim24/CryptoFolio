@@ -35,9 +35,15 @@
   - 비트코인 24시간 차트
   - 오늘의 급등 코인 TOP 10
   - 현재 거래대금이 가장 많은 알트코인 차트
+  <p align="start">
+    <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/trends.gif" width="600">
+  </p>
 
 - **포트폴리오 페이지**  
   - 실제 구매/판매한 암호화폐 거래 기록 추가 및 투자금, 수익률 관리
+  <p align="start">
+    <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/portfolio.gif" width="600">
+  </p>
 
 - **세팅 페이지**  
   - 사용자 프로필 확인 및 수정 (이름, 비밀번호 변경), 회원탈퇴 기능
