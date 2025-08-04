@@ -8,7 +8,8 @@
     "start": "next start",
     "test:home": "node scripts/home.mjs",
     "test:main": "node scripts/main.mjs",
-    "test:chart": "node scripts/chart.mjs"
+    "test:chart": "node scripts/chart.mjs",
+    "test:trends": "node scripts/trends.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
