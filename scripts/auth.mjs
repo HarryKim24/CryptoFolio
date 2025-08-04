@@ -67,17 +67,17 @@ if (!videoInput) {
 }
 
 console.log('🎬 ffmpeg MP4 변환 중...');
-execSync(`${ffmpegPath} -y -ss 1 -i "${videoInput}" -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p "${videoOutput}"`, { stdio: 'inherit' });
+execSync(`${ffmpegPath} -y -ss 0.3 -i "${videoInput}" -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p "${videoOutput}"`, { stdio: 'inherit' });
 console.log(`✅ MP4 변환 완료: ${videoOutput}`);
 
 const mp4Stats = fs.statSync(videoOutput);
 console.log(`📦 MP4 파일 크기: ${(mp4Stats.size / 1024 / 1024).toFixed(2)} MB`);
 
 console.log('🖼️ ffmpeg GIF 팔레트 생성 중...');
-execSync(`${ffmpegPath} -y -ss 1 -i "${videoOutput}" -vf "fps=30,scale=960:-1:flags=lanczos,palettegen" "${palettePath}"`, { stdio: 'inherit' });
+execSync(`${ffmpegPath} -y -ss 0.3 -i "${videoOutput}" -vf "fps=30,scale=960:-1:flags=lanczos,palettegen" "${palettePath}"`, { stdio: 'inherit' });
 
 console.log('🖼️ ffmpeg GIF 최적화 변환 중...');
-execSync(`${ffmpegPath} -y -ss 1 -i "${videoOutput}" -i "${palettePath}" -lavfi "fps=30,scale=960:-1:flags=lanczos [x]; [x][1:v] paletteuse" -loop 0 "${gifOutput}"`, { stdio: 'inherit' });
+execSync(`${ffmpegPath} -y -ss 0.3 -i "${videoOutput}" -i "${palettePath}" -lavfi "fps=30,scale=960:-1:flags=lanczos [x]; [x][1:v] paletteuse" -loop 0 "${gifOutput}"`, { stdio: 'inherit' });
 
 console.log(`✅ GIF 최적화 완료: ${gifOutput}`);
 
