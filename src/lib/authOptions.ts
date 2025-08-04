@@ -12,21 +12,35 @@ const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       authorize: async (credentials) => {
+        console.log('🔍 로그인 요청 도착:', credentials);
+
         const email = credentials?.email;
         const password = credentials?.password;
 
         if (!email || !password) {
+          console.log('❌ 이메일 또는 비밀번호 없음');
           throw new Error('이메일 또는 비밀번호가 올바르지 않습니다');
         }
 
         const mongoClient = await client;
         const db = mongoClient.db('cryptofolio');
         const user = await db.collection('users').findOne({ email });
+        console.log('🔍 DB 조회 결과:', user ? '유저 찾음' : '유저 없음');
 
-        if (!user || !(await verifyPassword(password, user.password))) {
+        if (!user) {
+          console.log('❌ 유저 없음');
           throw new Error('이메일 또는 비밀번호가 올바르지 않습니다');
         }
 
+        const passwordMatch = await verifyPassword(password, user.password);
+        console.log('🔍 비밀번호 검증 결과:', passwordMatch);
+
+        if (!passwordMatch) {
+          console.log('❌ 비밀번호 불일치');
+          throw new Error('이메일 또는 비밀번호가 올바르지 않습니다');
+        }
+
+        console.log('✅ 로그인 성공');
         return {
           id: user._id.toString(),
           email: user.email,
