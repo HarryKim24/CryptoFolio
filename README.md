@@ -1,13 +1,17 @@
 # CryptoFolio
 
-- 암호화폐 차트 조회, 트렌드 분석, 포트폴리오 관리를 지원하는 웹 서비스입니다.
+<div align="center">
+  암호화폐 차트 조회, 트렌드 분석, 포트폴리오 관리를 지원하는 웹 서비스입니다.
+  <br /><br />
+    
+  [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+  [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.x-blue?logo=tailwindcss)](https://tailwindcss.com/)
+  [![Deploy-Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://crypto-folio-harrykim24.vercel.app/)
+</div>
 
 <p align="center">
   <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/main.gif" width="800">
 </p>
-
-> - 아래 링크에서 **웹사이트**를 확인하실 수 있습니다.  
-> 👉 https://crypto-folio-harrykim24.vercel.app
 
 > - 자세한 내용은 아래 **프로젝트 문서 페이지**에서 확인하실 수 있습니다.  
 > 👉 [Notion 문서](https://tl9434.notion.site/CryptoFolio-229857f733818008bc5ff076fcc8a16f?pvs=74)
@@ -62,35 +66,48 @@
 ---
 
 ## 🛠️ 기술 스택
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Auth**: NextAuth.js + bcrypt.js
-- **API**: REST + Axios
-- **Database**: MongoDB Atlas (Mongoose)
-- **State Management**: React Context + Provider
-- **Charts**: Chart.js, react-chartjs-2, ApexCharts + react-apexcharts
-- **Animation**: Framer Motion, GSAP
-- **Date Utility**: date-fns
-- **Calendar**: React Datepicker
-- **Icons**: Lucide Reactm Heroicons
-- **Deployment**: Vercel
+
+| 구분 | 사용 기술 |
+|------|-----------|
+| **Frontend** | [Next.js 15](https://nextjs.org/), [TypeScript](https://www.typescriptlang.org/), [Tailwind CSS](https://tailwindcss.com/) |
+| **Auth** | [NextAuth.js](https://next-auth.js.org/), [bcrypt.js](https://www.npmjs.com/package/bcryptjs) |
+| **API 통신** | REST API, [Axios](https://axios-http.com/) |
+| **Database** | [MongoDB Atlas](https://www.mongodb.com/atlas/database), [Mongoose](https://mongoosejs.com/) |
+| **상태 관리** | React Context + Provider 패턴 |
+| **차트 라이브러리** | [Chart.js](https://www.chartjs.org/), [react-chartjs-2](https://github.com/reactchartjs/react-chartjs-2), [ApexCharts](https://apexcharts.com/), [react-apexcharts](https://github.com/apexcharts/react-apexcharts) |
+| **애니메이션** | [Framer Motion](https://www.framer.com/motion/), [GSAP](https://greensock.com/gsap/) |
+| **날짜 유틸** | [date-fns](https://date-fns.org/) |
+| **캘린더** | [React Datepicker](https://reactdatepicker.com/) |
+| **아이콘** | [Lucide React](https://lucide.dev/), [Heroicons](https://heroicons.com/) |
+| **배포** | [Vercel](https://vercel.com/) |
 
 ---
 
 ## 📂 폴더 구조 (src)
-- **api**: 클라이언트 API 호출
-- **app**: Next.js App Router
-  - **api**: 서버 API 라우트
-  - **(home)**: 메인 홈페이지
-  - **(auth)**: 로그인 및 회원가입 페이지
-  - **chart**: 암호화폐 시세 및 차트 페이
-  - **trends**: 트렌드 데이터 분석 페이지
-  - **portfolio**: 사용자 포트폴리오 관리 페이지
-  - **settings**: 계정 정보 설정 페이지
-  - **components**: UI 컴포넌트
-  - **context**: 전역 상태 관리 (React Context)
-  - **hooks**: 커스텀 훅
-  - **lib**: 서버 중심의 비즈니스 로직과 인프라 레벨 유틸리티
-  - **utils**: 클라이언트 중심의 데이터 처리와 범용 함수
-  - **types**: 타입 정의
+
+```bash
+src/
+├── api/                    # 클라이언트 API 호출 함수
+├── app/                    # Next.js App Router 디렉토리
+│   ├── api/                # 서버 API 라우트
+│   ├── (home)/             # 메인 홈페이지
+│   ├── (auth)/             # 로그인 및 회원가입 페이지
+│   ├── chart/              # 암호화폐 시세 및 차트 페이지
+│   ├── trends/             # 트렌드 데이터 분석 페이지
+│   ├── portfolio/          # 사용자 포트폴리오 관리 페이지
+│   ├── settings/           # 계정 정보 설정 페이지
+│
+├── components/             # UI 컴포넌트 모음
+├── context/                # 전역 상태 관리 (React Context)
+├── hooks/                  # 커스텀 훅
+├── lib/                    # 서버 비즈니스 로직 및 인프라 유틸
+├── utils/                  # 클라이언트 유틸 함수 및 데이터 처리
+├── types/                  # 타입스크립트 타입 정의
+
+```
+
+## 👤 제작자
+
+| 이름        | GitHub                                       | 이메일                                         |
+| --------- | -------------------------------------------- | ------------------------------------------- |
+| Harry Kim | [@HarryKim24](https://github.com/HarryKim24) | [tl9434@naver.com](mailto:tl9434@naver.com) |
