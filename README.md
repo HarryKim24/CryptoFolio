@@ -14,7 +14,7 @@
 </p>
 
 > - 자세한 내용은 아래 **프로젝트 문서 페이지**에서 확인하실 수 있습니다.  
-> 👉 [Notion 문서](https://tl9434.notion.site/CryptoFolio-229857f733818008bc5ff076fcc8a16f?pvs=74)
+> 👉 [프로젝트 문서](https://tl9434.notion.site/CryptoFolio-229857f733818008bc5ff076fcc8a16f?pvs=74)
 
 ---
 
