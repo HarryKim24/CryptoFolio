@@ -52,8 +52,13 @@ export const useUpbitTickerStore = create<State & Actions>()(
         const res = await axios.get<Market[]>('/api/proxy/market', {
           params: { isDetails: true },
         });
-        const krwMarkets = res.data.filter((m) => m.market.startsWith('KRW-'));
-        set({ markets: krwMarkets });
+        const allowed = res.data.filter(
+          (m) =>
+            m.market.startsWith('KRW-') ||
+            m.market.startsWith('BTC-') ||
+            m.market.startsWith('USDT-')
+        );
+        set({ markets: allowed });
 
         await get().refreshTickersOnce();
 
@@ -68,6 +73,7 @@ export const useUpbitTickerStore = create<State & Actions>()(
     refreshTickersOnce: async () => {
       const codes = get().markets.map((m) => m.market);
       if (codes.length === 0) return;
+
       const res = await axios.get<Ticker[]>('/api/proxy/ticker', {
         params: { markets: codes.join(',') },
       });
@@ -155,7 +161,7 @@ export const useUpbitTickerStore = create<State & Actions>()(
 
     clear: () => {
       get().stopLive();
-      get().stopPolling();
+      get().startPolling();
       set({ markets: [], tickers: {}, loading: false });
     },
   }))
