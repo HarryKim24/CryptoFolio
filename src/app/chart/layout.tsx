@@ -39,13 +39,11 @@ const ChartLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <div className="w-[320px] hidden md:block h-full pl-0 p-4">
-            <Suspense fallback={null}>
-              <CoinList
-                initialTab={initialTab}
-                currentMarket={currentMarket}
-                onClickSameMarket={handleClickSameMarket}
-              />
-            </Suspense>
+            <CoinList
+              initialTab={initialTab}
+              currentMarket={currentMarket}
+              onClickSameMarket={handleClickSameMarket}
+            />
           </div>
         </div>
       </div>
