@@ -5,7 +5,7 @@ export const dynamic = "force-static";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+import { useUpbitTickerStore } from "@/stores/useUpbitTickerStore";
 import { Market } from "@/types/upbitTypes";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -19,19 +19,20 @@ type MarketTab = "KRW" | "BTC" | "USDT";
 
 const ChartPage = () => {
   const params = useParams();
-  const { tickers, markets } = useUpbitTickerContext();
-
   const market = typeof params?.id === "string" ? params.id : "";
+
+  const loading = useUpbitTickerStore((s) => s.loading);
+  const markets = useUpbitTickerStore((s) => s.markets);
+
   const [view, setView] = useState<"chart" | "list">("chart");
   const isMobile = useIsMobile();
 
-  const isInitialLoading =
-    !market || Object.keys(tickers).length === 0 || markets.length === 0;
+  const isInitialLoading = !market || loading || markets.length === 0;
 
   const isInvalidMarket = useMemo(() => {
     return (
       !isInitialLoading &&
-      (!market.includes("-") || !markets.find((m: Market) => m.market === market))
+      (!market.includes("-") || !markets.some((m: Market) => m.market === market))
     );
   }, [market, isInitialLoading, markets]);
 
@@ -42,7 +43,7 @@ const ChartPage = () => {
 
   return (
     <div className="flex-1 h-full overflow-hidden relative flex flex-col">
-      <div className="w-full min-w-[320px] h-full p-4">
+      <div className="w-full min-w={[`320px`]} h-full p-4">
         <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
           {(!isMobile || view === "chart") && (
             <CoinDetail

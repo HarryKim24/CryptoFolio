@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+import { useUpbitTickerStore } from "@/stores/useUpbitTickerStore";
 import CoinListItem from "@/components/chart/CoinListItem";
 import CoinListHeader from "@/components/chart/CoinListHeader";
-import { CautionType } from "@/types/upbitTypes";
+import { CautionType, Market } from "@/types/upbitTypes";
 import { getChosung } from "@/utils/getChosung";
 
 type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
@@ -18,14 +18,19 @@ type Props = {
 };
 
 const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
-  const { tickers, markets } = useUpbitTickerContext();
+  const tickers = useUpbitTickerStore((s) => s.tickers);
+  const markets = useUpbitTickerStore((s) => s.markets);
+  const loading = useUpbitTickerStore((s) => s.loading);
 
   const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
   const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const isLoading = Object.keys(tickers).length === 0 || markets.length === 0;
+  const isLoading = loading || markets.length === 0 || Object.keys(tickers).length === 0;
+  if (isLoading) {
+    throw Promise.resolve();
+  }
 
   useEffect(() => {
     const stored = localStorage.getItem("activeTab") as MarketTab | null;
@@ -46,7 +51,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     return Object.values(tickers)
       .filter((t) => t.market.startsWith(`${activeTab}-`))
       .map((t) => {
-        const marketInfo = markets.find((m) => m.market === t.market);
+        const marketInfo = markets.find((m: Market) => m.market === t.market);
         return marketInfo
           ? {
               ticker: t,

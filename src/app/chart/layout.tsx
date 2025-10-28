@@ -1,45 +1,41 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
-import dynamic from "next/dynamic";
-import useUpbitTicker from "@/hooks/useUpbitTicker";
-import { UpbitTickerContext } from "@/context/UpbitTickerContext";
-import { useParams } from "next/navigation";
+import { Suspense, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useParams } from 'next/navigation';
+import UpbitTickerController from '@/components/UpbitTickerController';
 
-const CoinList = dynamic(() => import("@/components/chart/CoinList"), {
+const CoinList = dynamic(() => import('@/components/chart/CoinList'), {
   ssr: false,
 });
 
-type MarketTab = "KRW" | "BTC" | "USDT";
+type MarketTab = 'KRW' | 'BTC' | 'USDT';
 
 const toMarketTab = (value: string): MarketTab => {
-  if (value === "KRW" || value === "BTC" || value === "USDT") return value;
-  return "KRW";
+  if (value === 'KRW' || value === 'BTC' || value === 'USDT') return value;
+  return 'KRW';
 };
 
 const ChartLayout = ({ children }: { children: React.ReactNode }) => {
-  const { loading, tickers, markets } = useUpbitTicker();
   const params = useParams();
-  const currentMarket = typeof params?.id === "string" ? params.id : "";
-  const [view, setView] = useState<"chart" | "list">("chart");
+  const currentMarket = typeof params?.id === 'string' ? params.id : '';
+  const [view, setView] = useState<'chart' | 'list'>('chart');
 
-  const handleClickSameMarket = () => {
-    setView("chart");
-  };
-
-  const initialTab = toMarketTab(currentMarket.split("-")[0]);
-
-  const contextValue = useMemo(
-    () => ({ loading, tickers, markets }),
-    [loading, tickers, markets]
-  );
+  const handleClickSameMarket = () => setView('chart');
+  const initialTab = toMarketTab(currentMarket.split('-')[0]);
 
   return (
-    <UpbitTickerContext.Provider value={contextValue}>
+    <>
+      <UpbitTickerController />
+
       <div className="h-screen p-4 pt-16 w-full bg-chart-gradient text-neutral-100 overflow-hidden">
         <div className="flex h-full overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
-            {view === "chart" && children}
+            {view === 'chart' && (
+              <Suspense fallback={null}>
+                {children}
+              </Suspense>
+            )}
           </div>
 
           <div className="w-[320px] hidden md:block h-full pl-0 p-4">
@@ -51,7 +47,7 @@ const ChartLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </div>
-    </UpbitTickerContext.Provider>
+    </>
   );
 };
 

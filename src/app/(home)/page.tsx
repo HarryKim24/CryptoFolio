@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import { UpbitTickerProvider } from "@/context/UpbitTickerContext";
+import UpbitTickerController from "@/components/UpbitTickerController";
 
 const MainSection = dynamic(() => import("@/components/home/MainSection"), {
   ssr: true,
@@ -22,7 +22,8 @@ const Footer = dynamic(() => import("@/components/home/Footer"), {
 
 const HomePage = () => {
   return (
-    <UpbitTickerProvider>
+    <>
+      <UpbitTickerController />
       <div>
         <section className="panel h-screen flex items-center justify-center">
           <Suspense fallback={null}>
@@ -60,7 +61,7 @@ const HomePage = () => {
           </Suspense>
         </section>
       </div>
-    </UpbitTickerProvider>
+    </>
   );
 };
 
