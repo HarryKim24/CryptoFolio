@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+import { useUpbitTickerStore } from "@/stores/useUpbitTickerStore";
 import CoinCautionBadge from "./CautionBadge";
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
 import { Market } from "@/types/upbitTypes";
@@ -21,14 +21,15 @@ const CoinDetail = ({
   onToggleView,
   isChartSection,
 }: Props) => {
-  const { tickers, markets } = useUpbitTickerContext();
-  const ticker = tickers[market];
-  const marketInfo = markets.find((m: Market) => m.market === market);
+  const ticker = useUpbitTickerStore((s) => s.tickers[market]);
+  const marketInfo = useUpbitTickerStore((s) =>
+    s.markets.find((m: Market) => m.market === market)
+  );
 
   const activeTab = market.split("-")[0] as "KRW" | "BTC" | "USDT";
   const [prefix, symbol] = market.split("-");
   const validMarkets = ["KRW", "BTC", "USDT"] as const;
-  
+
   const coinSymbol = validMarkets.includes(prefix as typeof validMarkets[number])
     ? symbol ?? "N/A"
     : "N/A";
