@@ -48,10 +48,9 @@ const PortfolioSection = () => {
   }, [isInView])
 
   const data = {
-    labels: ['ETH', 'BTC', 'ONDO', 'MEW', 'JTO', 'AXL'],
     datasets: [
       {
-        data: [55.23, 28.68, 4.76, 4.07, 4.03, 3.22],
+        data: [40, 25, 15, 10, 6, 4],
         backgroundColor: [
           '#6366f1',
           '#10b981',

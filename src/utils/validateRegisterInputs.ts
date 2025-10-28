@@ -1,4 +1,4 @@
-export const validateRegisterInputs = (
+const validateRegisterInputs = (
   email: string,
   password: string,
   name: string,
@@ -10,7 +10,10 @@ export const validateRegisterInputs = (
 
   const nameRegex = /^[가-힣a-zA-Z]{1,8}$/;
   if (!nameRegex.test(name)) {
-    return { valid: false, message: "이름은 한글 또는 영문만 사용 가능하며 8자 이내여야 합니다." };
+    return {
+      valid: false,
+      message: "이름은 한글 또는 영문만 사용 가능하며 8자 이내여야 합니다.",
+    };
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,7 +23,10 @@ export const validateRegisterInputs = (
 
   const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
   if (!passwordRegex.test(password)) {
-    return { valid: false, message: "비밀번호는 영문과 숫자를 포함한 8자 이상이어야 합니다." };
+    return {
+      valid: false,
+      message: "비밀번호는 영문과 숫자를 포함한 8자 이상이어야 합니다.",
+    };
   }
 
   if (password !== confirmPassword) {
@@ -29,3 +35,5 @@ export const validateRegisterInputs = (
 
   return { valid: true };
 };
+
+export { validateRegisterInputs };

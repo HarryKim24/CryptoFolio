@@ -40,7 +40,7 @@ const AssetTable = ({ assets, onDelete, onDeleteAll }: Props) => {
   }
 
   return (
-    <div className="bg-white/5 rounded-xl shadow p-4 flex flex-col h-[500px] overflow-hidden">
+    <div className="bg-white/5 rounded-xl shadow p-4 flex flex-col min-h-[160px] max-h-[500px] overflow-hidden">
       <div className='flex justify-between pb-4'>
         <h3 className="text-xl font-bold text-neutral-100 mb-2">거래 내역</h3>
         <button

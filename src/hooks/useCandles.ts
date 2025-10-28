@@ -1,45 +1,63 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { GetCandlesOptions, NormalizedCandle } from "@/types/upbitCandle";
-import { fetchNormalizedCandles } from "@/utils/fetchCandles";
+import { useEffect, useRef, useState } from 'react';
+import { GetCandlesOptions, NormalizedCandle } from '@/types/upbitCandle';
+import { fetchNormalizedCandles } from '@/utils/fetchCandles';
+import axios from 'axios';
+
+const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
+
+const candleCache = new Map<string, NormalizedCandle[]>();
+
+const makeCacheKey = (options: GetCandlesOptions) => {
+  const { market, candleType, unit } = options;
+  return `${market}_${candleType}_${unit ?? 'default'}`;
+};
 
 const useCandles = (options: GetCandlesOptions) => {
   const [data, setData] = useState<NormalizedCandle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let ignore = false;
+    const controller = new AbortController();
+    const key = makeCacheKey(options);
 
     const fetchData = async () => {
       try {
         setLoading(true);
-        const candles = await fetchNormalizedCandles(options);
-        if (!ignore) setData(candles);
+        setError(null);
+
+        if (candleCache.has(key)) {
+          setData(candleCache.get(key)!);
+        } else {
+          const candles = await fetchNormalizedCandles(options, controller.signal);
+          candleCache.set(key, candles);
+          setData(candles);
+        }
       } catch (err) {
-        if (!ignore) setError(err as Error);
+        if (axios.isCancel(err) || (err instanceof DOMException && err.name === 'AbortError')) return;
+        setError(err instanceof Error ? err : new Error('Unknown error'));
       } finally {
-        if (!ignore) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchData();
-    return () => { ignore = true };
+    return () => controller.abort();
   }, [options]);
 
   useEffect(() => {
-    if (!options.market || data.length === 0) return;
+    if (!options.market || data.length === 0 || !enableWebSocket) return;
 
-    const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
+    const socket = new WebSocket('wss://api.upbit.com/websocket/v1');
     wsRef.current = socket;
 
     socket.onopen = () => {
       const payload = [
-        { ticket: "realtime-candle" },
-        { type: "trade", codes: [options.market] }
+        { ticket: 'realtime-candle' },
+        { type: 'trade', codes: [options.market] },
       ];
       socket.send(JSON.stringify(payload));
     };
@@ -68,38 +86,7 @@ const useCandles = (options: GetCandlesOptions) => {
     };
   }, [options.market, data.length]);
 
-  useEffect(() => {
-    if (!options.market || data.length === 0) return;
-
-    intervalRef.current = setInterval(async () => {
-      const last = data[data.length - 1];
-      const now = Date.now();
-
-      const msPerUnit = (options.unit || 1) * 60 * 1000;
-      if (now - last.date.getTime() >= msPerUnit) {
-        try {
-          const latest = await fetchNormalizedCandles({ ...options, count: 2 });
-          const nextCandle = latest[latest.length - 1];
-
-          const alreadyExists = data.some(
-            (c) => c.date.getTime() === nextCandle.date.getTime()
-          );
-
-          if (!alreadyExists) {
-            setData((prev) => [...prev, nextCandle]);
-          }
-        } catch (err) {
-          console.error("⚠️ 실시간 봉 추가 실패:", err);
-        }
-      }
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [data, options]);
-
-  return { data, loading, error };
+  return { data, loading, error, cache: candleCache };
 };
 
 export default useCandles;

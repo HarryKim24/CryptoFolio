@@ -41,23 +41,23 @@ const TrendSection = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const marketRes = await fetch('https://api.upbit.com/v1/market/all')
+        const marketRes = await fetch('/api/proxy/market')
         const markets = await marketRes.json()
         const krwMarkets = markets.filter((m: Market) => m.market.startsWith('KRW-'))
-
+  
         const marketList = krwMarkets.map((m: Market) => m.market).join(',')
-        const tickerRes = await fetch(`https://api.upbit.com/v1/ticker?markets=${marketList}`)
+        const tickerRes = await fetch(`/api/proxy/ticker?markets=${marketList}`)
         const tickers: Ticker[] = await tickerRes.json()
-
+  
         let ubmiSum = 0
         let ubaiSum = 0
-
+  
         const enriched: CoinChange[] = tickers.map(t => {
           const info = krwMarkets.find((m: Market) => m.market === t.market)
           const volumeValue = t.trade_price * t.acc_trade_volume_24h
           ubmiSum += volumeValue
           if (t.market !== 'KRW-BTC') ubaiSum += volumeValue
-
+  
           return {
             market: t.market,
             korean_name: info?.korean_name || t.market,
@@ -65,10 +65,10 @@ const TrendSection = () => {
             signed_change_rate: t.signed_change_rate,
           }
         })
-
+  
         const rises = [...enriched].sort((a, b) => b.signed_change_rate - a.signed_change_rate).slice(0, 5)
         const falls = [...enriched].sort((a, b) => a.signed_change_rate - b.signed_change_rate).slice(0, 5)
-
+  
         setUbmiValue(ubmiSum)
         setUbaiValue(ubaiSum)
         setTopRise(rises)
@@ -77,9 +77,10 @@ const TrendSection = () => {
         console.error('지수 계산 실패:', err)
       }
     }
-
+  
     fetchData()
   }, [])
+  
 
   useEffect(() => {
     if (!containerRef.current || window.innerWidth < 768) return
@@ -123,14 +124,15 @@ const TrendSection = () => {
     <ol className="space-y-2 text-sm text-left">
       {coins.map((coin, i) => (
         <li key={coin.market} className="flex justify-between">
-          <span className="truncate min-w-[200px]">
+          <span className="truncate min-w-[160px] xs:min-w-[200px]">
             {i + 1}. {coin.korean_name} ({coin.market})
           </span>
-          <span className="flex pl-2 gap-2">
+          <span className="flex pl-1 gap-1">
             <span className="min-w-16 text-right">
               {coin.trade_price.toLocaleString()} 원
             </span>
             <span className={`w-16 pr-2 xs:pr-0 text-right ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
+              {isRise ? '+' : ''}
               {(coin.signed_change_rate * 100).toFixed(1)}%
             </span>
           </span>

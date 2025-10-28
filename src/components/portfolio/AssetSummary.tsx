@@ -18,9 +18,20 @@ const AssetSummary = ({ assets }: Props) => {
 
   useEffect(() => {
     const load = async () => {
-      const symbols = [...new Set(assets.map((a) => a.symbol))]
-      if (symbols.length === 0) return
+      if (assets.length === 0) {
+        setStats({
+          evaluation: 0,
+          totalBuy: 0,
+          allTimeProfit: 0,
+          realisedProfit: 0,
+          unrealisedProfit: 0,
+          profitRate: 0,
+          costBasis: 0,
+        })
+        return
+      }
 
+      const symbols = [...new Set(assets.map((a) => a.symbol))]
       const tickers = await getTickerInfo(symbols.map((s) => `KRW-${s}`))
       const priceMap: Record<string, number> = {}
       tickers.forEach((t) => {

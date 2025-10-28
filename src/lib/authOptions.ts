@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { verifyPassword } from '@/lib/auth';
 import client from '@/lib/mongodb';
 
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -11,7 +11,7 @@ export const authOptions: AuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      authorize: async (credentials) => {
         const email = credentials?.email;
         const password = credentials?.password;
 
@@ -39,7 +39,7 @@ export const authOptions: AuthOptions = {
   ],
   session: { strategy: 'jwt' },
   callbacks: {
-    async jwt({ token, user }) {
+    jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;
         token.email = user.email ?? '';
@@ -49,7 +49,7 @@ export const authOptions: AuthOptions = {
       }
       return token;
     },
-    async session({ session, token }) {
+    session: async ({ session, token }) => {
       session.user.id = token.id as string;
       session.user.email = token.email as string;
       session.user.name = token.name as string;
@@ -60,3 +60,5 @@ export const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+export { authOptions };

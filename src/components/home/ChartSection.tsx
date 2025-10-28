@@ -1,41 +1,53 @@
-'use client'
+'use client';
 
-import { useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import CoinDetail from '@/components/chart/CoinDetail'
-import CoinChart from '@/components/chart/CoinChartWrapper'
+import { useRef, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import CoinDetail from '@/components/chart/CoinDetail';
+import ChartDescription from '@/components/home/ChartDescription';
+import dynamic from 'next/dynamic';
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
+
+const CoinChart = dynamic(() => import('@/components/chart/CoinChartWrapper'), {
+  ssr: false,
+  loading: () => (
+    <div className="text-white text-sm px-4 py-2 h-full flex items-center justify-center">
+      차트를 불러오는 중...
+    </div>
+  ),
+});
 
 const ChartSection = () => {
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const chartRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
 
-  const market = 'KRW-BTC'
-  const isMobile = false
-  const view = 'chart'
+  const [showChart, setShowChart] = useState(false);
+
+  const market = 'KRW-BTC';
+  const isMobile = false;
+  const view = 'chart';
 
   useEffect(() => {
-    const chartEl = chartRef.current
-    const sectionEl = sectionRef.current
-    if (!chartEl || !sectionEl) return
+    const chartEl = chartRef.current;
+    const sectionEl = sectionRef.current;
+    if (!chartEl || !sectionEl) return;
 
     const updateScale = () => {
-      const vw = window.innerWidth
-      const vh = window.innerHeight
-      const cw = chartEl.offsetWidth
-      const ch = chartEl.offsetHeight
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const cw = chartEl.offsetWidth;
+      const ch = chartEl.offsetHeight;
 
-      const scaleX = vw / cw
-      const scaleY = vh / ch
-      const scale = Math.min(scaleX, scaleY)
+      const scaleX = vw / cw;
+      const scaleY = vh / ch;
+      const scale = Math.min(scaleX, scaleY);
 
       gsap.set(chartEl, {
         scale,
         transformOrigin: 'bottom center',
-      })
+      });
 
       gsap.to(chartEl, {
         scale: 1,
@@ -47,20 +59,24 @@ const ChartSection = () => {
           end: 'top top',
           scrub: true,
         },
-      })
-    }
+      });
+    };
 
     requestAnimationFrame(() => {
-      setTimeout(updateScale, 32)
-    })
+      setTimeout(() => {
+        updateScale();
 
-    window.addEventListener('resize', updateScale)
+        setTimeout(() => setShowChart(true), 1000);
+      }, 32);
+    });
+
+    window.addEventListener('resize', updateScale);
 
     return () => {
-      window.removeEventListener('resize', updateScale)
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
-    }
-  }, [])
+      window.removeEventListener('resize', updateScale);
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, []);
 
   return (
     <motion.div
@@ -68,7 +84,7 @@ const ChartSection = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1, ease: 'easeOut' }}
-      className="w-full p-8 md:p-20 lg:p-40 min-w-[320px] flex items-end justify-center"
+      className="w-full p-8 md:p-20 lg:p-40 min-w-[320px] flex flex-col items-center justify-start gap-12"
     >
       <div
         ref={chartRef}
@@ -81,12 +97,21 @@ const ChartSection = () => {
           onToggleView={() => {}}
           isChartSection={true}
         />
+
         <div className="flex-1 relative min-h-0">
-          <CoinChart market={market} disableZoom />
+          {showChart ? (
+            <CoinChart market={market} disableZoom />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-white text-xs">
+              차트를 준비 중입니다...
+            </div>
+          )}
         </div>
       </div>
-    </motion.div>
-  )
-}
 
-export default ChartSection
+      <ChartDescription />
+    </motion.div>
+  );
+};
+
+export default ChartSection;

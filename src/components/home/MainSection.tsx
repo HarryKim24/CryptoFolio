@@ -35,7 +35,7 @@ const MainSection = () => {
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
-        const res = await fetch('https://api.upbit.com/v1/market/all?isDetails=false')
+        const res = await fetch('/api/proxy/market?isDetails=false')
         const data = await res.json()
         const markets = data.map((item: { market: string }) => item.market)
         const assets = new Set(markets.map((m: string) => m.split('-')[1]))
@@ -45,7 +45,7 @@ const MainSection = () => {
         console.error('업비트 API 데이터 로드 실패:', error)
       }
     }
-
+  
     fetchMarketData()
   }, [])
 

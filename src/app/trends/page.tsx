@@ -13,8 +13,8 @@ const fadeInUp = {
 
 const TrendsPage = () => {
   return (
-    <div className="p-6 px-4 lg:px-20 mx-auto text-neutral-100">
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 pb-4">
+    <div className="p-6 lg:pb-2 px-4 lg:px-8 mx-auto text-neutral-100 overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
         <div className="flex flex-col gap-6 min-w-[320px] lg:min-w-[580px]">
           <motion.div
             variants={fadeInUp}

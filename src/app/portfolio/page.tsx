@@ -1,14 +1,19 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/authOptions'
-import { redirect } from 'next/navigation'
-import PortfolioClient from '@/components/portfolio/PortfolioClient'
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import { redirect } from "next/navigation";
+import PortfolioClient from "@/components/portfolio/PortfolioClient";
+import { getAssets } from "@/lib/portfolioActions";
 
-export default async function PortfolioPage() {
-  const session = await getServerSession(authOptions)
+const PortfolioPage = async () => {
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect('/login')
+    redirect("/login");
   }
 
-  return <PortfolioClient />
-}
+  const assets = await getAssets(session.user.id);
+
+  return <PortfolioClient initialAssets={assets} userId={session.user.id} />;
+};
+
+export default PortfolioPage;

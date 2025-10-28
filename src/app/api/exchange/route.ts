@@ -1,11 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: NextRequest) {
   const apiKey = process.env.FREE_CURRENCY_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: "API 키 누락" });
+    return NextResponse.json({ error: "API 키 누락" }, { status: 500 });
   }
 
   try {
@@ -21,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const usdToKrw = data?.KRW;
 
     if (!data || !usdToKrw) {
-      return res.status(500).json({ error: "환율 데이터 부족" });
+      return NextResponse.json({ error: "환율 데이터 부족" }, { status: 500 });
     }
 
     const results = [
@@ -31,9 +32,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { country: "유로", pair: "EUR/KRW", rate: (usdToKrw / data.EUR).toFixed(1) },
     ];
 
-    res.status(200).json(results);
+    return NextResponse.json(results);
   } catch (err) {
     console.error("환율 API 실패:", err);
-    res.status(500).json({ error: "API 요청 실패" });
+    return NextResponse.json({ error: "API 요청 실패" }, { status: 500 });
   }
 }

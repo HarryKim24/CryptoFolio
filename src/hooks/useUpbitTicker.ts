@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { getMarketList, getTickerInfo } from "@/api/upbitApi";
 import type { Market, Ticker } from "@/types/upbitTypes";
 
+const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === "true";
+
 const useUpbitTicker = () => {
   const [markets, setMarkets] = useState<Market[]>([]);
   const [tickers, setTickers] = useState<Record<string, Ticker>>({});
@@ -50,7 +52,11 @@ const useUpbitTicker = () => {
   }, [markets]);
 
   useEffect(() => {
-    if (markets.length === 0) return;
+    if (
+      typeof window === "undefined" ||
+      markets.length === 0 ||
+      !enableWebSocket
+    ) return;
 
     const codes = markets.map((m) => m.market);
     if (codes.length === 0) return;
@@ -96,6 +102,36 @@ const useUpbitTicker = () => {
     return () => {
       socket.close();
     };
+  }, [markets]);
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      markets.length === 0 ||
+      enableWebSocket
+    ) return;
+
+    const fetchTickers = async () => {
+      try {
+        setLoading(true);
+        const codes = markets.map((m) => m.market);
+        const tickerData = await getTickerInfo(codes);
+        const map: Record<string, Ticker> = {};
+        tickerData.forEach((t) => {
+          map[t.market] = t;
+        });
+        setTickers(map);
+      } catch (err) {
+        console.error("Polling으로 티커 가져오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTickers();
+
+    const interval = setInterval(fetchTickers, 1000);
+    return () => clearInterval(interval);
   }, [markets]);
 
   return {

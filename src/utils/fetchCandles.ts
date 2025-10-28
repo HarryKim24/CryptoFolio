@@ -12,15 +12,16 @@ const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] =>
   }));
 
 const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
-  minutes: 400,
-  days: 800,
-  weeks: 400,
-  months: 400,
-  years: 400,
+  minutes: 800,
+  days: 1600,
+  weeks: 800,
+  months: 800,
+  years: 800,
 };
 
-export const fetchNormalizedCandles = async (
-  options: GetCandlesOptions
+const fetchNormalizedCandles = async (
+  options: GetCandlesOptions,
+  signal?: AbortSignal
 ): Promise<NormalizedCandle[]> => {
   const now = new Date();
   const paddedTo = new Date(now.getTime() + 2 * 60 * 1000).toISOString();
@@ -34,14 +35,21 @@ export const fetchNormalizedCandles = async (
   let nextTo = to;
 
   while (remaining > 0) {
+    if (signal?.aborted) {
+      throw new DOMException("Aborted", "AbortError");
+    }
+
     const batchCount = Math.min(400, remaining);
 
-    const batch = await getUpbitCandles({
-      ...rest,
-      candleType,
-      count: batchCount,
-      to: nextTo,
-    });
+    const batch = await getUpbitCandles(
+      {
+        ...rest,
+        candleType,
+        count: batchCount,
+        to: nextTo,
+      },
+      signal
+    );
 
     if (!batch.length) break;
 
@@ -65,3 +73,5 @@ export const fetchNormalizedCandles = async (
 
   return deduplicated;
 };
+
+export { normalizeCandles, fetchNormalizedCandles };

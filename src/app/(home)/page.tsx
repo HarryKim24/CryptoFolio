@@ -1,35 +1,68 @@
-'use client'
+'use client';
 
-import ChartSection from "@/components/home/ChartSection";
-import ChartDescription from "@/components/home/ChartDescription";
-import MainSection from "@/components/home/MainSection";
-import PortfolioSection from "@/components/home/PortfolioSection";
-import TrendSection from "@/components/home/TrendSection";
-import { UpbitTickerProvider } from "@/context/UpbitTickerContext";
-import Footer from "@/components/home/Footer";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
+import UpbitTickerController from "@/components/UpbitTickerController";
 
-export default function HomePage() {
+const MainSection = dynamic(() => import("@/components/home/MainSection"), {
+  ssr: true,
+});
+const ChartSection = dynamic(() => import("@/components/home/ChartSection"), {
+  ssr: true,
+});
+const TrendSection = dynamic(() => import("@/components/home/TrendSection"), {
+  ssr: true,
+});
+const PortfolioSection = dynamic(() => import("@/components/home/PortfolioSection"), {
+  ssr: true,
+});
+const Footer = dynamic(() => import("@/components/home/Footer"), {
+  ssr: true,
+});
+
+const HomePage = () => {
   return (
-    <UpbitTickerProvider>
+    <>
+      <UpbitTickerController />
       <div>
-        <section className="panel h-[120vh] flex items-center justify-center">
-          <MainSection />
+        <section className="panel h-screen flex items-center justify-center">
+          <Suspense fallback={null}>
+            <MainSection />
+          </Suspense>
         </section>
-        <section className="panel h-[200vh] md:h-[150vh] flex flex-col items-center justify-center">
-          <ChartSection />
-          <ChartDescription />
-        </section>
+
+        <section className="h-96" />
 
         <section className="panel h-screen flex flex-col items-center justify-center">
-          <TrendSection />
+          <Suspense fallback={null}>
+            <ChartSection />
+          </Suspense>
         </section>
-        <section className="panel h-[150vh] md:h-screen flex items-center justify-center">
-          <PortfolioSection />
+
+        <section className="h-32" />
+
+        <section className="panel h-screen flex flex-col items-center justify-center">
+          <Suspense fallback={null}>
+            <TrendSection />
+          </Suspense>
         </section>
-        <section className="panel h-[20vh] flex flex-col items-center justify-center">
-          <Footer />
+
+        <section className="h-32" />
+
+        <section className="panel h-screen flex items-center justify-center">
+          <Suspense fallback={null}>
+            <PortfolioSection />
+          </Suspense>
+        </section>
+
+        <section className="panel flex flex-col items-center justify-center">
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
         </section>
       </div>
-    </UpbitTickerProvider>
+    </>
   );
-}
+};
+
+export default HomePage;

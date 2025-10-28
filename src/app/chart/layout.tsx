@@ -1,9 +1,56 @@
-"use client";
+'use client';
 
-export default function ChartLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <>{children}</>;
-}
+import { Suspense, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useParams } from 'next/navigation';
+import UpbitTickerController from '@/components/UpbitTickerController';
+
+const CoinList = dynamic(() => import('@/components/chart/CoinList'), {
+  ssr: false,
+});
+
+type MarketTab = 'KRW' | 'BTC' | 'USDT';
+
+const toMarketTab = (value: string): MarketTab => {
+  if (value === 'KRW' || value === 'BTC' || value === 'USDT') return value;
+  return 'KRW';
+};
+
+const ChartLayout = ({ children }: { children: React.ReactNode }) => {
+  const params = useParams();
+  const currentMarket = typeof params?.id === 'string' ? params.id : '';
+  const [view, setView] = useState<'chart' | 'list'>('chart');
+
+  const handleClickSameMarket = () => setView('chart');
+  const initialTab = toMarketTab(currentMarket.split('-')[0]);
+
+  return (
+    <>
+      <UpbitTickerController />
+
+      <div className="h-screen p-4 pt-16 w-full bg-chart-gradient text-neutral-100 overflow-hidden">
+        <div className="flex h-full overflow-hidden">
+          <div className="flex-1 overflow-hidden relative">
+            {view === 'chart' && (
+              <Suspense fallback={null}>
+                {children}
+              </Suspense>
+            )}
+          </div>
+
+          <div className="w-[320px] hidden md:block h-full pl-0 p-4">
+            <Suspense fallback={null}>
+              <CoinList
+                initialTab={initialTab}
+                currentMarket={currentMarket}
+                onClickSameMarket={handleClickSameMarket}
+              />
+            </Suspense>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default ChartLayout;
