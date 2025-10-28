@@ -1,7 +1,7 @@
 # CryptoFolio
 
 <div align="center">
-  암호화폐 차트 조회, 트렌드 분석, 포트폴리오 관리를 지원하는 웹 서비스입니다.
+  암호화폐 차트 조회, 트렌드 분석, 포트폴리오 관리를 지원하는 웹 서비스입니다. 
   <br /><br />
     
   [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
