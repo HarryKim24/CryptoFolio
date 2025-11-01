@@ -69,7 +69,7 @@ const RegisterPage = () => {
           loading={loading}
           idleText="회원가입"
           loadingText="회원가입 중..."
-          className="w-full py-2 px-4 bg-secondary font-semibold rounded hover:brightness-105 transition focus:outline-none text-third focus:ring-2 focus:ring-third disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full py-2 px-4 bg-secondary font-semibold rounded hover:brightness-105 transition focus:outline-none text-neutral-100 focus:ring-2 focus:ring-third disabled:opacity-60 disabled:cursor-not-allowed"
         />
       </AuthForm>
 
