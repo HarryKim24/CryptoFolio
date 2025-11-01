@@ -13,6 +13,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const triggerError = (message: string) => {
@@ -27,12 +28,15 @@ const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (loading) return; 
+
     if (!email || !password) {
       triggerError("이메일과 비밀번호를 모두 입력하세요.");
       return;
     }
 
     try {
+      setLoading(true); 
       const res = await signIn("credentials", {
         email,
         password,
@@ -46,6 +50,8 @@ const LoginPage = () => {
       }
     } catch {
       triggerError("로그인 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,9 +79,11 @@ const LoginPage = () => {
 
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition focus:outline-none focus:ring-2 focus:ring-third"
+          disabled={loading}      
+          aria-busy={loading}         
+          className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition focus:outline-none focus:ring-2 focus:ring-third disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          로그인
+          {loading ? "로그인 중..." : "로그인"}
         </button>
       </form>
 
