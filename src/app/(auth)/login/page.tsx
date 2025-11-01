@@ -8,6 +8,7 @@ import ErrorMessage from "@/components/auth/ErrorMessage";
 import TextInput from "@/components/auth/TextInput";
 import PasswordInput from "@/components/auth/PasswordInput";
 import { triggerError } from "@/utils/triggerError";
+import SubmitButton from "@/components/auth/SubmitButton";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -62,14 +63,12 @@ const LoginPage = () => {
           onChange={setPassword}
           placeholder="비밀번호"
         />
-        <button
-          type="submit"
-          disabled={loading}
-          aria-busy={loading}
+        <SubmitButton
+          loading={loading}
+          idleText="로그인"
+          loadingText="로그인 중..."
           className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition focus:outline-none focus:ring-2 focus:ring-third disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {loading ? "로그인 중..." : "로그인"}
-        </button>
+        />
       </form>
 
       <div className="text-sm text-center text-neutral-100 mt-6">
