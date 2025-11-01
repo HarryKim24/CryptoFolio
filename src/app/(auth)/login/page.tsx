@@ -63,7 +63,7 @@ const LoginPage = () => {
 
       <ErrorMessage message={error} shake={shake} />
 
-      <form className="space-y-4" onSubmit={handleLogin}>
+      <form className="space-y-4" onSubmit={handleLogin} noValidate>
         <TextInput
           type="email"
           placeholder="이메일"

@@ -16,6 +16,7 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const triggerError = (message: string) => {
@@ -29,9 +30,9 @@ const RegisterPage = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return; 
 
     const result = validateRegisterInputs(email, password, name, confirmPassword);
-
     if (!result.valid) {
       triggerError(result.message!);
       return;
@@ -40,6 +41,7 @@ const RegisterPage = () => {
     const user: Pick<User, "email" | "password" | "name"> = { email, password, name };
 
     try {
+      setLoading(true); 
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,6 +56,8 @@ const RegisterPage = () => {
       }
     } catch {
       triggerError("서버 오류가 발생했습니다.");
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -63,7 +67,7 @@ const RegisterPage = () => {
 
       <ErrorMessage message={error} shake={shake} />
 
-      <form className="space-y-4" onSubmit={handleRegister}>
+      <form className="space-y-4" onSubmit={handleRegister} noValidate>
         <TextInput
           type="text"
           placeholder="이름"
@@ -89,9 +93,11 @@ const RegisterPage = () => {
 
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-secondary font-semibold rounded hover:brightness-105 transition focus:outline-none text-third focus:ring-2 focus:ring-third"
+          disabled={loading}      
+          aria-busy={loading}       
+          className="w-full py-2 px-4 bg-secondary font-semibold rounded hover:brightness-105 transition focus:outline-none text-third focus:ring-2 focus:ring-third disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          회원가입
+          {loading ? "회원가입 중..." : "회원가입"}
         </button>
       </form>
 
