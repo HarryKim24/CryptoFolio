@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import ErrorMessage from "@/components/auth/ErrorMessage";
 import TextInput from "@/components/auth/TextInput";
 import PasswordInput from "@/components/auth/PasswordInput";
 import { triggerError } from "@/utils/triggerError";
 import SubmitButton from "@/components/auth/SubmitButton";
+import AuthForm from "@/components/auth/AuthForm";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -49,9 +49,7 @@ const LoginPage = () => {
     <>
       <h1 className="text-2xl font-bold text-neutral-100 mb-2 text-center">로그인</h1>
 
-      <ErrorMessage message={error} shake={shake} />
-
-      <form className="space-y-4" onSubmit={handleLogin} noValidate>
+      <AuthForm onSubmit={handleLogin} error={error} shake={shake}>
         <TextInput
           type="email"
           placeholder="이메일"
@@ -69,7 +67,7 @@ const LoginPage = () => {
           loadingText="로그인 중..."
           className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition focus:outline-none focus:ring-2 focus:ring-third disabled:opacity-60 disabled:cursor-not-allowed"
         />
-      </form>
+      </AuthForm>
 
       <div className="text-sm text-center text-neutral-100 mt-6">
         계정이 없으신가요?{" "}
