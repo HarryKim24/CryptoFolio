@@ -6,13 +6,12 @@ import { usePathname } from "next/navigation";
 const TitleHeader = () => {
   const pathname = usePathname();
 
-  const getTitleByPath = (path: string) => {
-    if (path.includes("/login")) return "CryptoFolio에 로그인하세요";
-    if (path.includes("/register")) return "CryptoFolio 계정을 만들어보세요";
-    return null;
-  };
-
-  const title = getTitleByPath(pathname);
+  let title: string | null = null;
+  if (pathname.includes('/login')) {
+    title = 'CryptoFolio에 로그인하세요';
+  } else if (pathname.includes('/register')) {
+    title = 'CryptoFolio 계정을 생성하세요'
+  }
 
   if (!title) return null;
 
