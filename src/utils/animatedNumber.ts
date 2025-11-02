@@ -1,31 +1,34 @@
-import { useEffect, useState } from 'react';
-import { useMotionValue, animate } from 'framer-motion';
+import { useEffect, useRef } from 'react'
+import { useMotionValue, animate, useMotionValueEvent } from 'framer-motion'
 
 type Options = {
-  duration?: number;
-  trigger?: unknown;
-};
+  duration?: number
+  trigger?: unknown
+}
 
-const useAnimatedNumber = (target: number, options?: Options): number => {
-  const motionValue = useMotionValue(0);
-  const [displayValue, setDisplayValue] = useState(0);
-
-  const duration = options?.duration ?? 1000;
-  const trigger = options?.trigger;
+const useAnimatedNumber = (target: number, options?: Options) => {
+  const nodeRef = useRef<HTMLElement | null>(null)
+  const mv = useMotionValue(0)
+  const duration = (options?.duration ?? 1000) / 1000
+  const trigger = options?.trigger
 
   useEffect(() => {
-    const controls = animate(motionValue, target, {
-      duration: duration / 1000,
+    if (nodeRef.current) nodeRef.current.textContent = String(Math.round(mv.get()))
+  }, [mv])
+
+  useEffect(() => {
+    const controls = animate(mv, target, {
+      duration,
       ease: 'easeOut',
-      onUpdate: (latest) => {
-        setDisplayValue(Math.round(latest));
-      },
-    });
+    })
+    return () => controls.stop()
+  }, [mv, target, duration, trigger])
 
-    return () => controls.stop();
-  }, [motionValue, target, duration, trigger]);
+  useMotionValueEvent(mv, 'change', (latest) => {
+    if (nodeRef.current) nodeRef.current.textContent = String(Math.round(latest))
+  })
 
-  return displayValue;
-};
+  return nodeRef
+}
 
-export { useAnimatedNumber };
+export { useAnimatedNumber }
