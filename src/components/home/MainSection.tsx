@@ -22,12 +22,12 @@ const MainSection = () => {
   const statRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(statRef, { amount: 0.5 })
 
-  const assetNodeRef = useAnimatedNumber(isInView ? assetCount : 0, {
+  const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, {
     duration: 3000,
     trigger: isInView,
   })
 
-  const marketNodeRef = useAnimatedNumber(isInView ? marketCount : 0, {
+  const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, {
     duration: 3000,
     trigger: isInView,
   })
@@ -108,11 +108,11 @@ const MainSection = () => {
             className="flex items-center justify-center gap-2 xs:gap-20 mt-12"
           >
             <div>
-              <p className="text-4xl md:text-5xl font-bold" ref={assetNodeRef as React.RefObject<HTMLParagraphElement>} />
+              <p className="text-4xl md:text-5xl font-bold">{Math.round(animatedAssetCount)}</p>
               <p className="text-sm text-neutral-300 min-w-[90px]">Digital Assets</p>
             </div>
             <div>
-              <p className="text-4xl md:text-5xl font-bold" ref={marketNodeRef as React.RefObject<HTMLParagraphElement>} />
+              <p className="text-4xl md:text-5xl font-bold">{Math.round(animatedMarketCount)}</p>
               <p className="text-sm text-neutral-300 min-w-[90px]">Markets</p>
             </div>
           </motion.div>
