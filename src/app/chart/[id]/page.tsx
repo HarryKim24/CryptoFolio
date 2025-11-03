@@ -5,10 +5,9 @@ export const dynamic = "force-static";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+import { useUpbitTickerStore } from "@/context/UpbitTickerContext";
 import { Market } from "@/types/upbitTypes";
 import useIsMobile from "@/hooks/useIsMobile";
-
 import _dynamic from "next/dynamic";
 
 const CoinDetail = _dynamic(() => import("@/components/chart/CoinDetail"), { ssr: false });
@@ -19,14 +18,17 @@ type MarketTab = "KRW" | "BTC" | "USDT";
 
 const ChartPage = () => {
   const params = useParams();
-  const { tickers, markets } = useUpbitTickerContext();
+
+  const tickers = useUpbitTickerStore((s) => s.tickers);
+  const markets = useUpbitTickerStore((s) => s.markets);
+  const loading = useUpbitTickerStore((s) => s.loading);
 
   const market = typeof params?.id === "string" ? params.id : "";
   const [view, setView] = useState<"chart" | "list">("chart");
   const isMobile = useIsMobile();
 
   const isInitialLoading =
-    !market || Object.keys(tickers).length === 0 || markets.length === 0;
+    loading || !market || Object.keys(tickers).length === 0 || markets.length === 0;
 
   const isInvalidMarket = useMemo(() => {
     return (

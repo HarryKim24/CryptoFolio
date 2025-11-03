@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/nav/Navbar";
 import SessionClientLayout from "@/components/session/SessionClientLayout";
+import { UpbitTickerProvider } from "@/context/UpbitTickerContext";
 
 export const metadata: Metadata = {
   title: "CryptoFolio",
@@ -34,10 +35,12 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         />
       </head>
       <body>
-        <SessionClientLayout>
-          <Navbar />
-          <main>{children}</main>
-        </SessionClientLayout>
+        <UpbitTickerProvider>
+          <SessionClientLayout>
+            <Navbar />
+            <main>{children}</main>
+          </SessionClientLayout>
+        </UpbitTickerProvider>
       </body>
     </html>
   );

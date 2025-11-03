@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
+import React, { useMemo } from "react";
+import { useUpbitTickerStore } from "@/context/UpbitTickerContext";
 import CoinCautionBadge from "./CautionBadge";
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
 import { Market } from "@/types/upbitTypes";
@@ -21,14 +21,20 @@ const CoinDetail = ({
   onToggleView,
   isChartSection,
 }: Props) => {
-  const { tickers, markets } = useUpbitTickerContext();
+  const tickers = useUpbitTickerStore((s) => s.tickers);
+  const markets = useUpbitTickerStore((s) => s.markets);
+
   const ticker = tickers[market];
-  const marketInfo = markets.find((m: Market) => m.market === market);
+
+  const marketInfo = useMemo(
+    () => markets.find((m: Market) => m.market === market),
+    [markets, market]
+  );
 
   const activeTab = market.split("-")[0] as "KRW" | "BTC" | "USDT";
   const [prefix, symbol] = market.split("-");
   const validMarkets = ["KRW", "BTC", "USDT"] as const;
-  
+
   const coinSymbol = validMarkets.includes(prefix as typeof validMarkets[number])
     ? symbol ?? "N/A"
     : "N/A";
@@ -44,9 +50,7 @@ const CoinDetail = ({
   const formatPrice = (value: number) => {
     if (activeTab === "KRW") return `${value.toLocaleString()} 원`;
     if (activeTab === "BTC") return `${value.toFixed(8)} BTC`;
-    return value >= 1000
-      ? `$${Math.round(value).toLocaleString()}`
-      : `$${value.toFixed(3)}`;
+    return value >= 1000 ? `$${Math.round(value).toLocaleString()}` : `$${value.toFixed(3)}`;
   };
 
   const formattedPrice = formatPrice(price);
@@ -74,13 +78,9 @@ const CoinDetail = ({
               ({coinSymbol})
             </span>
           </div>
-          <div className="text-sm md:text-base lg:text-xl text-gray-400 truncate">
-            {market}
-          </div>
+          <div className="text-sm md:text-base lg:text-xl text-gray-400 truncate">{market}</div>
           <div className="mt-1 min-h-[20px]">
-            {marketInfo && (
-              <CoinCautionBadge caution={marketInfo.market_event?.caution} />
-            )}
+            {marketInfo && <CoinCautionBadge caution={marketInfo.market_event?.caution} />}
           </div>
         </div>
 
