@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import { useUpbitTickerContext } from "@/context/UpbitTickerContext";
-import CoinListItem from "@/components/chart/CoinListItem";
-import CoinListHeader from "@/components/chart/CoinListHeader";
-import { CautionType } from "@/types/upbitTypes";
-import { getChosung } from "@/utils/getChosung";
+import React, { useMemo, useState, useEffect } from 'react';
+import { useUpbitTickerStore } from '@/context/UpbitTickerContext';
+import CoinListItem from '@/components/chart/CoinListItem';
+import CoinListHeader from '@/components/chart/CoinListHeader';
+import { CautionType } from '@/types/upbitTypes';
+import { getChosung } from '@/utils/getChosung';
 
-type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
-type SortDirection = "asc" | "desc";
-type MarketTab = "KRW" | "BTC" | "USDT";
+type SortKey = 'korean_name' | 'trade_price' | 'signed_change_rate' | 'acc_trade_price_24h';
+type SortDirection = 'asc' | 'desc';
+type MarketTab = 'KRW' | 'BTC' | 'USDT';
 
 type Props = {
   initialTab: MarketTab;
@@ -18,26 +18,25 @@ type Props = {
 };
 
 const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
-  const { tickers, markets } = useUpbitTickerContext();
+  const tickers = useUpbitTickerStore((s) => s.tickers);
+  const markets = useUpbitTickerStore((s) => s.markets);
+  const loading = useUpbitTickerStore((s) => s.loading);
 
-  const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
-  const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<MarketTab>('KRW');
+  const [sortKey, setSortKey] = useState<SortKey>('acc_trade_price_24h');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const isLoading = Object.keys(tickers).length === 0 || markets.length === 0;
+  const isLoading = loading || Object.keys(tickers).length === 0 || markets.length === 0;
 
   useEffect(() => {
-    const stored = localStorage.getItem("activeTab") as MarketTab | null;
-    if (stored && ["KRW", "BTC", "USDT"].includes(stored)) {
-      setActiveTab(stored);
-    } else {
-      setActiveTab(initialTab);
-    }
+    const stored = localStorage.getItem('activeTab') as MarketTab | null;
+    if (stored && ['KRW', 'BTC', 'USDT'].includes(stored)) setActiveTab(stored);
+    else setActiveTab(initialTab);
   }, [initialTab]);
 
   const handleTabClick = (tab: MarketTab) => {
-    localStorage.setItem("activeTab", tab);
+    localStorage.setItem('activeTab', tab);
     setActiveTab(tab);
   };
 
@@ -66,26 +65,14 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
 
   const sorted = useMemo(() => {
     return [...combined].sort((a, b) => {
-      let aValue: string | number;
-      let bValue: string | number;
-
-      if (sortKey === "korean_name") {
-        aValue = a.korean_name;
-        bValue = b.korean_name;
-      } else {
-        aValue = a.ticker[sortKey];
-        bValue = b.ticker[sortKey];
+      if (sortKey === 'korean_name') {
+        return sortDirection === 'asc'
+          ? a.korean_name.localeCompare(b.korean_name)
+          : b.korean_name.localeCompare(a.korean_name);
       }
-
-      if (typeof aValue === "string") {
-        return sortDirection === "asc"
-          ? aValue.localeCompare(bValue as string)
-          : (bValue as string).localeCompare(aValue);
-      }
-
-      return sortDirection === "asc"
-        ? (aValue as number) - (bValue as number)
-        : (bValue as number) - (aValue as number);
+      const av = a.ticker[sortKey] as number;
+      const bv = b.ticker[sortKey] as number;
+      return sortDirection === 'asc' ? av - bv : bv - av;
     });
   }, [combined, sortKey, sortDirection]);
 
@@ -95,9 +82,8 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     const choTerm = isChosungOnly ? getChosung(term) : null;
 
     return sorted.filter(({ ticker, korean_name, english_name }) => {
-      const symbol = ticker.market.replace(`${activeTab}-`, "").toLowerCase();
+      const symbol = ticker.market.replace(`${activeTab}-`, '').toLowerCase();
       const choName = getChosung(korean_name);
-
       return (
         korean_name.toLowerCase().includes(term) ||
         english_name.toLowerCase().includes(term) ||
@@ -115,12 +101,12 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
       <div className="sticky z-10">
         <div className="flex justify-center gap-12 border-b border-white/10 p-2">
-          {(["KRW", "BTC", "USDT"] as MarketTab[]).map((tab) => (
+          {(['KRW', 'BTC', 'USDT'] as MarketTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabClick(tab)}
               className={`pb-1 font-semibold ${
-                activeTab === tab ? "border-b-2 border-neutral-100" : "text-gray-400"
+                activeTab === tab ? 'border-b-2 border-neutral-100' : 'text-gray-400'
               }`}
             >
               {tab}

@@ -1,38 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { useEffect, useRef } from 'react';
 import axios from 'axios';
-import { create } from 'zustand';
 import type { Market, Ticker as RestTicker } from '@/types/upbitTypes';
-
-type WsTicker = { code: string; };
-
-type Ticker = RestTicker;
-type State = {
-  tickers: Record<string, Ticker>;
-  markets: Market[];
-  loading: boolean;
-  setTickers: (fn: (prev: Record<string, Ticker>) => Record<string, Ticker>) => void;
-  setTickersMap: (map: Record<string, Ticker>) => void;
-  setMarkets: (markets: Market[]) => void;
-  setLoading: (v: boolean) => void;
-};
-
-export const useUpbitTickerStore = create<State>((set) => ({
-  tickers: {},
-  markets: [],
-  loading: true,
-  setTickers: (fn) => set((s) => ({ tickers: fn(s.tickers) })),
-  setTickersMap: (map) => set({ tickers: map }),
-  setMarkets: (markets) => set({ markets }),
-  setLoading: (v) => set({ loading: v }),
-}));
+import { useUpbitTickerStore } from '@/stores/upbitTickerStore';
 
 const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
 
+type WsTicker = { code: string };
+type Ticker = RestTicker;
+
 const toCommonTicker = (t: WsTicker | RestTicker): Ticker => {
   const market = 'code' in t ? t.code : t.market;
-  return { ...(t as any), market };
+  return { ...(t as RestTicker), market };
 };
 
 export const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -44,6 +23,7 @@ export const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => {
     let alive = true;
     const ctl = new AbortController();
+
     (async () => {
       try {
         const res = await axios.get<Market[]>('/api/proxy/market', {
@@ -51,23 +31,39 @@ export const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
           signal: ctl.signal,
         });
         if (!alive) return;
-        const filtered = res.data.filter((m) =>
-          m.market.startsWith('KRW-') || m.market.startsWith('BTC-') || m.market.startsWith('USDT-')
+        const filtered = res.data.filter(
+          (m) =>
+            m.market.startsWith('KRW-') ||
+            m.market.startsWith('BTC-') ||
+            m.market.startsWith('USDT-')
         );
         setMarkets(filtered);
       } catch (e) {
-        if (axios.isCancel?.(e)) return;
+        if (axios.isCancel(e)) return;
         console.error('마켓 정보 로딩 실패', e);
       }
     })();
-    return () => { alive = false; ctl.abort(); };
+
+    return () => {
+      alive = false;
+      ctl.abort();
+    };
   }, [setMarkets]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || markets.length === 0) return;
 
-    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
-    if (wsRef.current) { try { wsRef.current.close(); } catch {} wsRef.current = null; }
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+
+    if (wsRef.current) {
+      try {
+        wsRef.current.close();
+      } catch {}
+      wsRef.current = null;
+    }
 
     if (enableWebSocket) {
       const socket = new WebSocket('wss://api.upbit.com/websocket/v1');
@@ -92,7 +88,13 @@ export const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       };
 
       socket.onerror = (e) => console.error('WS error', e);
-      return () => { try { socket.close(); } catch {} if (wsRef.current === socket) wsRef.current = null; };
+
+      return () => {
+        try {
+          socket.close();
+        } catch {}
+        if (wsRef.current === socket) wsRef.current = null;
+      };
     }
 
     const first = { value: true };
@@ -112,14 +114,22 @@ export const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       } catch (err) {
         console.error('Polling 실패:', err);
       } finally {
-        if (first.value) { setLoading(false); first.value = false; }
+        if (first.value) {
+          setLoading(false);
+          first.value = false;
+        }
       }
     };
 
     fetchTickers();
     pollRef.current = setInterval(fetchTickers, 1500);
 
-    return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
   }, [markets, setLoading, setTickers, setTickersMap]);
 
   return <>{children}</>;
