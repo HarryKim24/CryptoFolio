@@ -89,21 +89,21 @@
 src/
 ├── api/                    # 클라이언트 API 호출 함수
 ├── app/                    # Next.js App Router 디렉토리
-│   ├── api/                # 서버 API 라우트
-│   ├── (home)/             # 메인 홈페이지
 │   ├── (auth)/             # 로그인 및 회원가입 페이지
+│   ├── (home)/             # 메인 홈페이지
+│   ├── api/                # 서버 API 라우트
 │   ├── chart/              # 암호화폐 시세 및 차트 페이지
-│   ├── trends/             # 트렌드 데이터 분석 페이지
 │   ├── portfolio/          # 사용자 포트폴리오 관리 페이지
 │   ├── settings/           # 계정 정보 설정 페이지
+│   ├── trends/             # 트렌드 데이터 분석 페이지
 │
 ├── components/             # UI 컴포넌트 모음
-├── context/                # 전역 상태 관리 (React Context)
 ├── hooks/                  # 커스텀 훅
 ├── lib/                    # 서버 비즈니스 로직 및 인프라 유틸
+├── providers/              # 전역 Provider 컴포넌트
+├── stores/                 # 상태 관리(Zustand) 스토어
 ├── utils/                  # 클라이언트 유틸 함수 및 데이터 처리
 ├── types/                  # 타입스크립트 타입 정의
-
 ```
 
 ## 👤 제작자
