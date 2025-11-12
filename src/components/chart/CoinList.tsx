@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { useUpbitTickerStore } from '@/context/UpbitTickerContext';
 import CoinListItem from '@/components/chart/CoinListItem';
 import CoinListHeader from '@/components/chart/CoinListHeader';
 import { CautionType } from '@/types/upbitTypes';
 import { getChosung } from '@/utils/getChosung';
+import { useUpbitTickerStore } from '@/stores/upbitTickerStore';
 
 type SortKey = 'korean_name' | 'trade_price' | 'signed_change_rate' | 'acc_trade_price_24h';
 type SortDirection = 'asc' | 'desc';

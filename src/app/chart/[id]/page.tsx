@@ -5,10 +5,10 @@ export const dynamic = "force-static";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useUpbitTickerStore } from "@/context/UpbitTickerContext";
 import { Market } from "@/types/upbitTypes";
 import useIsMobile from "@/hooks/useIsMobile";
 import _dynamic from "next/dynamic";
+import { useUpbitTickerStore } from "@/stores/upbitTickerStore";
 
 const CoinDetail = _dynamic(() => import("@/components/chart/CoinDetail"), { ssr: false });
 const CoinChart = _dynamic(() => import("@/components/chart/CoinChart"), { ssr: false });

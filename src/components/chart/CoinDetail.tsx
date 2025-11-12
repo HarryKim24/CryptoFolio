@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { useUpbitTickerStore } from "@/context/UpbitTickerContext";
 import CoinCautionBadge from "./CautionBadge";
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
 import { Market } from "@/types/upbitTypes";
+import { useUpbitTickerStore } from "@/stores/upbitTickerStore";
 
 type Props = {
   market: string;

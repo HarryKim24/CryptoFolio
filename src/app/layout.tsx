@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/nav/Navbar";
 import SessionClientLayout from "@/components/session/SessionClientLayout";
-import { UpbitTickerProvider } from "@/context/UpbitTickerContext";
+import { UpbitTickerProvider } from "@/providers/UpbitTickerProvider";
 
 export const metadata: Metadata = {
   title: "CryptoFolio",
