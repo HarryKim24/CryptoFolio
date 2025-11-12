@@ -22,7 +22,7 @@
 
 - **홈 페이지**
   - 홈페이지는 전체 서비스를 소개하고 각 기능 페이지로 이동을 안내하는 역할을 합니다.
-  - 섹션 별로 각 기능의 핵심을 간략히 확인할 수 있도록 구성했습니다.
+  - 섹션별로 각 기능의 핵심을 간략히 확인할 수 있도록 구성했습니다.
   - 섹션별 배경의 부드러운 전환 애니메이션 효과를 연출했습니다.
   <p align="start">
     <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/home.gif" width="600">
@@ -51,7 +51,7 @@
 
 - **세팅 페이지**  
   - 사용자의 계정 정보를 관리할 수 있는 페이지입니다.
-  - 사용자 프로필 확인 및 수정 (이름, 비밀번호 변경), 회원탈퇴 기능을 자원합니다.
+  - 사용자 프로필 확인 및 수정 (이름, 비밀번호 변경), 회원탈퇴 기능을 지원합니다.
   <p align="start">
     <img src="https://github.com/HarryKim24/CryptoFolio/raw/main/docs/videos/settings.gif" width="600">
   </p>
@@ -73,7 +73,7 @@
 | **Auth** | [NextAuth.js](https://next-auth.js.org/), [bcrypt.js](https://www.npmjs.com/package/bcryptjs) |
 | **API 통신** | REST API, [Axios](https://axios-http.com/) |
 | **Database** | [MongoDB Atlas](https://www.mongodb.com/atlas/database), [Mongoose](https://mongoosejs.com/) |
-| **상태 관리** | React Context + Provider 패턴 |
+| **상태 관리** | [Zustand](https://github.com/pmndrs/zustand) |
 | **차트 라이브러리** | [Chart.js](https://www.chartjs.org/), [react-chartjs-2](https://github.com/reactchartjs/react-chartjs-2), [ApexCharts](https://apexcharts.com/), [react-apexcharts](https://github.com/apexcharts/react-apexcharts) |
 | **애니메이션** | [Framer Motion](https://www.framer.com/motion/), [GSAP](https://greensock.com/gsap/) |
 | **날짜 유틸** | [date-fns](https://date-fns.org/) |
