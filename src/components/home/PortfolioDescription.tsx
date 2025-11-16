@@ -1,26 +1,30 @@
-'use client'
+'use client';
 
-import { useRef, useEffect } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useRouter } from 'next/navigation'
+import { useRef, useEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRouter } from 'next/navigation';
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 const PortfolioDescription = () => {
-  const ref = useRef<HTMLDivElement>(null)
-  const router = useRouter()
+  const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!ref.current) return
+    if (!ref.current) return;
 
-    if (window.innerWidth < 768) {
+    const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth < 768;
+      const fromY = isMobile ? 240 : 80;
+      const toY = isMobile ? 160 : -80;
+
       gsap.fromTo(
         ref.current,
-        { opacity: 0, y: 240 },
+        { opacity: 0, y: fromY },
         {
           opacity: 1,
-          y: 160,
+          y: toY,
           duration: 1.2,
           ease: 'power2.out',
           scrollTrigger: {
@@ -29,29 +33,15 @@ const PortfolioDescription = () => {
             toggleActions: 'play none none reverse',
           },
         }
-      )
-    } else {
-      gsap.fromTo(
-        ref.current,
-        { opacity: 0, y: 80 },
-        {
-          opacity: 1,
-          y: -80,
-          duration: 1.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: ref.current,
-            start: 'top 90%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      )
-    }
-  }, [])
+      );
+    }, ref);
+
+    return () => ctx.revert();
+  }, []);
 
   const handlePortfolioClick = () => {
-    router.push('/portfolio')
-  }
+    router.push('/portfolio');
+  };
 
   return (
     <div
@@ -69,7 +59,7 @@ const PortfolioDescription = () => {
         </span>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PortfolioDescription
+export default PortfolioDescription;

@@ -1,25 +1,24 @@
-'use client'
+'use client';
 
-import React, { useEffect, useRef, useState } from 'react'
-import { motion, useInView } from 'framer-motion'
-import { Doughnut } from 'react-chartjs-2'
-import { Chart, ArcElement, Tooltip, Legend } from 'chart.js'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import PortfolioDescription from '@/components/home/PortfolioDescription'
+import React, { useEffect, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { Doughnut } from 'react-chartjs-2';
+import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import PortfolioDescription from '@/components/home/PortfolioDescription';
 
-Chart.register(ArcElement, Tooltip, Legend)
-gsap.registerPlugin(ScrollTrigger)
+Chart.register(ArcElement, Tooltip, Legend);
+gsap.registerPlugin(ScrollTrigger);
 
 const PortfolioSection = () => {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const rightRef = useRef<HTMLDivElement>(null)
-  const chartRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(chartRef, { once: true })
-  const [chartKey, setChartKey] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(chartRef, { once: true });
 
   useEffect(() => {
-    if (!containerRef.current || window.innerWidth < 768) return
+    if (!containerRef.current || window.innerWidth < 768) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -35,17 +34,11 @@ const PortfolioSection = () => {
             scrub: true,
           },
         }
-      )
-    }, containerRef)
+      );
+    }, containerRef);
 
-    return () => ctx.revert()
-  }, [])
-
-  useEffect(() => {
-    if (isInView) {
-      setChartKey(prev => prev + 1)
-    }
-  }, [isInView])
+    return () => ctx.revert();
+  }, []);
 
   const data = {
     datasets: [
@@ -62,7 +55,7 @@ const PortfolioSection = () => {
         borderWidth: 0,
       },
     ],
-  }
+  };
 
   const options = {
     plugins: {
@@ -76,7 +69,7 @@ const PortfolioSection = () => {
       duration: 1200,
       easing: 'easeOutCubic' as const,
     },
-  }
+  };
 
   return (
     <div ref={containerRef} className="text-center md:space-y-10 px-6">
@@ -92,15 +85,16 @@ const PortfolioSection = () => {
           transition={{ duration: 1 }}
           className="flex-1 p-6 flex justify-center items-center"
         >
-          <div className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px]" ref={chartRef}>
-            {isInView && (
-              <Doughnut key={chartKey} data={data} options={options} />
-            )}
+          <div
+            className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px]"
+            ref={chartRef}
+          >
+            {isInView && <Doughnut data={data} options={options} />}
           </div>
         </motion.div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PortfolioSection
+export default PortfolioSection;

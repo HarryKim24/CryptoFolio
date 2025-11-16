@@ -1,53 +1,57 @@
-'use client'
+'use client';
 
-import { useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 const ChartDescription = () => {
-  const ref = useRef<HTMLDivElement>(null)
-  const router = useRouter()
+  const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!ref.current) return
+    if (!ref.current) return;
 
-    gsap.fromTo(
-      ref.current,
-      { y: 0 },
-      {
-        y: -200,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: ref.current,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      }
-    )
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ref.current,
+        { y: 0 },
+        {
+          y: -200,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: ref.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      );
 
-    gsap.fromTo(
-      ref.current,
-      { opacity: 0 },
-      {
-        opacity: 1,
-        duration: 1.2,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: ref.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-      }
-    )
-  }, [])
+      gsap.fromTo(
+        ref.current,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 1.2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: ref.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+    }, ref);
+
+    return () => ctx.revert();
+  }, []);
 
   const handleChartClick = () => {
-    router.push('/chart/KRW-BTC')
-  }
+    router.push('/chart/KRW-BTC');
+  };
 
   return (
     <div
@@ -67,7 +71,7 @@ const ChartDescription = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChartDescription
+export default ChartDescription;
