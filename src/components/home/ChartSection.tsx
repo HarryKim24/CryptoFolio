@@ -66,7 +66,7 @@ const ChartSection = () => {
       setTimeout(() => {
         updateScale();
 
-        setTimeout(() => setShowChart(true), 1000);
+        setTimeout(() => setShowChart(true), 2000);
       }, 32);
     });
 
@@ -103,7 +103,7 @@ const ChartSection = () => {
             <CoinChart market={market} disableZoom />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white text-xs">
-              차트를 준비 중입니다...
+              차트를 불러오는 중...
             </div>
           )}
         </div>

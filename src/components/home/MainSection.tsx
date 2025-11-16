@@ -23,12 +23,12 @@ const MainSection = () => {
   const isInView = useInView(statRef, { amount: 0.5 })
 
   const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, {
-    duration: 3000,
+    duration: 2300,
     trigger: isInView,
   })
 
   const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, {
-    duration: 3000,
+    duration: 2300,
     trigger: isInView,
   })
 
@@ -84,7 +84,7 @@ const MainSection = () => {
           <motion.h1
             initial={{ opacity: 0, scale: 20 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
+            transition={{ duration: 1, ease: 'easeOut' }}
             className="text-3xl md:text-4xl font-bold leading-tight"
           >
             사용자 중심 암호화폐 자산 포트폴리오 플랫폼
@@ -104,7 +104,7 @@ const MainSection = () => {
             ref={statRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 1, ease: 'easeOut' }}
+            transition={{ delay: 1, duration: 1, ease: 'easeOut' }}
             className="flex items-center justify-center gap-2 xs:gap-20 mt-12"
           >
             <div>
@@ -120,7 +120,7 @@ const MainSection = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 1, ease: 'easeOut' }}
+            transition={{ delay: 1, duration: 1, ease: 'easeOut' }}
             className="flex flex-col xs:flex-row items-center justify-center gap-4 mt-12"
           >
             <button
