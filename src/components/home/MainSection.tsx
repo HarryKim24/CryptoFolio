@@ -1,56 +1,78 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { motion } from 'framer-motion'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useAnimatedNumber } from '@/utils/animatedNumber'
-import { useInView } from 'framer-motion'
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { motion } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useAnimatedNumber } from '@/utils/animatedNumber';
+import { useInView } from 'framer-motion';
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 const MainSection = () => {
-  const router = useRouter()
-  const { data: session } = useSession()
+  const router = useRouter();
+  const { data: session } = useSession();
 
-  const [assetCount, setAssetCount] = useState(0)
-  const [marketCount, setMarketCount] = useState(0)
+  const [assetCount, setAssetCount] = useState(0);
+  const [marketCount, setMarketCount] = useState(0);
 
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const statRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(statRef, { amount: 0.5 })
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const statRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(statRef, { amount: 0.5 });
 
   const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, {
     duration: 2300,
     trigger: isInView,
-  })
+  });
 
   const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, {
     duration: 2300,
     trigger: isInView,
-  })
+  });
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchMarketData = async () => {
       try {
-        const res = await fetch('/api/proxy/market?isDetails=false')
-        const data = await res.json()
-        const markets = data.map((item: { market: string }) => item.market)
-        const assets = new Set(markets.map((m: string) => m.split('-')[1]))
-        setMarketCount(markets.length)
-        setAssetCount(assets.size)
+        const res = await fetch('/api/proxy/market?isDetails=false');
+
+        if (!res.ok) {
+          throw new Error(`업비트 API 오류: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          console.error('업비트 API 응답 형식이 올바르지 않습니다.');
+          return;
+        }
+
+        if (cancelled) return;
+
+        const markets = data.map((item: { market: string }) => item.market);
+        const assets = new Set(markets.map((m: string) => m.split('-')[1]));
+
+        setMarketCount(markets.length);
+        setAssetCount(assets.size);
       } catch (error) {
-        console.error('업비트 API 데이터 로드 실패:', error)
+        if (!cancelled) {
+          console.error('업비트 API 데이터 로드 실패:', error);
+        }
       }
-    }
-  
-    fetchMarketData()
-  }, [])
+    };
+
+    fetchMarketData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
-    if (!sectionRef.current) return
+    if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
       gsap.to(sectionRef.current, {
@@ -64,15 +86,15 @@ const MainSection = () => {
           end: 'bottom top',
           scrub: 0.2,
         },
-      })
-    }, sectionRef)
+      });
+    }, sectionRef);
 
-    return () => ctx.revert()
-  }, [])
+    return () => ctx.revert();
+  }, []);
 
   const handleMainAction = () => {
-    router.push(session ? '/portfolio' : '/login')
-  }
+    router.push(session ? '/portfolio' : '/login');
+  };
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -108,12 +130,20 @@ const MainSection = () => {
             className="flex items-center justify-center gap-2 xs:gap-20 mt-12"
           >
             <div>
-              <p className="text-4xl md:text-5xl font-bold">{Math.round(animatedAssetCount)}</p>
-              <p className="text-sm text-neutral-300 min-w-[90px]">Digital Assets</p>
+              <p className="text-4xl md:text-5xl font-bold">
+                {animatedAssetCount}
+              </p>
+              <p className="text-sm text-neutral-300 min-w-[90px]">
+                Digital Assets
+              </p>
             </div>
             <div>
-              <p className="text-4xl md:text-5xl font-bold">{Math.round(animatedMarketCount)}</p>
-              <p className="text-sm text-neutral-300 min-w-[90px]">Markets</p>
+              <p className="text-4xl md:text-5xl font-bold">
+                {animatedMarketCount}
+              </p>
+              <p className="text-sm text-neutral-300 min-w-[90px]">
+                Markets
+              </p>
             </div>
           </motion.div>
 
@@ -139,7 +169,7 @@ const MainSection = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MainSection
+export default MainSection;
