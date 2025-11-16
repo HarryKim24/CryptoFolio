@@ -1,96 +1,136 @@
-'use client'
+'use client';
 
-import React, { useEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useInView } from 'framer-motion'
-import { useAnimatedNumber } from '@/utils/animatedNumber'
-import TrendDescription from "@/components/home/TrendDescription"
-import { Market } from '@/types/upbitTypes'
+import React, { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useInView } from 'framer-motion';
+import { useAnimatedNumber } from '@/utils/animatedNumber';
+import TrendDescription from '@/components/home/TrendDescription';
+import { Market } from '@/types/upbitTypes';
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 type Ticker = {
-  market: string
-  trade_price: number
-  acc_trade_volume_24h: number
-  signed_change_rate: number
-}
+  market: string;
+  trade_price: number;
+  acc_trade_volume_24h: number;
+  signed_change_rate: number;
+};
 
 type CoinChange = {
-  market: string
-  korean_name: string
-  trade_price: number
-  signed_change_rate: number
-}
+  market: string;
+  korean_name: string;
+  trade_price: number;
+  signed_change_rate: number;
+};
 
 const TrendSection = () => {
-  const [ubmiValue, setUbmiValue] = useState<number>(0)
-  const [ubaiValue, setUbaiValue] = useState<number>(0)
-  const [topRise, setTopRise] = useState<CoinChange[]>([])
-  const [topFall, setTopFall] = useState<CoinChange[]>([])
+  const [ubmiValue, setUbmiValue] = useState<number>(0);
+  const [ubaiValue, setUbaiValue] = useState<number>(0);
+  const [topRise, setTopRise] = useState<CoinChange[]>([]);
+  const [topFall, setTopFall] = useState<CoinChange[]>([]);
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const leftRef = useRef<HTMLDivElement>(null)
-  const rightRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const leftRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
 
-  const isInView = useInView(leftRef, { amount: 0.5 })
-  const animatedUBMV = useAnimatedNumber(isInView ? ubmiValue : 0, { duration: 2000, trigger: isInView })
-  const animatedUBAV = useAnimatedNumber(isInView ? ubaiValue : 0, { duration: 2000, trigger: isInView })
+  const isInView = useInView(leftRef, { amount: 0.5 });
+  const animatedUBMV = useAnimatedNumber(isInView ? ubmiValue : 0, {
+    duration: 2000,
+    trigger: isInView,
+  });
+  const animatedUBAV = useAnimatedNumber(isInView ? ubaiValue : 0, {
+    duration: 2000,
+    trigger: isInView,
+  });
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchData = async () => {
       try {
-        const marketRes = await fetch('/api/proxy/market')
-        const markets = await marketRes.json()
-        const krwMarkets = markets.filter((m: Market) => m.market.startsWith('KRW-'))
-  
-        const marketList = krwMarkets.map((m: Market) => m.market).join(',')
-        const tickerRes = await fetch(`/api/proxy/ticker?markets=${marketList}`)
-        const tickers: Ticker[] = await tickerRes.json()
-  
-        let ubmiSum = 0
-        let ubaiSum = 0
-  
-        const enriched: CoinChange[] = tickers.map(t => {
-          const info = krwMarkets.find((m: Market) => m.market === t.market)
-          const volumeValue = t.trade_price * t.acc_trade_volume_24h
-          ubmiSum += volumeValue
-          if (t.market !== 'KRW-BTC') ubaiSum += volumeValue
-  
+        const marketRes = await fetch('/api/proxy/market');
+        if (!marketRes.ok) {
+          throw new Error(`업비트 마켓 API 오류: ${marketRes.status}`);
+        }
+
+        const markets = await marketRes.json();
+        if (!Array.isArray(markets)) {
+          throw new Error('업비트 마켓 API 응답 형식이 올바르지 않습니다.');
+        }
+
+        const krwMarkets = markets.filter((m: Market) =>
+          m.market.startsWith('KRW-')
+        );
+
+        const marketList = krwMarkets.map((m: Market) => m.market).join(',');
+        if (!marketList) return;
+
+        const tickerRes = await fetch(
+          `/api/proxy/ticker?markets=${encodeURIComponent(marketList)}`
+        );
+        if (!tickerRes.ok) {
+          throw new Error(`업비트 티커 API 오류: ${tickerRes.status}`);
+        }
+
+        const tickers: Ticker[] = await tickerRes.json();
+        if (!Array.isArray(tickers)) {
+          throw new Error('업비트 티커 API 응답 형식이 올바르지 않습니다.');
+        }
+
+        if (cancelled) return;
+
+        let ubmiSum = 0;
+        let ubaiSum = 0;
+
+        const enriched: CoinChange[] = tickers.map((t) => {
+          const info = krwMarkets.find((m: Market) => m.market === t.market);
+          const volumeValue = t.trade_price * t.acc_trade_volume_24h;
+          ubmiSum += volumeValue;
+          if (t.market !== 'KRW-BTC') ubaiSum += volumeValue;
+
           return {
             market: t.market,
             korean_name: info?.korean_name || t.market,
             trade_price: t.trade_price,
             signed_change_rate: t.signed_change_rate,
-          }
-        })
-  
-        const rises = [...enriched].sort((a, b) => b.signed_change_rate - a.signed_change_rate).slice(0, 5)
-        const falls = [...enriched].sort((a, b) => a.signed_change_rate - b.signed_change_rate).slice(0, 5)
-  
-        setUbmiValue(ubmiSum)
-        setUbaiValue(ubaiSum)
-        setTopRise(rises)
-        setTopFall(falls)
+          };
+        });
+
+        const rises = [...enriched]
+          .sort((a, b) => b.signed_change_rate - a.signed_change_rate)
+          .slice(0, 5);
+        const falls = [...enriched]
+          .sort((a, b) => a.signed_change_rate - b.signed_change_rate)
+          .slice(0, 5);
+
+        setUbmiValue(ubmiSum);
+        setUbaiValue(ubaiSum);
+        setTopRise(rises);
+        setTopFall(falls);
       } catch (err) {
-        console.error('지수 계산 실패:', err)
+        if (!cancelled) {
+          console.error('지수 계산 실패:', err);
+        }
       }
-    }
-  
-    fetchData()
-  }, [])
-  
+    };
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
-    if (!containerRef.current || window.innerWidth < 768) return
+    if (!containerRef.current || window.innerWidth < 768) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
         leftRef.current,
         { y: 160 },
         {
-          y: 80,
+          y: 0,
           ease: 'none',
           scrollTrigger: {
             trigger: containerRef.current,
@@ -99,7 +139,7 @@ const TrendSection = () => {
             scrub: true,
           },
         }
-      )
+      );
 
       gsap.fromTo(
         rightRef.current,
@@ -114,11 +154,11 @@ const TrendSection = () => {
             scrub: true,
           },
         }
-      )
-    }, containerRef)
+      );
+    }, containerRef);
 
-    return () => ctx.revert()
-  }, [])
+    return () => ctx.revert();
+  }, []);
 
   const renderList = (coins: CoinChange[], isRise: boolean) => (
     <ol className="space-y-2 text-sm text-left">
@@ -131,7 +171,11 @@ const TrendSection = () => {
             <span className="min-w-16 text-right">
               {coin.trade_price.toLocaleString()} 원
             </span>
-            <span className={`w-16 pr-2 xs:pr-0 text-right ${isRise ? 'text-red-400' : 'text-blue-400'}`}>
+            <span
+              className={`w-16 pr-2 xs:pr-0 text-right ${
+                isRise ? 'text-red-400' : 'text-blue-400'
+              }`}
+            >
               {isRise ? '+' : ''}
               {(coin.signed_change_rate * 100).toFixed(1)}%
             </span>
@@ -139,7 +183,7 @@ const TrendSection = () => {
         </li>
       ))}
     </ol>
-  )
+  );
 
   return (
     <div ref={containerRef} className="text-center space-y-10 px-6">
@@ -151,34 +195,51 @@ const TrendSection = () => {
             className="flex-1 bg-white/5 rounded-xl px-6 py-6 shadow flex flex-col gap-4 justify-center md:max-h-[300px]"
           >
             <div>
-              <h2 className="text-2xl font-bold text-neutral-100 mb-8">디지털 자산 거래규모</h2>
+              <h2 className="text-2xl font-bold text-neutral-100 mb-8">
+                디지털 자산 거래규모
+              </h2>
               <div className="space-y-6">
                 <div>
-                  <p className="text-neutral-400 text-lg pb-1">Market 거래규모</p>
-                  <p className="text-3xl font-bold text-neutral-100">{(animatedUBMV / 1e8).toFixed(0)}억 원</p>
+                  <p className="text-neutral-400 text-lg pb-1">
+                    Market 거래규모
+                  </p>
+                  <p className="text-3xl font-bold text-neutral-100">
+                    {(animatedUBMV / 1e8).toFixed(0)}억 원
+                  </p>
                 </div>
                 <div>
-                  <p className="text-neutral-400 text-lg pb-1">Altcoin 거래규모</p>
-                  <p className="text-3xl font-bold text-neutral-100">{(animatedUBAV / 1e8).toFixed(0)}억 원</p>
+                  <p className="text-neutral-400 text-lg pb-1">
+                    Altcoin 거래규모
+                  </p>
+                  <p className="text-3xl font-bold text-neutral-100">
+                    {(animatedUBAV / 1e8).toFixed(0)}억 원
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div ref={rightRef} className="flex-1 grid sm:grid-cols-2 gap-6 md:gap-12">
+          <div
+            ref={rightRef}
+            className="flex-1 grid sm:grid-cols-2 gap-6 md:gap-12"
+          >
             <div className="bg-white/5 rounded-xl p-4 shadow min-w-[320px] md:w-[380px] overflow-x-auto whitespace-nowrap">
-              <h3 className="text-xl font-semibold mb-4">오늘의 급등 Top 5</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                오늘의 급등 Top 5
+              </h3>
               {renderList(topRise, true)}
             </div>
             <div className="bg-white/5 rounded-xl p-4 shadow min-w-[320px] md:w-[380px] overflow-x-auto whitespace-nowrap">
-              <h3 className="text-xl font-semibold mb-4">오늘의 급락 Top 5</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                오늘의 급락 Top 5
+              </h3>
               {renderList(topFall, false)}
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TrendSection
+export default TrendSection;

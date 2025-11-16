@@ -1,39 +1,43 @@
-'use client'
+'use client';
 
-import { useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 const TrendDescription = () => {
-  const ref = useRef<HTMLDivElement>(null)
-  const router = useRouter()
+  const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!ref.current) return
+    if (!ref.current) return;
 
-    gsap.fromTo(
-      ref.current,
-      { opacity: 0, y: 40 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: ref.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-      }
-    )
-  }, [])
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ref.current,
+        { opacity: 0, y: 80 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: ref.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+    }, ref);
+
+    return () => ctx.revert();
+  }, []);
 
   const handleTrendClick = () => {
-    router.push('/trends')
-  }
+    router.push('/trends');
+  };
 
   return (
     <div
@@ -54,7 +58,7 @@ const TrendDescription = () => {
         </span>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TrendDescription
+export default TrendDescription;
