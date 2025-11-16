@@ -10,14 +10,19 @@ import dynamic from 'next/dynamic';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const CoinChart = dynamic(() => import('@/components/chart/CoinChartWrapper'), {
-  ssr: false,
-  loading: () => (
-    <div className="text-white text-xs px-4 py-2 h-full flex items-center justify-center">
-      차트를 불러오는 중...
-    </div>
-  ),
-});
+const ChartLoading = () => (
+  <div className="w-full h-full flex items-center justify-center text-white text-xs px-4 py-2">
+    차트를 불러오는 중...
+  </div>
+);
+
+const CoinChart = dynamic(
+  () => import('@/components/chart/CoinChart'),
+  {
+    ssr: false,
+    loading: () => <ChartLoading />,
+  }
+);
 
 const ChartSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -39,6 +44,7 @@ const ChartSection = () => {
       const vh = window.innerHeight;
       const cw = chartEl.offsetWidth;
       const ch = chartEl.offsetHeight;
+      if (!cw || !ch) return;
 
       const scaleX = vw / cw;
       const scaleY = vh / ch;
@@ -48,6 +54,10 @@ const ChartSection = () => {
         scale,
         transformOrigin: 'bottom center',
       });
+    };
+
+    const ctx = gsap.context(() => {
+      updateScale();
 
       gsap.to(chartEl, {
         scale: 1,
@@ -60,21 +70,23 @@ const ChartSection = () => {
           scrub: true,
         },
       });
+    }, sectionRef);
+
+    const handleResize = () => {
+      updateScale();
+      ScrollTrigger.refresh();
     };
 
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        updateScale();
+    window.addEventListener('resize', handleResize);
 
-        setTimeout(() => setShowChart(true), 2000);
-      }, 32);
-    });
-
-    window.addEventListener('resize', updateScale);
+    const showChartTimeout = window.setTimeout(() => {
+      setShowChart(true);
+    }, 2000);
 
     return () => {
-      window.removeEventListener('resize', updateScale);
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      window.removeEventListener('resize', handleResize);
+      window.clearTimeout(showChartTimeout);
+      ctx.revert();
     };
   }, []);
 
@@ -102,9 +114,7 @@ const ChartSection = () => {
           {showChart ? (
             <CoinChart market={market} disableZoom />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-white text-xs">
-              차트를 불러오는 중...
-            </div>
+            <ChartLoading />
           )}
         </div>
       </div>
