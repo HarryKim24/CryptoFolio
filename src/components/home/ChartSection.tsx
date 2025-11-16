@@ -13,7 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 const CoinChart = dynamic(() => import('@/components/chart/CoinChartWrapper'), {
   ssr: false,
   loading: () => (
-    <div className="text-white text-sm px-4 py-2 h-full flex items-center justify-center">
+    <div className="text-white text-xs px-4 py-2 h-full flex items-center justify-center">
       차트를 불러오는 중...
     </div>
   ),

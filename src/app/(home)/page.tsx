@@ -1,10 +1,10 @@
 import MainSection from "@/components/home/MainSection";
+import Footer from "@/components/home/Footer";
 import dynamic from "next/dynamic";
 
 const ChartSection = dynamic(() => import("@/components/home/ChartSection"));
 const TrendSection = dynamic(() => import("@/components/home/TrendSection"));
 const PortfolioSection = dynamic(() => import("@/components/home/PortfolioSection"));
-const Footer = dynamic(() => import("@/components/home/Footer"));
 
 const HomePage = () => {
   return (
