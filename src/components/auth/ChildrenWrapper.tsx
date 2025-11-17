@@ -9,9 +9,8 @@ const ChildrenWrapper = ({ children }: { children: React.ReactNode }) => {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        delay: 0.5,
-        y: { duration: 2, ease: "easeOut" },
-        opacity: { delay: 1, duration: 2, ease: "easeOut" },
+        y: { duration: 1, ease: "easeOut" },
+        opacity: { duration: 1, ease: "easeOut" },
       }}
       className="p-[1px] rounded-xl bg-second-gradient shadow-2xl w-full mb-20"
     >

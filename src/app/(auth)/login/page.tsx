@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import TextInput from "@/components/auth/TextInput";
-import PasswordInput from "@/components/auth/PasswordInput";
 import { triggerError } from "@/utils/triggerError";
 import SubmitButton from "@/components/auth/SubmitButton";
 import AuthForm from "@/components/auth/AuthForm";
+import AuthInput from "@/components/auth/AuthInput";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +17,9 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const showError = (message: string) => triggerError(setError, setShake, message);
+  const showError = (message: string) => {
+    triggerError(setError, setShake, message);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,19 +48,23 @@ const LoginPage = () => {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-neutral-100 mb-2 text-center">로그인</h1>
+      <h1 className="text-2xl font-bold text-neutral-100 mb-2 text-center">
+        로그인
+      </h1>
 
       <AuthForm onSubmit={handleLogin} error={error} shake={shake}>
-        <TextInput
+        <AuthInput
           type="email"
           placeholder="이메일"
           value={email}
           onChange={setEmail}
         />
-        <PasswordInput
+        <AuthInput
+          type="password"
+          placeholder="비밀번호"
           value={password}
           onChange={setPassword}
-          placeholder="비밀번호"
+          showPasswordToggle
         />
         <SubmitButton
           loading={loading}
@@ -71,7 +76,10 @@ const LoginPage = () => {
 
       <div className="text-sm text-center text-neutral-100 mt-6">
         계정이 없으신가요?{" "}
-        <Link href="/register" className="text-secondary hover:underline focus:outline-none">
+        <Link
+          href="/register"
+          className="text-secondary hover:underline focus:outline-none"
+        >
           회원가입
         </Link>
       </div>

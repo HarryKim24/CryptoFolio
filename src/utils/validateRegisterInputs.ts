@@ -1,11 +1,15 @@
-const validateRegisterInputs = (
+type ValidationResult = { 
+  valid: boolean; 
+  message?: string 
+};
+
+const validateUserPayload = (
   email: string,
   password: string,
-  name: string,
-  confirmPassword: string
-): { valid: boolean; message?: string } => {
-  if (!email || !password || !name || !confirmPassword) {
-    return { valid: false, message: "모든 필드를 입력하세요." };
+  name: string
+): ValidationResult => {
+  if (!email || !password || !name) {
+    return { valid: false, message: "모든 필드를 입력하세요" };
   }
 
   const nameRegex = /^[가-힣a-zA-Z]{1,8}$/;
@@ -18,15 +22,31 @@ const validateRegisterInputs = (
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return { valid: false, message: "유효한 이메일 형식을 입력하세요." };
+    return { valid: false, message: "유효한 이메일 형식이 아닙니다" };
   }
 
-  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/;
   if (!passwordRegex.test(password)) {
     return {
       valid: false,
-      message: "비밀번호는 영문과 숫자를 포함한 8자 이상이어야 합니다.",
+      message: "비밀번호는 영문과 숫자를 포함한 8자 이상이어야 합니다",
     };
+  }
+
+  return { valid: true };
+};
+
+const validateRegisterInputs = (
+  email: string,
+  password: string,
+  name: string,
+  confirmPassword: string
+): ValidationResult => {
+  const baseResult = validateUserPayload(email, password, name);
+  if (!baseResult.valid) return baseResult;
+
+  if (!confirmPassword) {
+    return { valid: false, message: "모든 필드를 입력하세요" };
   }
 
   if (password !== confirmPassword) {
@@ -36,4 +56,4 @@ const validateRegisterInputs = (
   return { valid: true };
 };
 
-export { validateRegisterInputs };
+export { validateUserPayload, validateRegisterInputs };
