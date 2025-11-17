@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { User } from "@/types/user";
 import { validateRegisterInputs } from "@/utils/validateRegisterInputs";
-import TextInput from "@/components/auth/TextInput";
-import PasswordInput from "@/components/auth/PasswordInput";
 import { triggerError } from "@/utils/triggerError";
 import SubmitButton from "@/components/auth/SubmitButton";
 import AuthForm from "@/components/auth/AuthForm";
+import AuthInput from "@/components/auth/AuthInput";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState<User["email"]>("");
@@ -21,19 +20,29 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const showError = (message: string) => triggerError(setError, setShake, message);
+  const showError = (message: string) =>
+    triggerError(setError, setShake, message);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
 
-    const result = validateRegisterInputs(email, password, name, confirmPassword);
+    const result = validateRegisterInputs(
+      email,
+      password,
+      name,
+      confirmPassword
+    );
     if (!result.valid) {
       showError(result.message!);
       return;
     }
 
-    const user: Pick<User, "email" | "password" | "name"> = { email, password, name };
+    const user: Pick<User, "email" | "password" | "name"> = {
+      email,
+      password,
+      name,
+    };
 
     try {
       setLoading(true);
@@ -58,13 +67,37 @@ const RegisterPage = () => {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-neutral-100 mb-2 text-center">회원가입</h1>
+      <h1 className="text-2xl font-bold text-neutral-100 mb-2 text-center">
+        회원가입
+      </h1>
 
       <AuthForm onSubmit={handleRegister} error={error} shake={shake}>
-        <TextInput type="text" placeholder="이름" value={name} onChange={setName} />
-        <TextInput type="email" placeholder="이메일" value={email} onChange={setEmail} />
-        <PasswordInput value={password} onChange={setPassword} placeholder="비밀번호" />
-        <PasswordInput value={confirmPassword} onChange={setConfirmPassword} placeholder="비밀번호 확인" />
+        <AuthInput
+          type="text"
+          placeholder="이름"
+          value={name}
+          onChange={setName}
+        />
+        <AuthInput
+          type="email"
+          placeholder="이메일"
+          value={email}
+          onChange={setEmail}
+        />
+        <AuthInput
+          type="password"
+          placeholder="비밀번호"
+          value={password}
+          onChange={setPassword}
+          showPasswordToggle
+        />
+        <AuthInput
+          type="password"
+          placeholder="비밀번호 확인"
+          value={confirmPassword}
+          onChange={setConfirmPassword}
+          showPasswordToggle
+        />
         <SubmitButton
           loading={loading}
           idleText="회원가입"
@@ -75,7 +108,10 @@ const RegisterPage = () => {
 
       <div className="text-sm text-center text-neutral-100 mt-6">
         이미 계정이 있으신가요?{" "}
-        <Link href="/login" className="text-secondary hover:underline focus:outline-none">
+        <Link
+          href="/login"
+          className="text-secondary hover:underline focus:outline-none"
+        >
           로그인
         </Link>
       </div>

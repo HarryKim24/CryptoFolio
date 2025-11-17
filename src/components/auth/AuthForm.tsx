@@ -10,12 +10,10 @@ type Props = {
 
 const AuthForm = ({ onSubmit, error, shake, children }: Props) => {
   return (
-    <>
+    <form className="space-y-4" onSubmit={onSubmit} noValidate>
       <ErrorMessage message={error} shake={shake} />
-      <form className="space-y-4" onSubmit={onSubmit} noValidate>
-        {children}
-      </form>
-    </>
+      {children}
+    </form>
   );
 };
 

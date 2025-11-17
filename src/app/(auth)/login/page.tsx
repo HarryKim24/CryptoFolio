@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import TextInput from "@/components/auth/TextInput";
-import PasswordInput from "@/components/auth/PasswordInput";
 import { triggerError } from "@/utils/triggerError";
 import SubmitButton from "@/components/auth/SubmitButton";
 import AuthForm from "@/components/auth/AuthForm";
+import AuthInput from "@/components/auth/AuthInput";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -54,16 +53,18 @@ const LoginPage = () => {
       </h1>
 
       <AuthForm onSubmit={handleLogin} error={error} shake={shake}>
-        <TextInput
+        <AuthInput
           type="email"
           placeholder="이메일"
           value={email}
           onChange={setEmail}
         />
-        <PasswordInput
+        <AuthInput
+          type="password"
+          placeholder="비밀번호"
           value={password}
           onChange={setPassword}
-          placeholder="비밀번호"
+          showPasswordToggle
         />
         <SubmitButton
           loading={loading}
