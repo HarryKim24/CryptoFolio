@@ -18,7 +18,9 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const showError = (message: string) => triggerError(setError, setShake, message);
+  const showError = (message: string) => {
+    triggerError(setError, setShake, message);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +49,9 @@ const LoginPage = () => {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-neutral-100 mb-2 text-center">로그인</h1>
+      <h1 className="text-2xl font-bold text-neutral-100 mb-2 text-center">
+        로그인
+      </h1>
 
       <AuthForm onSubmit={handleLogin} error={error} shake={shake}>
         <TextInput
@@ -71,7 +75,10 @@ const LoginPage = () => {
 
       <div className="text-sm text-center text-neutral-100 mt-6">
         계정이 없으신가요?{" "}
-        <Link href="/register" className="text-secondary hover:underline focus:outline-none">
+        <Link
+          href="/register"
+          className="text-secondary hover:underline focus:outline-none"
+        >
           회원가입
         </Link>
       </div>
