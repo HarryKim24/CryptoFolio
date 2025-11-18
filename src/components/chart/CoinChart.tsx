@@ -4,10 +4,10 @@ import dynamic from 'next/dynamic';
 import React, { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import useCandles from '@/hooks/useCandles';
-import { CandleType, GetCandlesOptions } from '@/types/upbitCandle';
 import { ApexOptions } from 'apexcharts';
 import { fetchNormalizedCandles } from '@/utils/fetchCandles';
 import { formatNumberForDisplay } from '@/utils/formatNumber';
+import { CandleType, GetCandlesOptions } from '@/types/upbitTypes';
 
 const BaseApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 const ReactApexChart = React.memo(BaseApexChart);
