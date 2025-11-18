@@ -7,22 +7,11 @@ import dynamic from "next/dynamic";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useUpbitTickerStore } from "@/stores/upbitTickerStore";
 import { parseMarketTab, MarketTab } from "@/lib/market";
-
-const CoinDetail = dynamic(() => import("@/components/chart/CoinDetail"), {
-  ssr: false,
-});
+import CoinDetail from "@/components/chart/CoinDetail";
+import CoinList from "@/components/chart/CoinList";
 
 const CoinChart = dynamic(() => import("@/components/chart/CoinChart"), {
   ssr: false,
-});
-
-const CoinList = dynamic(() => import("@/components/chart/CoinList"), {
-  ssr: false,
-  loading: () => (
-    <div className="text-sm h-full flex justify-center items-center text-neutral-300 bg-white/5 rounded-xl shadow">
-      로딩 중입니다...
-    </div>
-  ),
 });
 
 const ChartPage = () => {
