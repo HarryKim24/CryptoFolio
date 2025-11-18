@@ -1,46 +1,44 @@
 "use client";
 
-export const dynamic = "force-static";
-
+import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Market } from "@/types/upbitTypes";
+import dynamic from "next/dynamic";
 import useIsMobile from "@/hooks/useIsMobile";
-import _dynamic from "next/dynamic";
 import { useUpbitTickerStore } from "@/stores/upbitTickerStore";
+import { parseMarketTab, MarketTab } from "@/lib/market";
 
-const CoinDetail = _dynamic(() => import("@/components/chart/CoinDetail"), { ssr: false });
-const CoinChart = _dynamic(() => import("@/components/chart/CoinChart"), { ssr: false });
-const CoinList = _dynamic(() => import("@/components/chart/CoinList"), { ssr: false });
+const CoinDetail = dynamic(() => import("@/components/chart/CoinDetail"), {
+  ssr: false,
+});
 
-type MarketTab = "KRW" | "BTC" | "USDT";
+const CoinChart = dynamic(() => import("@/components/chart/CoinChart"), {
+  ssr: false,
+});
+
+const CoinList = dynamic(() => import("@/components/chart/CoinList"), {
+  ssr: false,
+});
 
 const ChartPage = () => {
   const params = useParams();
+  const market = typeof params?.id === "string" ? params.id : "";
 
   const tickers = useUpbitTickerStore((s) => s.tickers);
   const markets = useUpbitTickerStore((s) => s.markets);
   const loading = useUpbitTickerStore((s) => s.loading);
 
-  const market = typeof params?.id === "string" ? params.id : "";
   const [view, setView] = useState<"chart" | "list">("chart");
   const isMobile = useIsMobile();
 
   const isInitialLoading =
     loading || !market || Object.keys(tickers).length === 0 || markets.length === 0;
 
-  const isInvalidMarket = useMemo(() => {
-    return (
-      !isInitialLoading &&
-      (!market.includes("-") || !markets.find((m: Market) => m.market === market))
-    );
-  }, [market, isInitialLoading, markets]);
+  const isInvalidMarket =
+    !isInitialLoading &&
+    (!market.includes("-") || !markets.some((m) => m.market === market));
 
-  const tab = useMemo(() => {
-    const prefix = market.split("-")[0];
-    return (["KRW", "BTC", "USDT"].includes(prefix) ? prefix : "KRW") as MarketTab;
-  }, [market]);
+  const tab: MarketTab = parseMarketTab(market);
 
   return (
     <div className="flex-1 h-full overflow-hidden relative flex flex-col">
@@ -56,7 +54,11 @@ const ChartPage = () => {
           )}
 
           <div className="flex-1 relative min-h-0 flex flex-col overflow-hidden">
-            {isInvalidMarket ? (
+            {isInitialLoading ? (
+              <div className="flex justify-center items-center h-full text-neutral-300">
+                로딩 중입니다...
+              </div>
+            ) : isInvalidMarket ? (
               <div className="flex justify-center items-center h-full text-neutral-100">
                 잘못된 경로입니다.
               </div>

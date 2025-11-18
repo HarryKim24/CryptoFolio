@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useMemo } from "react";
-import CoinCautionBadge from "./CautionBadge";
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
+import CoinCautionBadge from "./CautionBadge";
 import { Market } from "@/types/upbitTypes";
 import { useUpbitTickerStore } from "@/stores/upbitTickerStore";
 
@@ -35,7 +35,7 @@ const CoinDetail = ({
   const [prefix, symbol] = market.split("-");
   const validMarkets = ["KRW", "BTC", "USDT"] as const;
 
-  const coinSymbol = validMarkets.includes(prefix as typeof validMarkets[number])
+  const coinSymbol = validMarkets.includes(prefix as (typeof validMarkets)[number])
     ? symbol ?? "N/A"
     : "N/A";
 
@@ -67,7 +67,9 @@ const CoinDetail = ({
   return (
     <div className="border-b border-white/10">
       <div
-        className={`md:h-[119px] p-4 ${isChartSection ? "pr-4" : "pr-0"} md:pr-4 flex justify-between items-start gap-2 lg:gap-4`}
+        className={`md:h-[119px] p-4 ${
+          isChartSection ? "pr-4" : "pr-0"
+        } md:pr-4 flex justify-between items-start gap-2 lg:gap-4`}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 font-medium whitespace-nowrap">
@@ -78,7 +80,9 @@ const CoinDetail = ({
               ({coinSymbol})
             </span>
           </div>
-          <div className="text-sm md:text-base lg:text-xl text-gray-400 truncate">{market}</div>
+          <div className="text-sm md:text-base lg:text-xl text-gray-400 truncate">
+            {market}
+          </div>
           <div className="mt-1 min-h-[20px]">
             {marketInfo && <CoinCautionBadge caution={marketInfo.market_event?.caution} />}
           </div>
