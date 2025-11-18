@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { GetCandlesOptions, NormalizedCandle } from '@/types/upbitCandle';
 import { fetchNormalizedCandles } from '@/utils/fetchCandles';
 import axios from 'axios';
+import { GetCandlesOptions, NormalizedCandle } from '@/types/upbitTypes';
 
 const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
 

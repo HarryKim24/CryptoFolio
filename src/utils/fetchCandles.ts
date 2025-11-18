@@ -1,5 +1,5 @@
 import { getUpbitCandles } from "@/api/upbitCandle";
-import type { CandleType, GetCandlesOptions, NormalizedCandle, upbitCandle } from "@/types/upbitCandle";
+import { CandleType, GetCandlesOptions, NormalizedCandle, upbitCandle } from "@/types/upbitTypes";
 
 const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] =>
   candles.map((candle) => ({

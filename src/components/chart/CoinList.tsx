@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from 'react';
-import CoinListItem from '@/components/chart/CoinListItem';
-import CoinListHeader from '@/components/chart/CoinListHeader';
-import { CautionType } from '@/types/upbitTypes';
-import { getChosung } from '@/utils/getChosung';
-import { useUpbitTickerStore } from '@/stores/upbitTickerStore';
+import React, { useMemo, useState, useEffect } from "react";
+import CoinListItem from "@/components/chart/CoinListItem";
+import CoinListHeader from "@/components/chart/CoinListHeader";
+import type { Ticker, CautionType } from "@/types/upbitTypes";
+import { getChosung } from "@/utils/getChosung";
+import { useUpbitTickerStore } from "@/stores/upbitTickerStore";
+import { MarketTab } from "@/lib/market";
 
-type SortKey = 'korean_name' | 'trade_price' | 'signed_change_rate' | 'acc_trade_price_24h';
-type SortDirection = 'asc' | 'desc';
-type MarketTab = 'KRW' | 'BTC' | 'USDT';
+type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
+
+type TickerSortKey = Exclude<SortKey, "korean_name">;
+type SortDirection = "asc" | "desc";
 
 type Props = {
   initialTab: MarketTab;
@@ -17,62 +19,72 @@ type Props = {
   onClickSameMarket?: () => void;
 };
 
+type CombinedItem = {
+  ticker: Ticker;
+  korean_name: string;
+  english_name: string;
+  caution?: CautionType;
+};
+
 const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
-  const tickers = useUpbitTickerStore((s) => s.tickers);
+  const tickers = useUpbitTickerStore((s) => s.tickers) as Record<string, Ticker>;
   const markets = useUpbitTickerStore((s) => s.markets);
   const loading = useUpbitTickerStore((s) => s.loading);
 
-  const [activeTab, setActiveTab] = useState<MarketTab>('KRW');
-  const [sortKey, setSortKey] = useState<SortKey>('acc_trade_price_24h');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState<MarketTab>("KRW");
+  const [sortKey, setSortKey] = useState<SortKey>("acc_trade_price_24h");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const isLoading = loading || Object.keys(tickers).length === 0 || markets.length === 0;
+  const isLoading =
+    loading || !currentMarket || Object.keys(tickers).length === 0 || markets.length === 0;
 
   useEffect(() => {
-    const stored = localStorage.getItem('activeTab') as MarketTab | null;
-    if (stored && ['KRW', 'BTC', 'USDT'].includes(stored)) setActiveTab(stored);
-    else setActiveTab(initialTab);
+    const stored = localStorage.getItem("activeTab") as MarketTab | null;
+    if (stored && ["KRW", "BTC", "USDT"].includes(stored)) {
+      setActiveTab(stored);
+    } else {
+      setActiveTab(initialTab);
+    }
   }, [initialTab]);
 
   const handleTabClick = (tab: MarketTab) => {
-    localStorage.setItem('activeTab', tab);
+    localStorage.setItem("activeTab", tab);
     setActiveTab(tab);
   };
 
-  const combined = useMemo(() => {
+  const combined: CombinedItem[] = useMemo(() => {
     if (isLoading) return [];
+
     return Object.values(tickers)
       .filter((t) => t.market.startsWith(`${activeTab}-`))
-      .map((t) => {
+      .flatMap((t) => {
         const marketInfo = markets.find((m) => m.market === t.market);
-        return marketInfo
-          ? {
-              ticker: t,
-              korean_name: marketInfo.korean_name,
-              english_name: marketInfo.english_name,
-              caution: marketInfo.market_event?.caution as CautionType | undefined,
-            }
-          : null;
-      })
-      .filter(Boolean) as {
-        ticker: typeof tickers[string];
-        korean_name: string;
-        english_name: string;
-        caution?: CautionType;
-      }[];
+        if (!marketInfo) return [];
+        return [
+          {
+            ticker: t,
+            korean_name: marketInfo.korean_name,
+            english_name: marketInfo.english_name,
+            caution: marketInfo.market_event?.caution as CautionType | undefined,
+          },
+        ];
+      });
   }, [tickers, markets, activeTab, isLoading]);
 
   const sorted = useMemo(() => {
     return [...combined].sort((a, b) => {
-      if (sortKey === 'korean_name') {
-        return sortDirection === 'asc'
+      if (sortKey === "korean_name") {
+        return sortDirection === "asc"
           ? a.korean_name.localeCompare(b.korean_name)
           : b.korean_name.localeCompare(a.korean_name);
       }
-      const av = a.ticker[sortKey] as number;
-      const bv = b.ticker[sortKey] as number;
-      return sortDirection === 'asc' ? av - bv : bv - av;
+
+      const key = sortKey as TickerSortKey;
+      const av = a.ticker[key] as number;
+      const bv = b.ticker[key] as number;
+
+      return sortDirection === "asc" ? av - bv : bv - av;
     });
   }, [combined, sortKey, sortDirection]);
 
@@ -82,31 +94,36 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     const choTerm = isChosungOnly ? getChosung(term) : null;
 
     return sorted.filter(({ ticker, korean_name, english_name }) => {
-      const symbol = ticker.market.replace(`${activeTab}-`, '').toLowerCase();
+      const symbol = ticker.market.replace(`${activeTab}-`, "").toLowerCase();
       const choName = getChosung(korean_name);
+
       return (
         korean_name.toLowerCase().includes(term) ||
         english_name.toLowerCase().includes(term) ||
         symbol.includes(term) ||
-        (isChosungOnly && choName.includes(choTerm!))
+        (isChosungOnly && choTerm !== null && choName.includes(choTerm))
       );
     });
   }, [sorted, searchTerm, activeTab]);
 
-  const dummyList = Array.from({ length: 10 }).map((_, idx) => ({
-    market: `${activeTab}-MARKET${idx}`,
-  }));
+  const dummyList = useMemo(
+    () =>
+      Array.from({ length: 10 }).map((_, idx) => ({
+        market: `${activeTab}-MARKET${idx}`,
+      })),
+    [activeTab]
+  );
 
   return (
     <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
-      <div className="sticky z-10">
+      <div className="sticky top-0 z-10 bg-white/5 backdrop-blur">
         <div className="flex justify-center gap-12 border-b border-white/10 p-2">
-          {(['KRW', 'BTC', 'USDT'] as MarketTab[]).map((tab) => (
+          {(["KRW", "BTC", "USDT"] as MarketTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabClick(tab)}
               className={`pb-1 font-semibold ${
-                activeTab === tab ? 'border-b-2 border-neutral-100' : 'text-gray-400'
+                activeTab === tab ? "border-b-2 border-neutral-100" : "text-gray-400"
               }`}
             >
               {tab}
@@ -133,27 +150,29 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1">
-        {isLoading
-          ? dummyList.map((dummy) => (
-              <CoinListItem key={dummy.market} market={dummy.market} isLoading />
-            ))
-          : filtered.length === 0
-          ? (
-            <div className="text-center text-gray-400 py-8">검색 결과가 없습니다.</div>
-          ) : (
-            filtered.map(({ ticker, korean_name, caution }) => (
-              <CoinListItem
-                key={ticker.market}
-                ticker={ticker}
-                korean_name={korean_name}
-                caution={caution}
-                market={ticker.market}
-                onClickSameMarket={
-                  ticker.market === currentMarket ? onClickSameMarket : undefined
-                }
-              />
-            ))
-          )}
+        {isLoading &&
+          dummyList.map((dummy) => (
+            <CoinListItem key={dummy.market} isLoading market={dummy.market} />
+          ))}
+
+        {!isLoading && filtered.length === 0 && (
+          <div className="text-center text-gray-400 py-8">검색 결과가 없습니다.</div>
+        )}
+
+        {!isLoading &&
+          filtered.length > 0 &&
+          filtered.map(({ ticker, korean_name, caution }) => (
+            <CoinListItem
+              key={ticker.market}
+              ticker={ticker}
+              korean_name={korean_name}
+              caution={caution}
+              market={ticker.market}
+              onClickSameMarket={
+                ticker.market === currentMarket ? onClickSameMarket : undefined
+              }
+            />
+          ))}
       </div>
     </div>
   );

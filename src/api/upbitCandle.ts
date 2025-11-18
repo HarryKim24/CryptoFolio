@@ -1,5 +1,5 @@
+import { GetCandlesOptions, upbitCandle } from "@/types/upbitTypes";
 import axios from "axios";
-import type { GetCandlesOptions, upbitCandle } from "@/types/upbitCandle";
 
 export const getUpbitCandles = async (
   {

@@ -68,6 +68,13 @@ export interface CautionFlags {
   CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
 }
 
+export type CautionType = CautionFlags;
+
+export interface MarketEvent {
+  warning: boolean;
+  caution: CautionFlags;
+}
+
 export interface Market {
   market: string;
   korean_name: string;
@@ -75,22 +82,4 @@ export interface Market {
   market_event?: MarketEvent;
 }
 
-export interface MarketEvent {
-  warning: boolean;
-  caution: CautionFlags;
-}
-
-export interface MarketInfo {
-  market: string;
-  korean_name: string;
-  english_name: string;
-  market_event?: MarketEvent;
-}
-
-export type CautionType = {
-  PRICE_FLUCTUATIONS: boolean;
-  TRADING_VOLUME_SOARING: boolean;
-  DEPOSIT_AMOUNT_SOARING: boolean;
-  GLOBAL_PRICE_DIFFERENCES: boolean;
-  CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
-};
+export type MarketInfo = Market;
