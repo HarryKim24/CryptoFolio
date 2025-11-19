@@ -1,12 +1,12 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import dynamic from 'next/dynamic';
 import CoinDetail from '@/components/chart/CoinDetail';
 import ChartDescription from '@/components/home/ChartDescription';
-import dynamic from 'next/dynamic';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,55 +16,49 @@ const ChartLoading = () => (
   </div>
 );
 
-const CoinChart = dynamic(
-  () => import('@/components/chart/CoinChart'),
-  {
-    ssr: false,
-    loading: () => <ChartLoading />,
-  }
-);
+const CoinChart = dynamic(() => import('@/components/chart/CoinChart'), {
+  ssr: false,
+  loading: () => <ChartLoading />,
+});
 
 const ChartSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
-
   const [showChart, setShowChart] = useState(false);
 
   const market = 'KRW-BTC';
-  const isMobile = false;
-  const view = 'chart';
+
+  const updateScale = useCallback(() => {
+    const chartEl = chartRef.current;
+    if (!chartEl) return;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const cw = chartEl.offsetWidth;
+    const ch = chartEl.offsetHeight;
+
+    if (!cw || !ch) return;
+
+    const scale = Math.min(vw / cw, vh / ch);
+    
+    gsap.set(chartEl, {
+      scale,
+      transformOrigin: 'bottom center',
+    });
+  }, []);
 
   useEffect(() => {
-    const chartEl = chartRef.current;
-    const sectionEl = sectionRef.current;
-    if (!chartEl || !sectionEl) return;
-
-    const updateScale = () => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const cw = chartEl.offsetWidth;
-      const ch = chartEl.offsetHeight;
-      if (!cw || !ch) return;
-
-      const scaleX = vw / cw;
-      const scaleY = vh / ch;
-      const scale = Math.min(scaleX, scaleY);
-
-      gsap.set(chartEl, {
-        scale,
-        transformOrigin: 'bottom center',
-      });
-    };
+    if (!chartRef.current || !sectionRef.current) return;
 
     const ctx = gsap.context(() => {
       updateScale();
 
-      gsap.to(chartEl, {
+      gsap.to(chartRef.current, {
         scale: 1,
         y: 0,
         ease: 'power2.out',
         scrollTrigger: {
-          trigger: sectionEl,
+          trigger: sectionRef.current,
           start: 'top 60%',
           end: 'top top',
           scrub: true,
@@ -78,17 +72,15 @@ const ChartSection = () => {
     };
 
     window.addEventListener('resize', handleResize);
-
-    const showChartTimeout = window.setTimeout(() => {
-      setShowChart(true);
-    }, 2000);
+    
+    const timerId = window.setTimeout(() => setShowChart(true), 500);
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      window.clearTimeout(showChartTimeout);
+      window.clearTimeout(timerId);
       ctx.revert();
     };
-  }, []);
+  }, [updateScale]);
 
   return (
     <motion.div
@@ -104,18 +96,14 @@ const ChartSection = () => {
       >
         <CoinDetail
           market={market}
-          isMobile={isMobile}
-          view={view}
+          isMobile={false}
+          view="chart"
           onToggleView={() => {}}
           isChartSection={true}
         />
 
         <div className="flex-1 relative min-h-0">
-          {showChart ? (
-            <CoinChart market={market} disableZoom />
-          ) : (
-            <ChartLoading />
-          )}
+          {showChart ? <CoinChart market={market} disableZoom /> : <ChartLoading />}
         </div>
       </div>
 

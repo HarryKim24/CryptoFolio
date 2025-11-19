@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -9,35 +9,38 @@ gsap.registerPlugin(ScrollTrigger);
 
 const TrendDescription = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (!ref.current) return;
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ref.current,
-        { opacity: 0, y: 80 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: ref.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-    }, ref);
+    const mm = gsap.matchMedia();
 
-    return () => ctx.revert();
+    mm.add(
+      {
+        isMobile: "(max-width: 767px)",
+        isDesktop: "(min-width: 768px)",
+      },
+      () => {
+        gsap.fromTo(
+          ref.current,
+          { opacity: 0, y: 80 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1.2,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: ref.current,
+              start: 'top 80%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      }
+    );
+
+    return () => mm.revert();
   }, []);
-
-  const handleTrendClick = () => {
-    router.push('/trends');
-  };
 
   return (
     <div
@@ -49,12 +52,12 @@ const TrendDescription = () => {
         <span>변화하는</span>
         <span>
           시장{' '}
-          <span
-            onClick={handleTrendClick}
-            className="text-trend brightness-200 whitespace-nowrap cursor-pointer"
+          <Link
+            href="/trends"
+            className="text-trend brightness-200 whitespace-nowrap cursor-pointer hover:brightness-150 transition-all"
           >
             트렌드
-          </span>
+          </Link>
         </span>
       </div>
     </div>
