@@ -1,3 +1,5 @@
+import React from 'react';
+
 const BackgroundLayers = () => {
   return (
     <>
@@ -5,9 +7,9 @@ const BackgroundLayers = () => {
       <div className="bg-global bg-chart-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
       <div className="bg-global bg-trends-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
       <div className="bg-global bg-portfolio-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
-      <div className="bg-global fixed inset-0 z-0 opacity-0 pointer-events-none" />
+      <div className="bg-global fixed inset-0 z-0 opacity-0 pointer-events-none bg-neutral-900" /> 
     </>
   );
 };
 
-export default BackgroundLayers;
+export default React.memo(BackgroundLayers);

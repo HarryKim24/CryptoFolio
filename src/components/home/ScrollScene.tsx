@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useLayoutEffect, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const ScrollScene = () => {
-  useEffect(() => {
-    const sections = Array.from(
-      document.querySelectorAll<HTMLElement>('.panel')
-    );
-    const layers = Array.from(
-      document.querySelectorAll<HTMLElement>('.bg-global')
-    );
+  useIsomorphicLayoutEffect(() => {
+    const sections = gsap.utils.toArray<HTMLElement>('.panel');
+    const layers = gsap.utils.toArray<HTMLElement>('.bg-global');
 
     if (!sections.length || !layers.length) return;
 
@@ -42,7 +42,6 @@ const ScrollScene = () => {
 
         if (i > 0) {
           const prevLayer = layers[i - 1];
-
           gsap.to(prevLayer, {
             opacity: 0,
             duration: 1,
