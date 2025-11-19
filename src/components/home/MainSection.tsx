@@ -52,8 +52,8 @@ const MainSection = () => {
   const statRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(statRef, { amount: 0.5 });
 
-  const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, { duration: 2300, trigger: isInView });
-  const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, { duration: 2300, trigger: isInView });
+  const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, { duration: 2000, trigger: isInView });
+  const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, { duration: 2000, trigger: isInView });
 
   useEffect(() => {
     if (!sectionRef.current) return;
