@@ -119,7 +119,6 @@ const TrendSection = () => {
         <TrendDescription />
         
         <div className="flex flex-col md:flex-row gap-6 md:gap-12 mt-6 md:mt-0">
-          {/* 좌측: 거래 규모 */}
           <div ref={leftRef} className="flex-1 bg-white/5 rounded-xl px-6 py-6 shadow flex flex-col gap-4 justify-center md:max-h-[300px]">
             <div>
               <h2 className="text-2xl font-bold text-neutral-100 mb-8">디지털 자산 거래규모</h2>
