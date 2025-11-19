@@ -40,6 +40,7 @@ const ChartSection = () => {
     if (!cw || !ch) return;
 
     const scale = Math.min(vw / cw, vh / ch);
+    
     gsap.set(chartEl, {
       scale,
       transformOrigin: 'bottom center',
@@ -71,7 +72,8 @@ const ChartSection = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    const timerId = window.setTimeout(() => setShowChart(true), 2000);
+    
+    const timerId = window.setTimeout(() => setShowChart(true), 500);
 
     return () => {
       window.removeEventListener('resize', handleResize);

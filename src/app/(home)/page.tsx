@@ -47,7 +47,7 @@ const HomePage = () => {
       <Spacer className="h-32" />
 
       <section className="panel h-screen flex items-center justify-center">
-        <DelayedRender delay={3000} fallback={<SectionSkeleton heightClass="h-full" />}>
+        <DelayedRender delay={2000} fallback={<SectionSkeleton heightClass="h-full" />}>
           <PortfolioSection />
         </DelayedRender>
       </section>
