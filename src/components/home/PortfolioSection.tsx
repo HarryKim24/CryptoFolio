@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -40,24 +40,19 @@ const PortfolioSection = () => {
     return () => ctx.revert();
   }, []);
 
-  const data = {
+  const data = useMemo(() => ({
     datasets: [
       {
         data: [40, 25, 15, 10, 6, 4],
         backgroundColor: [
-          '#6366f1',
-          '#10b981',
-          '#facc15',
-          '#f472b6',
-          '#60a5fa',
-          '#fb923c',
+          '#6366f1', '#10b981', '#facc15', '#f472b6', '#60a5fa', '#fb923c',
         ],
         borderWidth: 0,
       },
     ],
-  };
+  }), []);
 
-  const options = {
+  const options = useMemo(() => ({
     plugins: {
       legend: { display: false },
       tooltip: { enabled: false },
@@ -69,7 +64,7 @@ const PortfolioSection = () => {
       duration: 1200,
       easing: 'easeOutCubic' as const,
     },
-  };
+  }), []);
 
   return (
     <div ref={containerRef} className="text-center md:space-y-10 px-6">
@@ -85,10 +80,7 @@ const PortfolioSection = () => {
           transition={{ duration: 1 }}
           className="flex-1 p-6 flex justify-center items-center"
         >
-          <div
-            className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px]"
-            ref={chartRef}
-          >
+          <div className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px]" ref={chartRef}>
             {isInView && <Doughnut data={data} options={options} />}
           </div>
         </motion.div>

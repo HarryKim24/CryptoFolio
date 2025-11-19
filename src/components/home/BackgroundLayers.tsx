@@ -1,13 +1,22 @@
 import React from 'react';
 
+const LAYERS = [
+  'bg-main-gradient opacity-1',
+  'bg-chart-gradient opacity-0',
+  'bg-trends-gradient opacity-0',
+  'bg-portfolio-gradient opacity-0',
+  'bg-setting-gradient opacity-0',
+];
+
 const BackgroundLayers = () => {
   return (
     <>
-      <div className="bg-global bg-main-gradient fixed inset-0 z-0 opacity-1 pointer-events-none" />
-      <div className="bg-global bg-chart-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
-      <div className="bg-global bg-trends-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
-      <div className="bg-global bg-portfolio-gradient fixed inset-0 z-0 opacity-0 pointer-events-none" />
-      <div className="bg-global fixed inset-0 z-0 opacity-0 pointer-events-none bg-neutral-900" /> 
+      {LAYERS.map((layerClass, index) => (
+        <div
+          key={index}
+          className={`bg-global fixed inset-0 z-0 pointer-events-none ${layerClass}`}
+        />
+      ))}
     </>
   );
 };

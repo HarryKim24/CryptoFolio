@@ -20,8 +20,7 @@ const ScrollScene = () => {
     const ctx = gsap.context(() => {
       const count = Math.min(sections.length, layers.length);
 
-      for (let i = 0; i < count; i++) {
-        const section = sections[i];
+      sections.slice(0, count).forEach((section, i) => {
         const layer = layers[i];
 
         gsap.set(layer, { zIndex: i });
@@ -41,8 +40,7 @@ const ScrollScene = () => {
         });
 
         if (i > 0) {
-          const prevLayer = layers[i - 1];
-          gsap.to(prevLayer, {
+          gsap.to(layers[i - 1], {
             opacity: 0,
             duration: 1,
             ease: 'power2.inOut',
@@ -55,15 +53,13 @@ const ScrollScene = () => {
             },
           });
         }
-      }
+      });
     });
 
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   return null;
 };
 
-export default ScrollScene;
+export default ScrollScene
