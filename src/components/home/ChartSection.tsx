@@ -99,7 +99,6 @@ const ChartSection = () => {
           isMobile={false}
           view="chart"
           onToggleView={() => {}}
-          isChartSection={true}
         />
 
         <div className="flex-1 relative min-h-0">

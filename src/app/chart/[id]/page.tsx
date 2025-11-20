@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -25,14 +25,29 @@ const ChartPage = () => {
   const [view, setView] = useState<"chart" | "list">("chart");
   const isMobile = useIsMobile();
 
-  const isInitialLoading =
-    loading || !market || Object.keys(tickers).length === 0 || markets.length === 0;
+  const { isInitialLoading, isInvalidMarket, tab } = useMemo(() => {
+    const initialLoading =
+      loading ||
+      !market ||
+      Object.keys(tickers).length === 0 ||
+      markets.length === 0;
 
-  const isInvalidMarket =
-    !isInitialLoading &&
-    (!market.includes("-") || !markets.some((m) => m.market === market));
+    const invalidMarket =
+      !initialLoading &&
+      (!market.includes("-") || !markets.some((m) => m.market === market));
 
-  const tab: MarketTab = parseMarketTab(market);
+    const parsedTab: MarketTab = parseMarketTab(market);
+
+    return {
+      isInitialLoading: initialLoading,
+      isInvalidMarket: invalidMarket,
+      tab: parsedTab,
+    };
+  }, [loading, market, tickers, markets]);
+
+  const handleToggleView = () => {
+    setView((prev) => (prev === "chart" ? "list" : "chart"));
+  };
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -44,7 +59,7 @@ const ChartPage = () => {
                 market={market}
                 isMobile={isMobile}
                 view={view}
-                onToggleView={() => setView(view === "chart" ? "list" : "chart")}
+                onToggleView={isMobile ? handleToggleView : undefined}
               />
             )}
 
@@ -81,7 +96,7 @@ const ChartPage = () => {
         </div>
       </div>
 
-      <div className="w-[320px] hidden md:block h-full pl-0 p-4">
+      <div className="w-[320px] hidden md:block h-full p-4 pl-0">
         <CoinList
           initialTab={tab}
           currentMarket={market}
