@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
 import CoinCautionBadge from "./CautionBadge";
-import { Market } from "@/types/upbitTypes";
-import { useUpbitTickerStore } from "@/stores/upbitTickerStore";
+import { useCoinDetailData } from "@/hooks/useCoinDetailData";
 
 type Props = {
   market: string;
@@ -21,48 +20,15 @@ const CoinDetail = ({
   onToggleView,
   isChartSection,
 }: Props) => {
-  const tickers = useUpbitTickerStore((s) => s.tickers);
-  const markets = useUpbitTickerStore((s) => s.markets);
-
-  const ticker = tickers[market];
-
-  const marketInfo = useMemo(
-    () => markets.find((m: Market) => m.market === market),
-    [markets, market]
-  );
-
-  const activeTab = market.split("-")[0] as "KRW" | "BTC" | "USDT";
-  const [prefix, symbol] = market.split("-");
-  const validMarkets = ["KRW", "BTC", "USDT"] as const;
-
-  const coinSymbol = validMarkets.includes(prefix as (typeof validMarkets)[number])
-    ? symbol ?? "N/A"
-    : "N/A";
-
-  const price = ticker?.trade_price ?? 0;
-  const changeRate = ticker?.signed_change_rate ?? 0;
-  const change = ticker?.signed_change_price ?? 0;
-  const volume24h = ticker?.acc_trade_price_24h ?? 0;
-
-  const rateColor =
-    changeRate > 0 ? "text-red-400" : changeRate < 0 ? "text-blue-400" : "text-gray-300";
-
-  const formatPrice = (value: number) => {
-    if (activeTab === "KRW") return `${value.toLocaleString()} 원`;
-    if (activeTab === "BTC") return `${value.toFixed(8)} BTC`;
-    return value >= 1000 ? `$${Math.round(value).toLocaleString()}` : `$${value.toFixed(3)}`;
-  };
-
-  const formattedPrice = formatPrice(price);
-  const formattedChange = formatPrice(change);
-  const formattedVolume =
-    activeTab === "KRW"
-      ? `${Math.floor(volume24h / 1_0000_000).toLocaleString()}백만`
-      : activeTab === "BTC"
-      ? `${volume24h.toFixed(6)} BTC`
-      : volume24h >= 1000
-      ? `$${Math.round(volume24h).toLocaleString()}`
-      : `$${volume24h.toFixed(4)}`;
+  const {
+    marketInfo,
+    coinSymbol,
+    formattedPrice,
+    formattedChange,
+    formattedVolume,
+    changeRate,
+    rateColor,
+  } = useCoinDetailData(market);
 
   return (
     <div className="border-b border-white/10">
@@ -97,7 +63,7 @@ const CoinDetail = ({
               {formattedPrice}
             </span>
             <div className={`text-xs lg:text-base ${rateColor}`}>
-              {(changeRate * 100).toFixed(2)}% ({change > 0 ? "+" : ""}
+              {(changeRate * 100).toFixed(2)}% ({changeRate > 0 ? "+" : ""}
               {formattedChange})
             </div>
             <div className="text-[10px] lg:text-sm text-gray-400 truncate">
