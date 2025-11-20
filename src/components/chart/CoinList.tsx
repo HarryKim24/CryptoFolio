@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CoinListItem from "@/components/chart/CoinListItem";
 import CoinListHeader from "@/components/chart/CoinListHeader";
 import type { Ticker, CautionType } from "@/types/upbitTypes";
@@ -9,7 +9,6 @@ import { useUpbitTickerStore } from "@/stores/upbitTickerStore";
 import { MarketTab } from "@/lib/market";
 
 type SortKey = "korean_name" | "trade_price" | "signed_change_rate" | "acc_trade_price_24h";
-
 type TickerSortKey = Exclude<SortKey, "korean_name">;
 type SortDirection = "asc" | "desc";
 
@@ -26,6 +25,9 @@ type CombinedItem = {
   caution?: CautionType;
 };
 
+const ACTIVE_TABS: MarketTab[] = ["KRW", "BTC", "USDT"];
+const LOCAL_STORAGE_KEY = "activeTab";
+
 const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   const tickers = useUpbitTickerStore((s) => s.tickers) as Record<string, Ticker>;
   const markets = useUpbitTickerStore((s) => s.markets);
@@ -40,8 +42,11 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     loading || !currentMarket || Object.keys(tickers).length === 0 || markets.length === 0;
 
   useEffect(() => {
-    const stored = localStorage.getItem("activeTab") as MarketTab | null;
-    if (stored && ["KRW", "BTC", "USDT"].includes(stored)) {
+    const stored = (typeof window !== "undefined"
+      ? (localStorage.getItem(LOCAL_STORAGE_KEY) as MarketTab | null)
+      : null);
+
+    if (stored && ACTIVE_TABS.includes(stored)) {
       setActiveTab(stored);
     } else {
       setActiveTab(initialTab);
@@ -49,7 +54,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   }, [initialTab]);
 
   const handleTabClick = (tab: MarketTab) => {
-    localStorage.setItem("activeTab", tab);
+    localStorage.setItem(LOCAL_STORAGE_KEY, tab);
     setActiveTab(tab);
   };
 
@@ -73,6 +78,8 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   }, [tickers, markets, activeTab, isLoading]);
 
   const sorted = useMemo(() => {
+    if (combined.length === 0) return [];
+
     return [...combined].sort((a, b) => {
       if (sortKey === "korean_name") {
         return sortDirection === "asc"
@@ -89,17 +96,23 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   }, [combined, sortKey, sortDirection]);
 
   const filtered = useMemo(() => {
+    if (sorted.length === 0) return [];
+
     const term = searchTerm.toLowerCase();
+    if (!term) return sorted;
+
     const isChosungOnly = /^[ㄱ-ㅎ]+$/.test(term);
     const choTerm = isChosungOnly ? getChosung(term) : null;
 
     return sorted.filter(({ ticker, korean_name, english_name }) => {
       const symbol = ticker.market.replace(`${activeTab}-`, "").toLowerCase();
+      const lowerKorean = korean_name.toLowerCase();
+      const lowerEnglish = english_name.toLowerCase();
       const choName = getChosung(korean_name);
 
       return (
-        korean_name.toLowerCase().includes(term) ||
-        english_name.toLowerCase().includes(term) ||
+        lowerKorean.includes(term) ||
+        lowerEnglish.includes(term) ||
         symbol.includes(term) ||
         (isChosungOnly && choTerm !== null && choName.includes(choTerm))
       );
@@ -109,7 +122,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   const dummyList = useMemo(
     () =>
       Array.from({ length: 10 }).map((_, idx) => ({
-        market: `${activeTab}-MARKET${idx}`,
+        market: `${activeTab}-DUMMY${idx}`,
       })),
     [activeTab]
   );
@@ -118,7 +131,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
     <div className="text-sm h-full flex flex-col bg-white/5 rounded-xl shadow overflow-hidden">
       <div className="sticky top-0 z-10 bg-white/5 backdrop-blur">
         <div className="flex justify-center gap-12 border-b border-white/10 p-2">
-          {(["KRW", "BTC", "USDT"] as MarketTab[]).map((tab) => (
+          {ACTIVE_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabClick(tab)}
