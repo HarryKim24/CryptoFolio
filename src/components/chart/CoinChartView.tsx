@@ -1,0 +1,144 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+import React, { useMemo } from 'react';
+import { ApexOptions } from 'apexcharts';
+import { format } from 'date-fns';
+import { formatNumberForDisplay } from '@/utils/formatNumber';
+import { CandleType, NormalizedCandle } from '@/types/upbitTypes';
+
+const BaseApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
+const ReactApexChart = React.memo(BaseApexChart);
+
+type ChartPoint = { x: Date; y: number | [number, number, number, number] };
+
+type Props = {
+  market: string;
+  candles: NormalizedCandle[];
+  ohlc: ChartPoint[];
+  volume: ChartPoint[];
+  candleType: CandleType;
+  unit: number;
+  disableZoom?: boolean;
+};
+
+const CoinChartView = ({
+  market,
+  candles,
+  ohlc,
+  volume,
+  candleType,
+  unit,
+  disableZoom = false,
+}: Props) => {
+  const candlestickOptions: ApexOptions = useMemo(
+    () => ({
+      chart: {
+        id: 'candlestick-chart',
+        type: 'candlestick',
+        background: '#0b0f19',
+        toolbar: { show: false },
+        zoom: { enabled: !disableZoom },
+      },
+      xaxis: {
+        type: 'datetime',
+        labels: { show: false },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+      },
+      yaxis: {
+        opposite: true,
+        tooltip: { enabled: true },
+        labels: {
+          style: { colors: '#fff' },
+          minWidth: 60,
+          formatter: (val: number) => String(formatNumberForDisplay(val)),
+        },
+      },
+      grid: { borderColor: '#222' },
+      tooltip: {
+        shared: true,
+        custom: ({ dataPointIndex }) => {
+          const d = candles[dataPointIndex];
+          if (!d) return '';
+          return `<div><strong>${format(d.date, 'yyyy-MM-dd HH:mm')}</strong><br/>시가: ${d.open}<br/>고가: ${d.high}<br/>저가: ${d.low}<br/>종가: ${d.close}</div>`;
+        },
+      },
+      theme: { mode: 'dark' },
+      plotOptions: {
+        candlestick: {
+          colors: { upward: '#3FB68B', downward: '#F46A6A' },
+        },
+      },
+    }),
+    [candles, disableZoom]
+  );
+
+  const volumeOptions: ApexOptions = useMemo(
+    () => ({
+      chart: {
+        id: 'volume-chart',
+        type: 'bar',
+        background: '#0b0f19',
+        toolbar: { show: false },
+        zoom: { enabled: false },
+      },
+      xaxis: {
+        type: 'datetime',
+        labels: {
+          style: { colors: '#ccc' },
+          datetimeFormatter: {
+            year: 'yyyy',
+            month: 'yyyy-MM',
+            day: 'MM-dd',
+            hour: 'HH:mm',
+            minute: 'HH:mm',
+          },
+        },
+      },
+      yaxis: {
+        opposite: true,
+        show: true,
+        labels: {
+          style: { colors: '#fff' },
+          minWidth: 60,
+          formatter: () => '',
+        },
+      },
+      dataLabels: { enabled: false },
+      tooltip: {
+        enabled: true,
+        y: { formatter: (val: number) => formatNumberForDisplay(val) },
+      },
+      plotOptions: { bar: { columnWidth: '75%' } },
+      grid: { borderColor: '#222' },
+      theme: { mode: 'dark' },
+    }),
+    []
+  );
+
+  return (
+    <div className="flex flex-col flex-1 overflow-hidden rounded-xl shadow">
+      <div className="flex-1 bg-[#0b0f19]">
+        <ReactApexChart
+          key={`${market}-${candleType}-${unit}-price`}
+          options={candlestickOptions}
+          series={[{ data: ohlc, name: '가격' }]}
+          type="candlestick"
+          height="100%"
+        />
+      </div>
+      <div className="h-[120px] bg-[#0b0f19]">
+        <ReactApexChart
+          key={`${market}-${candleType}-${unit}-volume`}
+          options={volumeOptions}
+          series={[{ data: volume, name: '거래량' }]}
+          type="bar"
+          height="100%"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default CoinChartView;
