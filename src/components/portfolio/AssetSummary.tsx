@@ -40,7 +40,7 @@ const AssetSummary = ({ stats }: Props) => {
         </div>
 
         <div className="w-full items-center bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
-          <div className="text-xl  font-bold text-neutral-100">총 투자금</div>
+          <div className="text-xl font-bold text-neutral-100">총 투자금</div>
           <div className="text-2xl font-bold">
             {Math.floor(stats.totalBuy).toLocaleString()} 원
           </div>
@@ -55,7 +55,7 @@ const AssetSummary = ({ stats }: Props) => {
               stats.allTimeProfit >= 0 ? "text-green-400" : "text-red-400"
             }`}
           >
-            {stats.allTimeProfit >= 0 ? "+" : ""}
+            {stats.allTimeProfit > 0 ? "+" : ""}
             {Math.floor(animatedProfit).toLocaleString()} 원
           </div>
         </div>
@@ -67,7 +67,7 @@ const AssetSummary = ({ stats }: Props) => {
                 stats.realisedProfit >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
               }`}
             >
-              {stats.realisedProfit >= 0 ? "+" : ""}
+              {stats.realisedProfit > 0 ? "+" : ""}
               {Math.floor(stats.realisedProfit).toLocaleString()} 원
             </span>
           </div>
@@ -78,7 +78,7 @@ const AssetSummary = ({ stats }: Props) => {
                 stats.unrealisedProfit >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
               }`}
             >
-              {stats.unrealisedProfit >= 0 ? "+" : ""}
+              {stats.unrealisedProfit > 0 ? "+" : ""}
               {Math.floor(stats.unrealisedProfit).toLocaleString()} 원
             </span>
           </div>
@@ -89,7 +89,7 @@ const AssetSummary = ({ stats }: Props) => {
                 stats.profitRate >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
               }`}
             >
-              {stats.profitRate >= 0 ? "+" : ""}
+              {stats.profitRate > 0 ? "+" : ""}
               {stats.profitRate.toFixed(2)}%
             </span>
           </div>
