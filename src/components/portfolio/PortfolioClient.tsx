@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import AssetSummary from "@/components/portfolio/AssetSummary";
 import AssetTable from "@/components/portfolio/AssetTable";
 import AssetModal from "@/components/portfolio/AssetModal";
@@ -9,90 +9,34 @@ import AssetPerformance from "@/components/portfolio/AssetPerformance";
 import ConfirmModal from "@/components/portfolio/ConfirmModal";
 import EmptyPortfolioModal from "@/components/portfolio/EmptyPortfolioModal";
 import { Asset } from "@/types/assetTypes";
-import { getTickerInfo } from "@/api/upbitApi";
-import { getDistribution } from "@/utils/portfolioCharts";
-import { calculateStats, PortfolioStats } from "@/utils/calculateStats";
-import { addAsset, deleteAsset, deleteAllAssets } from "@/lib/portfolioActions";
+import { usePortfolioAssets } from "@/hooks/usePortfolioAssets";
 
 interface PortfolioClientProps {
   initialAssets: Asset[];
   userId: string;
 }
 
-const ZERO_STATS: PortfolioStats = {
-  evaluation: 0,
-  totalBuy: 0,
-  allTimeProfit: 0,
-  realisedProfit: 0,
-  unrealisedProfit: 0,
-  profitRate: 0,
-  costBasis: 0,
-};
-
 const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
-  const [assets, setAssets] = useState<Asset[]>(initialAssets);
-  const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([]);
-  const [priceMap, setPriceMap] = useState<Record<string, number>>({});
-  const [stats, setStats] = useState<PortfolioStats | null>(null);
+  const {
+    assets,
+    stats,
+    distribution,
+    priceMap,
+    showEmptyModal,
+    isAdding,
+    addAsset,
+    deleteAssetById,
+    deleteAllAssets,
+    dismissEmptyModal,
+  } = usePortfolioAssets(initialAssets, userId);
 
-  const [showEmptyModal, setShowEmptyModal] = useState(initialAssets.length === 0);
   const [showModal, setShowModal] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmAllOpen, setConfirmAllOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
-
-  const updatePricesAndStats = useCallback(
-    async (currentAssets: Asset[]) => {
-      if (currentAssets.length === 0) {
-        setPriceMap({});
-        setDistribution([]);
-        setStats(ZERO_STATS);
-        return;
-      }
-
-      const symbols = [...new Set(currentAssets.map((a) => a.symbol))];
-
-      try {
-        const tickers = await getTickerInfo(symbols.map((s) => `KRW-${s}`));
-
-        const nextPriceMap: Record<string, number> = {};
-        tickers.forEach((t) => {
-          const symbol = t.market.replace("KRW-", "");
-          nextPriceMap[symbol] = t.trade_price;
-        });
-
-        setPriceMap(nextPriceMap);
-        setDistribution(getDistribution(currentAssets, nextPriceMap));
-        setStats(calculateStats(currentAssets, nextPriceMap));
-      } catch (error) {
-        console.error("가격/통계 계산 중 오류:", error);
-        setPriceMap({});
-        setDistribution([]);
-        setStats(ZERO_STATS);
-      }
-    },
-    []
-  );
-
-  useEffect(() => {
-    updatePricesAndStats(assets);
-  }, [assets, updatePricesAndStats]);
-
-  useEffect(() => {
-    setShowEmptyModal(assets.length === 0);
-  }, [assets.length]);
 
   const handleAddAsset = async (asset: Omit<Asset, "userId" | "_id">) => {
-    if (isAdding) return;
-    setIsAdding(true);
-
-    try {
-      const newId = await addAsset({ ...asset, userId });
-      setAssets((prev) => [...prev, { ...asset, userId, _id: newId }]);
-    } finally {
-      setIsAdding(false);
-    }
+    await addAsset(asset);
   };
 
   const requestDelete = (id: string | undefined) => {
@@ -103,28 +47,15 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
 
   const confirmDelete = async () => {
     if (!pendingDeleteId) return;
-
     const targetId = pendingDeleteId;
-    setAssets((prev) => prev.filter((a) => a._id !== targetId));
     setConfirmOpen(false);
     setPendingDeleteId(null);
-
-    try {
-      await deleteAsset(targetId);
-    } catch (error) {
-      console.error("거래 삭제 중 오류:", error);
-    }
+    await deleteAssetById(targetId);
   };
 
   const confirmDeleteAll = async () => {
-    setAssets([]);
     setConfirmAllOpen(false);
-
-    try {
-      await deleteAllAssets(userId);
-    } catch (error) {
-      console.error("전체 삭제 중 오류:", error);
-    }
+    await deleteAllAssets();
   };
 
   return (
@@ -187,10 +118,7 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
         description="전체 포트폴리오 기록이 사라집니다."
       />
 
-      <EmptyPortfolioModal
-        open={showEmptyModal}
-        onClose={() => setShowEmptyModal(false)}
-      />
+      <EmptyPortfolioModal open={showEmptyModal} onClose={dismissEmptyModal} />
     </div>
   );
 };
