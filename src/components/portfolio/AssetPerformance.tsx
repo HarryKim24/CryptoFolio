@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { motion } from 'framer-motion'
 import { Asset } from '../../types/assetTypes'
 import { formatNumberForDisplay, formatPrice } from '@/utils/formatNumber'
@@ -12,27 +12,7 @@ interface Props {
 }
 
 const AssetPerformance = ({ assets, priceMap }: Props) => {
-  const [isReady, setIsReady] = useState(false)
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setIsReady(true), 300)
-    return () => clearTimeout(timeout)
-  }, [])
-
   const data = calculateAssetsPerformance(assets, priceMap)
-
-  if (!isReady) {
-    return (
-      <div className="bg-white/5 rounded-xl shadow p-4 h-[400px] animate-pulse flex flex-col">
-        <div className="h-6 w-24" />
-        <div className="flex-1 overflow-auto space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-6" />
-          ))}
-        </div>
-      </div>
-    )
-  }
 
   return (
     <motion.div

@@ -39,8 +39,7 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
     await addAsset(asset);
   };
 
-  const requestDelete = (id: string | undefined) => {
-    if (!id) return;
+  const requestDelete = (id: string) => {
     setPendingDeleteId(id);
     setConfirmOpen(true);
   };

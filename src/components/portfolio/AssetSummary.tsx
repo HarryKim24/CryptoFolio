@@ -40,7 +40,7 @@ const AssetSummary = ({ stats }: Props) => {
         </div>
 
         <div className="w-full items-center bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
-          <div className="text-xl font-bold text-neutral-100">총 투자금</div>
+          <div className="text-xl  font-bold text-neutral-100">총 투자금</div>
           <div className="text-2xl font-bold">
             {Math.floor(stats.totalBuy).toLocaleString()} 원
           </div>
@@ -64,7 +64,9 @@ const AssetSummary = ({ stats }: Props) => {
             <span>실현 수익</span>
             <span
               className={`${
-                stats.realisedProfit >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
+                stats.realisedProfit >= 0
+                  ? "text-green-400 font-bold"
+                  : "text-red-400 font-bold"
               }`}
             >
               {stats.realisedProfit > 0 ? "+" : ""}
@@ -75,7 +77,9 @@ const AssetSummary = ({ stats }: Props) => {
             <span>미실현 수익</span>
             <span
               className={`${
-                stats.unrealisedProfit >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
+                stats.unrealisedProfit >= 0
+                  ? "text-green-400 font-bold"
+                  : "text-red-400 font-bold"
               }`}
             >
               {stats.unrealisedProfit > 0 ? "+" : ""}
@@ -86,7 +90,9 @@ const AssetSummary = ({ stats }: Props) => {
             <span>총 수익률</span>
             <span
               className={`${
-                stats.profitRate >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
+                stats.profitRate >= 0
+                  ? "text-green-400 font-bold"
+                  : "text-red-400 font-bold"
               }`}
             >
               {stats.profitRate > 0 ? "+" : ""}
