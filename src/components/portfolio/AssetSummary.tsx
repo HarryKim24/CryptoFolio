@@ -1,50 +1,16 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { Asset } from '../../types/assetTypes'
-import { getTickerInfo } from '@/api/upbitApi'
-import { calculateStats, PortfolioStats } from '@/utils/calculateStats'
-import { motion } from 'framer-motion'
-import { useAnimatedNumber } from '@/utils/animatedNumber'
+import React from "react";
+import { motion } from "framer-motion";
+import { useAnimatedNumber } from "@/utils/animatedNumber";
+import { PortfolioStats } from "@/utils/calculateStats";
 
 interface Props {
-  assets: Asset[]
+  stats: PortfolioStats | null;
 }
 
-const AssetSummary = ({ assets }: Props) => {
-  const [stats, setStats] = useState<PortfolioStats | null>(null)
-
-  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, { duration: 2000 })
-
-  useEffect(() => {
-    const load = async () => {
-      if (assets.length === 0) {
-        setStats({
-          evaluation: 0,
-          totalBuy: 0,
-          allTimeProfit: 0,
-          realisedProfit: 0,
-          unrealisedProfit: 0,
-          profitRate: 0,
-          costBasis: 0,
-        })
-        return
-      }
-
-      const symbols = [...new Set(assets.map((a) => a.symbol))]
-      const tickers = await getTickerInfo(symbols.map((s) => `KRW-${s}`))
-      const priceMap: Record<string, number> = {}
-      tickers.forEach((t) => {
-        const symbol = t.market.replace('KRW-', '')
-        priceMap[symbol] = t.trade_price
-      })
-
-      const s = calculateStats(assets, priceMap)
-      setStats(s)
-    }
-
-    load()
-  }, [assets])
+const AssetSummary = ({ stats }: Props) => {
+  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, { duration: 2000 });
 
   if (!stats) {
     return (
@@ -55,7 +21,7 @@ const AssetSummary = ({ assets }: Props) => {
         </div>
         <div className="w-full bg-white/5 rounded-xl shadow p-4 animate-pulse h-[124px] lg:h-[152px]" />
       </section>
-    )
+    );
   }
 
   return (
@@ -86,10 +52,10 @@ const AssetSummary = ({ assets }: Props) => {
           <div className="text-xl font-bold text-neutral-100">총 수익</div>
           <div
             className={`text-2xl lg:text-3xl font-bold ${
-              stats.allTimeProfit >= 0 ? 'text-green-400' : 'text-red-400'
+              stats.allTimeProfit >= 0 ? "text-green-400" : "text-red-400"
             }`}
           >
-            {stats.allTimeProfit >= 0 ? '+' : ''}
+            {stats.allTimeProfit >= 0 ? "+" : ""}
             {Math.floor(animatedProfit).toLocaleString()} 원
           </div>
         </div>
@@ -98,10 +64,10 @@ const AssetSummary = ({ assets }: Props) => {
             <span>실현 수익</span>
             <span
               className={`${
-                stats.realisedProfit >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
+                stats.realisedProfit >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
               }`}
             >
-              {stats.realisedProfit >= 0 ? '+' : ''}
+              {stats.realisedProfit >= 0 ? "+" : ""}
               {Math.floor(stats.realisedProfit).toLocaleString()} 원
             </span>
           </div>
@@ -109,10 +75,10 @@ const AssetSummary = ({ assets }: Props) => {
             <span>미실현 수익</span>
             <span
               className={`${
-                stats.unrealisedProfit >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
+                stats.unrealisedProfit >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
               }`}
             >
-              {stats.unrealisedProfit >= 0 ? '+' : ''}
+              {stats.unrealisedProfit >= 0 ? "+" : ""}
               {Math.floor(stats.unrealisedProfit).toLocaleString()} 원
             </span>
           </div>
@@ -120,17 +86,17 @@ const AssetSummary = ({ assets }: Props) => {
             <span>총 수익률</span>
             <span
               className={`${
-                stats.profitRate >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'
+                stats.profitRate >= 0 ? "text-green-400 font-bold" : "text-red-400 font-bold"
               }`}
             >
-              {stats.profitRate >= 0 ? '+' : ''}
+              {stats.profitRate >= 0 ? "+" : ""}
               {stats.profitRate.toFixed(2)}%
             </span>
           </div>
         </div>
       </div>
     </motion.section>
-  )
-}
+  );
+};
 
-export default AssetSummary
+export default AssetSummary;
