@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AssetSummary from "@/components/portfolio/AssetSummary";
 import AssetTable from "@/components/portfolio/AssetTable";
 import AssetModal from "@/components/portfolio/AssetModal";
@@ -9,9 +9,7 @@ import AssetPerformance from "@/components/portfolio/AssetPerformance";
 import ConfirmModal from "@/components/portfolio/ConfirmModal";
 import EmptyPortfolioModal from "@/components/portfolio/EmptyPortfolioModal";
 import { Asset } from "@/types/assetTypes";
-import { getTickerInfo } from "@/api/upbitApi";
-import { getDistribution } from "@/utils/portfolioCharts";
-import { addAsset, deleteAsset, deleteAllAssets } from "@/lib/portfolioActions";
+import { usePortfolioAssets } from "@/hooks/usePortfolioAssets";
 
 interface PortfolioClientProps {
   initialAssets: Asset[];
@@ -19,76 +17,51 @@ interface PortfolioClientProps {
 }
 
 const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
-  const [assets, setAssets] = useState(initialAssets);
-  const [distribution, setDistribution] = useState<{ symbol: string; value: number }[]>([]);
-  const [priceMap, setPriceMap] = useState<Record<string, number>>({});
-  const [showEmptyModal, setShowEmptyModal] = useState(initialAssets.length === 0);
+  const {
+    assets,
+    stats,
+    distribution,
+    priceMap,
+    showEmptyModal,
+    isAdding,
+    addAsset,
+    deleteAssetById,
+    deleteAllAssets,
+    dismissEmptyModal,
+  } = usePortfolioAssets(initialAssets, userId);
+
   const [showModal, setShowModal] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmAllOpen, setConfirmAllOpen] = useState(false);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | undefined>();
-  const [isAdding, setIsAdding] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  const updatePrices = async (updatedAssets: Asset[]) => {
-    const symbols = [...new Set(updatedAssets.map((a) => a.symbol))];
-    if (symbols.length === 0) {
-      setPriceMap({});
-      setDistribution([]);
-      setShowEmptyModal(true);
-      return;
-    }
-
-    const tickers = await getTickerInfo(symbols.map((s) => `KRW-${s}`));
-    const priceMap: Record<string, number> = {};
-    tickers.forEach((t) => {
-      const symbol = t.market.replace("KRW-", "");
-      priceMap[symbol] = t.trade_price;
-    });
-
-    setPriceMap(priceMap);
-    setDistribution(getDistribution(updatedAssets, priceMap));
+  const handleAddAsset = async (asset: Omit<Asset, "userId" | "_id">) => {
+    await addAsset(asset);
   };
 
-  useEffect(() => {
-    updatePrices(initialAssets);
-  }, [initialAssets]);
-
-  const handleAddAsset = async (asset: Omit<Asset, 'userId' | '_id'>) => {
-    if (isAdding) return;
-    setIsAdding(true);
-  
-    try {
-      const newId = await addAsset({ ...asset, userId });
-      setAssets((prev) => [...prev, { ...asset, userId, _id: newId }]);
-    } finally {
-      setIsAdding(false);
-    }
-  };
-
-  const requestDelete = (id: string | undefined) => {
+  const requestDelete = (id: string) => {
     setPendingDeleteId(id);
     setConfirmOpen(true);
   };
 
   const confirmDelete = async () => {
     if (!pendingDeleteId) return;
-    setAssets((prev) => prev.filter((a) => a._id !== pendingDeleteId));
-    await deleteAsset(pendingDeleteId);
+    const targetId = pendingDeleteId;
     setConfirmOpen(false);
-    setPendingDeleteId(undefined);
+    setPendingDeleteId(null);
+    await deleteAssetById(targetId);
   };
 
   const confirmDeleteAll = async () => {
-    setAssets([]);
-    await deleteAllAssets(userId);
     setConfirmAllOpen(false);
+    await deleteAllAssets();
   };
 
   return (
     <div className="p-6 space-y-6 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
       <div className="flex flex-col xs:px-20 lg:px-0 lg:flex-row items-stretch gap-6">
         <div className="w-full lg:w-5/6">
-          <AssetSummary assets={assets} />
+          <AssetSummary stats={stats} />
         </div>
         <div className="w-full lg:w-1/6 flex flex-col justify-end">
           <div className="mt-auto">
@@ -114,10 +87,18 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
         </div>
       </div>
 
-      <AssetModal show={showModal} onClose={() => setShowModal(false)} onSave={handleAddAsset} />
+      <AssetModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={handleAddAsset}
+      />
 
       <div className="xs:px-20 lg:px-0 lg:flex-row gap-6 w-full items-center">
-        <AssetTable assets={assets} onDelete={requestDelete} onDeleteAll={() => setConfirmAllOpen(true)} />
+        <AssetTable
+          assets={assets}
+          onDelete={requestDelete}
+          onDeleteAll={() => setConfirmAllOpen(true)}
+        />
       </div>
 
       <ConfirmModal
@@ -136,7 +117,7 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
         description="전체 포트폴리오 기록이 사라집니다."
       />
 
-      <EmptyPortfolioModal open={showEmptyModal} onClose={() => setShowEmptyModal(false)} />
+      <EmptyPortfolioModal open={showEmptyModal} onClose={dismissEmptyModal} />
     </div>
   );
 };
