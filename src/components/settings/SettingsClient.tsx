@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { formatDate } from "@/utils/formatDate";
 import { AnimatePresence, motion } from "framer-motion";
 import { Session } from "next-auth";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
+import PasswordField from "./PasswordField";
 
 const SettingsClient = ({ session }: { session: Session }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -140,39 +140,6 @@ const SettingsClient = ({ session }: { session: Session }) => {
     }
   };
 
-  const renderPasswordInput = (
-    label: string,
-    value: string,
-    setValue: (val: string) => void,
-    isVisible: boolean,
-    toggleVisibility: () => void,
-    placeholder: string
-  ) => (
-    <div>
-      <label className="block text-third font-semibold pb-1">{label}</label>
-      <div className="relative">
-        <input
-          type={isVisible ? "text" : "password"}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder={placeholder}
-          className="w-full p-2 pr-10 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
-        />
-        <button
-          type="button"
-          onClick={toggleVisibility}
-          className="absolute right-3 top-1/2 -translate-y-1/2"
-        >
-          {isVisible ? (
-            <EyeSlashIcon className="h-5 w-5 text-neutral-400 hover:text-white" />
-          ) : (
-            <EyeIcon className="h-5 w-5 text-neutral-400 hover:text-white" />
-          )}
-        </button>
-      </div>
-    </div>
-  );
-
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-12rem)] px-6 py-12">
       <motion.div
@@ -268,10 +235,32 @@ const SettingsClient = ({ session }: { session: Session }) => {
                   className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
                 />
               </div>
-
-              {renderPasswordInput("현재 비밀번호", currentPassword, setCurrentPassword, showCurrent, () => setShowCurrent(!showCurrent), "현재 비밀번호")}
-              {renderPasswordInput("새 비밀번호", newPassword, setNewPassword, showNew, () => setShowNew(!showNew), "새 비밀번호")}
-              {renderPasswordInput("새 비밀번호 확인", confirmPassword, setConfirmPassword, showConfirm, () => setShowConfirm(!showConfirm), "새 비밀번호 확인")}
+              <PasswordField
+                label="현재 비밀번호"
+                value={currentPassword}
+                onChange={setCurrentPassword}
+                isVisible={showCurrent}
+                onToggleVisibility={() => setShowCurrent((v) => !v)}
+                placeholder="현재 비밀번호"
+              />
+              
+              <PasswordField
+                label="새 비밀번호"
+                value={newPassword}
+                onChange={setNewPassword}
+                isVisible={showNew}
+                onToggleVisibility={() => setShowNew((v) => !v)}
+                placeholder="새 비밀번호"
+              />
+              
+              <PasswordField
+                label="새 비밀번호 확인"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                isVisible={showConfirm}
+                onToggleVisibility={() => setShowConfirm((v) => !v)}
+                placeholder="새 비밀번호 확인"
+              />
             </>
           ) : (
             <>
