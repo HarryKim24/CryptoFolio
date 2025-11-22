@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { formatDate } from "@/utils/formatDate";
 import { AnimatePresence, motion } from "framer-motion";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
-import PasswordField from "./PasswordField";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import { useShakeMessage } from "@/hooks/useShakeMessage";
 import { LocalUserState, useSaveSettings } from "@/hooks/useSaveSettings";
+import ProfileEdit from "./ProfileEdit";
+import ProfileView from "./ProfileView";
 
 const SettingsClient = ({ session }: { session: Session }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -157,83 +157,29 @@ const SettingsClient = ({ session }: { session: Session }) => {
           className="text-white space-y-4"
         >
           {isEditing ? (
-            <>
-              <div className="pb-4">
-                <label className="block text-third font-semibold pb-1">
-                  이름
-                </label>
-                <input
-                  type="text"
-                  value={localUser.name}
-                  onChange={(e) =>
-                    setLocalUser((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  placeholder="이름 입력"
-                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
-                />
-              </div>
-
-              <PasswordField
-                label="현재 비밀번호"
-                value={currentPassword}
-                onChange={setCurrentPassword}
-                isVisible={showCurrent}
-                onToggleVisibility={() => setShowCurrent((v) => !v)}
-                placeholder="현재 비밀번호"
-              />
-
-              <PasswordField
-                label="새 비밀번호"
-                value={newPassword}
-                onChange={setNewPassword}
-                isVisible={showNew}
-                onToggleVisibility={() => setShowNew((v) => !v)}
-                placeholder="새 비밀번호"
-              />
-
-              <PasswordField
-                label="새 비밀번호 확인"
-                value={confirmPassword}
-                onChange={setConfirmPassword}
-                isVisible={showConfirm}
-                onToggleVisibility={() => setShowConfirm((v) => !v)}
-                placeholder="새 비밀번호 확인"
-              />
-            </>
+            <ProfileEdit
+              name={localUser.name}
+              onChangeName={(value) =>
+                setLocalUser((prev) => ({ ...prev, name: value }))
+              }
+              currentPassword={currentPassword}
+              newPassword={newPassword}
+              confirmPassword={confirmPassword}
+              onChangeCurrentPassword={setCurrentPassword}
+              onChangeNewPassword={setNewPassword}
+              onChangeConfirmPassword={setConfirmPassword}
+              showCurrent={showCurrent}
+              showNew={showNew}
+              showConfirm={showConfirm}
+              onToggleShowCurrent={() => setShowCurrent((v) => !v)}
+              onToggleShowNew={() => setShowNew((v) => !v)}
+              onToggleShowConfirm={() => setShowConfirm((v) => !v)}
+            />
           ) : (
-            <>
-              <ul className="space-y-4 text-base sm:text-lg">
-                <li>
-                  <span className="font-semibold text-third">이름:</span>{" "}
-                  {localUser.name ?? "-"}
-                </li>
-                <li>
-                  <span className="font-semibold text-third">이메일:</span>{" "}
-                  {localUser.email ?? "-"}
-                </li>
-                <li>
-                  <span className="font-semibold text-third">가입일:</span>{" "}
-                  {formatDate(localUser.createdAt) ?? "-"}
-                </li>
-                <li>
-                  <span className="font-semibold text-third">최근 수정:</span>{" "}
-                  {formatDate(localUser.updatedAt) ?? "-"}
-                </li>
-              </ul>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-                className="pt-4 flex justify-end"
-              >
-                <button
-                  onClick={() => setShowDeleteModal(true)}
-                  className="text-sm text-neutral-100 hover:brightness-105 bg-red-500 px-4 py-2 rounded transition"
-                >
-                  회원 탈퇴
-                </button>
-              </motion.div>
-            </>
+            <ProfileView
+              user={localUser}
+              onClickDelete={() => setShowDeleteModal(true)}
+            />
           )}
         </motion.div>
 
