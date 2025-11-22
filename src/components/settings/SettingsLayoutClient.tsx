@@ -9,7 +9,7 @@ const SettingsLayoutClient = ({ children }: { children: React.ReactNode }) => {
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         className="px-4 sm:px-6"
       >
         {children}

@@ -80,7 +80,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             key={isEditing ? "editing-controls" : "view-controls"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
             className="flex gap-2"
           >
             {isEditing ? (
@@ -136,7 +136,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
           layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
           className="text-white space-y-4"
         >
           {isEditing ? (
