@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Session } from "next-auth";
-import { signOut } from "next-auth/react";
 import DeleteConfirmModal from "./DeleteConfirmModal";
-import { useShakeMessage } from "@/hooks/useShakeMessage";
-import { LocalUserState, useSaveSettings } from "@/hooks/useSaveSettings";
 import ProfileEdit from "./ProfileEdit";
 import ProfileView from "./ProfileView";
+import { useShakeMessage } from "@/hooks/useShakeMessage";
+import { LocalUserState, useSaveSettings } from "@/hooks/useSaveSettings";
+import { useDeleteAccount } from "@/hooks/useDeleteAccount";
 
 const SettingsClient = ({ session }: { session: Session }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -47,31 +47,12 @@ const SettingsClient = ({ session }: { session: Session }) => {
     errorController: nameError,
   });
 
-  const handleDeleteAccount = async () => {
-    if (!passwordInput.trim()) {
-      deleteErrorState.trigger("비밀번호를 입력하세요.");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/settings/delete", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: passwordInput }),
-      });
-
-      if (!res.ok) {
-        deleteErrorState.trigger("잘못된 비밀번호를 입력했습니다.");
-        return;
-      }
-
-      alert("탈퇴 완료. 메인 페이지로 이동합니다.");
-      await signOut({ callbackUrl: "/" });
-    } catch (err) {
-      console.error(err);
-      deleteErrorState.trigger("회원 탈퇴 중 오류 발생");
-    }
-  };
+  const { handleDeleteAccount, handleCancel } = useDeleteAccount({
+    password: passwordInput,
+    setPassword: setPasswordInput,
+    setShowModal: setShowDeleteModal,
+    errorController: deleteErrorState,
+  });
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-12rem)] px-6 py-12">
@@ -188,11 +169,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             <DeleteConfirmModal
               password={passwordInput}
               onPasswordChange={setPasswordInput}
-              onCancel={() => {
-                setShowDeleteModal(false);
-                setPasswordInput("");
-                deleteErrorState.reset();
-              }}
+              onCancel={handleCancel}
               onConfirm={handleDeleteAccount}
               errorMessage={deleteErrorState.message}
               shake={deleteErrorState.shake}
