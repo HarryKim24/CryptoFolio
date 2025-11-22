@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import PasswordField from "./PasswordField";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 import { useShakeMessage } from "@/hooks/useShakeMessage";
 
 const SettingsClient = ({ session }: { session: Session }) => {
@@ -307,57 +308,18 @@ const SettingsClient = ({ session }: { session: Session }) => {
 
         <AnimatePresence>
           {showDeleteModal && (
-            <div className="fixed inset-0 px-6 z-50 flex items-center justify-center">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
-              >
-                <h2 className="text-neutral-100 text-lg font-bold">
-                  비밀번호 확인
-                </h2>
-
-                <p
-                  className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out min-h-[20px] ${
-                    deleteErrorState.message.trim()
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 -translate-y-1"
-                  } ${deleteErrorState.shake ? "shake" : ""}`}
-                >
-                  {deleteErrorState.message.trim() || " "}
-                </p>
-
-                <input
-                  type="password"
-                  placeholder="현재 비밀번호 입력"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 text-neutral-100 placeholder:text-neutral-100 focus:outline-none"
-                />
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setPasswordInput("");
-                      deleteErrorState.reset();
-                    }}
-                    className="text-sm px-4 py-1.5 rounded transition border border-neutral-100 text-neutral-100 bg-setting hover:brightness-105"
-                  >
-                    취소
-                  </button>
-
-                  <button
-                    onClick={handleDeleteAccount}
-                    className="text-sm px-4 py-1.5 rounded text-neutral-100 bg-red-500 hover:brightness-105"
-                  >
-                    탈퇴
-                  </button>
-                </div>
-              </motion.div>
-            </div>
+            <DeleteConfirmModal
+              password={passwordInput}
+              onPasswordChange={setPasswordInput}
+              onCancel={() => {
+                setShowDeleteModal(false);
+                setPasswordInput("");
+                deleteErrorState.reset();
+              }}
+              onConfirm={handleDeleteAccount}
+              errorMessage={deleteErrorState.message}
+              shake={deleteErrorState.shake}
+            />
           )}
         </AnimatePresence>
       </motion.div>
