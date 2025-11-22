@@ -1,15 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { formatDate } from "@/utils/formatDate";
 import { AnimatePresence, motion } from "framer-motion";
 import { Session } from "next-auth";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { signOut } from "next-auth/react";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+import ProfileEdit from "./ProfileEdit";
+import ProfileView from "./ProfileView";
+import { useShakeMessage } from "@/hooks/useShakeMessage";
+import { LocalUserState, useSaveSettings } from "@/hooks/useSaveSettings";
+import { useDeleteAccount } from "@/hooks/useDeleteAccount";
 
 const SettingsClient = ({ session }: { session: Session }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [localUser, setLocalUser] = useState(() => ({
+  const [localUser, setLocalUser] = useState<LocalUserState>(() => ({
     name: session.user?.name ?? "",
     email: session.user?.email ?? "",
     createdAt: session.user?.createdAt,
@@ -19,159 +22,39 @@ const SettingsClient = ({ session }: { session: Session }) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [error, setError] = useState("");
-  const [shake, setShake] = useState(false);
+
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
-  const [deleteError, setDeleteError] = useState("");
-  const [deleteShake, setDeleteShake] = useState(false);
 
-  const triggerError = (message: string) => {
-    setError("");
-    setShake(false);
-    requestAnimationFrame(() => {
-      setError(message);
-      setShake(true);
-    });
-  };
+  const nameError = useShakeMessage();
+  const deleteErrorState = useShakeMessage();
 
-  const triggerDeleteError = (message: string) => {
-    setDeleteError("");
-    setDeleteShake(false);
-    requestAnimationFrame(() => {
-      setDeleteError(message);
-      setDeleteShake(true);
-    });
-  };
+  const { handleSave } = useSaveSettings({
+    session,
+    localUser,
+    setLocalUser,
+    currentPassword,
+    newPassword,
+    confirmPassword,
+    setCurrentPassword,
+    setNewPassword,
+    setConfirmPassword,
+    setIsEditing,
+    errorController: nameError,
+  });
 
-  const handleSave = async () => {
-    const isNameChanged = localUser.name !== session.user.name;
-    const isPasswordChanged = !!newPassword;
-
-    if (newPassword && newPassword !== confirmPassword) {
-      triggerError("비밀번호가 일치하지 않습니다.");
-      return;
-    }
-
-    if (newPassword && currentPassword && newPassword === currentPassword) {
-      triggerError("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
-      return;
-    }
-
-    if (isNameChanged && !isPasswordChanged) {
-      if (!localUser.updatedAt) {
-        triggerError("최근 수정일 정보를 불러올 수 없습니다.");
-        return;
-      }
-
-      const lastUpdated = new Date(localUser.updatedAt);
-      const now = new Date();
-      const oneMonth = 30 * 24 * 60 * 60 * 1000;
-
-      if (now.getTime() - lastUpdated.getTime() < oneMonth) {
-        triggerError("이름은 최근 수정일로부터 1개월 후에만 변경할 수 있습니다.");
-        return;
-      }
-    }
-
-    try {
-      const res = await fetch("/api/settings/update", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: localUser.name,
-          currentPassword,
-          newPassword,
-        }),
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        triggerError(msg);
-        return;
-      }
-
-      alert("수정 완료");
-      setLocalUser((prev) => ({
-        ...prev,
-        updatedAt: new Date().toISOString(),
-      }));
-
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setIsEditing(false);
-      setError("");
-    } catch (err) {
-      console.error(err);
-      triggerError("수정 중 오류 발생");
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!passwordInput.trim()) {
-      triggerDeleteError("비밀번호를 입력하세요.");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/settings/delete", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: passwordInput }),
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        console.warn("서버 오류:", msg);
-        triggerDeleteError("잘못된 비밀번호를 입력했습니다.");
-        return;
-      }
-
-      alert("탈퇴 완료. 메인 페이지로 이동합니다.");
-      await signOut({ callbackUrl: "/" });
-    } catch (err) {
-      console.error(err);
-      triggerDeleteError("회원 탈퇴 중 오류 발생");
-    }
-  };
-
-  const renderPasswordInput = (
-    label: string,
-    value: string,
-    setValue: (val: string) => void,
-    isVisible: boolean,
-    toggleVisibility: () => void,
-    placeholder: string
-  ) => (
-    <div>
-      <label className="block text-third font-semibold pb-1">{label}</label>
-      <div className="relative">
-        <input
-          type={isVisible ? "text" : "password"}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder={placeholder}
-          className="w-full p-2 pr-10 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
-        />
-        <button
-          type="button"
-          onClick={toggleVisibility}
-          className="absolute right-3 top-1/2 -translate-y-1/2"
-        >
-          {isVisible ? (
-            <EyeSlashIcon className="h-5 w-5 text-neutral-400 hover:text-white" />
-          ) : (
-            <EyeIcon className="h-5 w-5 text-neutral-400 hover:text-white" />
-          )}
-        </button>
-      </div>
-    </div>
-  );
+  const { handleDeleteAccount, handleCancel } = useDeleteAccount({
+    password: passwordInput,
+    setPassword: setPasswordInput,
+    setShowModal: setShowDeleteModal,
+    errorController: deleteErrorState,
+  });
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-12rem)] px-6 py-12">
@@ -197,7 +80,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
             key={isEditing ? "editing-controls" : "view-controls"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
             className="flex gap-2"
           >
             {isEditing ? (
@@ -211,7 +94,7 @@ const SettingsClient = ({ session }: { session: Session }) => {
                     setCurrentPassword("");
                     setNewPassword("");
                     setConfirmPassword("");
-                    setError("");
+                    nameError.reset();
                     setIsEditing(false);
                   }}
                   className="text-sm px-3 py-1.5 text-neutral-100 border border-neutral-100 rounded bg-setting hover:brightness-105 transition whitespace-nowrap"
@@ -237,13 +120,15 @@ const SettingsClient = ({ session }: { session: Session }) => {
         </div>
 
         <div className="text-center">
-        <p
-          className={`text-warning text-sm leading-tight transition-all duration-300 ease-out min-h-[20px] ${
-            typeof error === "string" && error.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
-          } ${shake ? "shake" : ""}`}
-        >
-          {typeof error === "string" && error.trim() !== "" ? error : " "}
-        </p>
+          <p
+            className={`text-warning text-sm leading-tight transition-all duration-300 ease-out min-h-[20px] ${
+              nameError.message.trim()
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 -translate-y-1"
+            } ${nameError.shake ? "shake" : ""}`}
+          >
+            {nameError.message.trim() || " "}
+          </p>
         </div>
 
         <motion.div
@@ -251,98 +136,61 @@ const SettingsClient = ({ session }: { session: Session }) => {
           layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
           className="text-white space-y-4"
         >
           {isEditing ? (
-            <>
-              <div className="pb-4">
-                <label className="block text-third font-semibold pb-1">이름</label>
-                <input
-                  type="text"
-                  value={localUser.name}
-                  onChange={(e) =>
-                    setLocalUser((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  placeholder="이름 입력"
-                  className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
-                />
-              </div>
-
-              {renderPasswordInput("현재 비밀번호", currentPassword, setCurrentPassword, showCurrent, () => setShowCurrent(!showCurrent), "현재 비밀번호")}
-              {renderPasswordInput("새 비밀번호", newPassword, setNewPassword, showNew, () => setShowNew(!showNew), "새 비밀번호")}
-              {renderPasswordInput("새 비밀번호 확인", confirmPassword, setConfirmPassword, showConfirm, () => setShowConfirm(!showConfirm), "새 비밀번호 확인")}
-            </>
+            <ProfileEdit
+              name={localUser.name}
+              onChangeName={(value) =>
+                setLocalUser((prev) => ({ ...prev, name: value }))
+              }
+              currentPassword={currentPassword}
+              newPassword={newPassword}
+              confirmPassword={confirmPassword}
+              onChangeCurrentPassword={setCurrentPassword}
+              onChangeNewPassword={setNewPassword}
+              onChangeConfirmPassword={setConfirmPassword}
+              showCurrent={passwordVisibility.current}
+              showNew={passwordVisibility.new}
+              showConfirm={passwordVisibility.confirm}
+              onToggleShowCurrent={() =>
+                setPasswordVisibility((prev) => ({
+                  ...prev,
+                  current: !prev.current,
+                }))
+              }
+              onToggleShowNew={() =>
+                setPasswordVisibility((prev) => ({
+                  ...prev,
+                  new: !prev.new,
+                }))
+              }
+              onToggleShowConfirm={() =>
+                setPasswordVisibility((prev) => ({
+                  ...prev,
+                  confirm: !prev.confirm,
+                }))
+              }
+            />
           ) : (
-            <>
-              <ul className="space-y-4 text-base sm:text-lg">
-                <li><span className="font-semibold text-third">이름:</span> {localUser.name ?? "-"}</li>
-                <li><span className="font-semibold text-third">이메일:</span> {localUser.email ?? "-"}</li>
-                <li><span className="font-semibold text-third">가입일:</span> {formatDate(localUser.createdAt) ?? "-"}</li>
-                <li><span className="font-semibold text-third">최근 수정:</span> {formatDate(localUser.updatedAt) ?? "-"}</li>
-              </ul>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-                className="pt-4 flex justify-end"
-              >
-                <button
-                  onClick={() => setShowDeleteModal(true)}
-                  className="text-sm text-neutral-100 hover:brightness-105 bg-red-500 px-4 py-2 rounded transition"
-                >
-                  회원 탈퇴
-                </button>
-              </motion.div>
-            </>
+            <ProfileView
+              user={localUser}
+              onClickDelete={() => setShowDeleteModal(true)}
+            />
           )}
         </motion.div>
 
         <AnimatePresence>
           {showDeleteModal && (
-            <div className="fixed inset-0 px-6 z-50 flex items-center justify-center">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-md bg-white/5 p-6 rounded-xl backdrop-blur-2xl shadow space-y-4"
-              >
-                <h2 className="text-neutral-100 text-lg font-bold">비밀번호 확인</h2>
-                <p
-                  className={`text-warning text-sm leading-tight text-center transition-all duration-300 ease-out min-h-[20px] ${
-                    typeof deleteError === "string" && deleteError.trim() !== "" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
-                  } ${deleteShake ? "shake" : ""}`}
-                >
-                  {typeof deleteError === "string" && deleteError.trim() !== "" ? deleteError : " "}
-                </p>
-                <input
-                  type="password"
-                  placeholder="현재 비밀번호 입력"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  className="w-full p-2 rounded bg-white/10 border border-white/20 text-neutral-100 placeholder:text-neutral-100 focus:outline-none"
-                />
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setPasswordInput("");
-                      setDeleteError("");
-                    }}
-                    className="text-sm px-4 py-1.5 rounded transition border border-neutral-100 text-neutral-100 bg-setting hover:brightness-105"
-                  >
-                    취소
-                  </button>
-                  <button
-                    onClick={handleDeleteAccount}
-                    className="text-sm px-4 py-1.5 rounded text-neutral-100 bg-red-500 hover:brightness-105"
-                  >
-                    탈퇴
-                  </button>
-                </div>
-              </motion.div>
-            </div>
+            <DeleteConfirmModal
+              password={passwordInput}
+              onPasswordChange={setPasswordInput}
+              onCancel={handleCancel}
+              onConfirm={handleDeleteAccount}
+              errorMessage={deleteErrorState.message}
+              shake={deleteErrorState.shake}
+            />
           )}
         </AnimatePresence>
       </motion.div>
