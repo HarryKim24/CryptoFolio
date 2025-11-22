@@ -8,10 +8,11 @@ import { signOut } from "next-auth/react";
 import PasswordField from "./PasswordField";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import { useShakeMessage } from "@/hooks/useShakeMessage";
+import { LocalUserState, useSaveSettings } from "@/hooks/useSaveSettings";
 
 const SettingsClient = ({ session }: { session: Session }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [localUser, setLocalUser] = useState(() => ({
+  const [localUser, setLocalUser] = useState<LocalUserState>(() => ({
     name: session.user?.name ?? "",
     email: session.user?.email ?? "",
     createdAt: session.user?.createdAt,
@@ -32,89 +33,19 @@ const SettingsClient = ({ session }: { session: Session }) => {
   const nameError = useShakeMessage();
   const deleteErrorState = useShakeMessage();
 
-  const handleSave = async () => {
-    const isNameChanged = localUser.name !== session.user.name;
-    const isPasswordChanged = !!newPassword;
-
-    if (!isNameChanged && !isPasswordChanged) {
-      nameError.trigger("변경된 내용이 없습니다.");
-      return;
-    }
-
-    if (newPassword && !currentPassword.trim()) {
-      nameError.trigger("현재 비밀번호를 입력해주세요.");
-      return;
-    }
-
-    if (newPassword && !confirmPassword.trim()) {
-      nameError.trigger("새 비밀번호 확인을 입력해주세요.");
-      return;
-    }
-
-    if (newPassword && newPassword !== confirmPassword) {
-      nameError.trigger("새 비밀번호가 일치하지 않습니다.");
-      return;
-    }
-
-    if (newPassword && currentPassword && newPassword === currentPassword) {
-      nameError.trigger("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
-      return;
-    }
-
-    if (isNameChanged && !localUser.name.trim()) {
-      nameError.trigger("이름을 빈 값으로 변경할 수 없습니다.");
-      return;
-    }
-
-    if (isNameChanged && !isPasswordChanged) {
-      if (!localUser.updatedAt) {
-        nameError.trigger("최근 수정일 정보를 불러올 수 없습니다.");
-        return;
-      }
-
-      const lastUpdated = new Date(localUser.updatedAt);
-      const now = new Date();
-      const oneMonth = 30 * 24 * 60 * 60 * 1000;
-
-      if (now.getTime() - lastUpdated.getTime() < oneMonth) {
-        nameError.trigger("이름은 최근 수정일로부터 1개월 후에만 변경할 수 있습니다.");
-        return;
-      }
-    }
-
-    try {
-      const res = await fetch("/api/settings/update", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: localUser.name,
-          currentPassword,
-          newPassword,
-        }),
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        nameError.trigger(msg);
-        return;
-      }
-
-      alert("수정 완료");
-      setLocalUser((prev) => ({
-        ...prev,
-        updatedAt: new Date().toISOString(),
-      }));
-
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setIsEditing(false);
-      nameError.reset();
-    } catch (err) {
-      console.error(err);
-      nameError.trigger("수정 중 오류 발생");
-    }
-  };
+  const { handleSave } = useSaveSettings({
+    session,
+    localUser,
+    setLocalUser,
+    currentPassword,
+    newPassword,
+    confirmPassword,
+    setCurrentPassword,
+    setNewPassword,
+    setConfirmPassword,
+    setIsEditing,
+    errorController: nameError,
+  });
 
   const handleDeleteAccount = async () => {
     if (!passwordInput.trim()) {
