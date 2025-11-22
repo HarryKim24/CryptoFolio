@@ -23,9 +23,11 @@ const SettingsClient = ({ session }: { session: Session }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
@@ -149,12 +151,27 @@ const SettingsClient = ({ session }: { session: Session }) => {
               onChangeCurrentPassword={setCurrentPassword}
               onChangeNewPassword={setNewPassword}
               onChangeConfirmPassword={setConfirmPassword}
-              showCurrent={showCurrent}
-              showNew={showNew}
-              showConfirm={showConfirm}
-              onToggleShowCurrent={() => setShowCurrent((v) => !v)}
-              onToggleShowNew={() => setShowNew((v) => !v)}
-              onToggleShowConfirm={() => setShowConfirm((v) => !v)}
+              showCurrent={passwordVisibility.current}
+              showNew={passwordVisibility.new}
+              showConfirm={passwordVisibility.confirm}
+              onToggleShowCurrent={() =>
+                setPasswordVisibility((prev) => ({
+                  ...prev,
+                  current: !prev.current,
+                }))
+              }
+              onToggleShowNew={() =>
+                setPasswordVisibility((prev) => ({
+                  ...prev,
+                  new: !prev.new,
+                }))
+              }
+              onToggleShowConfirm={() =>
+                setPasswordVisibility((prev) => ({
+                  ...prev,
+                  confirm: !prev.confirm,
+                }))
+              }
             />
           ) : (
             <ProfileView
