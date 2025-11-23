@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, useInView } from 'framer-motion';
@@ -19,7 +19,9 @@ const useUpbitStats = () => {
     const fetchMarketData = async () => {
       try {
         const res = await fetch('/api/proxy/market?isDetails=false');
-        if (!res.ok) throw new Error(`업비트 API 오류: ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`업비트 API 오류: ${res.status}`);
+        }
 
         const data = await res.json();
         if (!Array.isArray(data) || cancelled) return;
@@ -32,51 +34,104 @@ const useUpbitStats = () => {
           assetCount: assets.size,
         });
       } catch (error) {
-        if (!cancelled) console.error('데이터 로드 실패:', error);
+        if (!cancelled) {
+          console.error('데이터 로드 실패:', error);
+        }
       }
     };
 
     fetchMarketData();
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return stats;
 };
 
-const MainSection = () => {
+type StatItemProps = {
+  count: string | number;
+  label: string;
+};
+
+function StatItem({ count, label }: StatItemProps) {
+  return (
+    <div>
+      <p className="text-4xl md:text-5xl font-bold">{count}</p>
+      <p className="text-sm text-neutral-300 min-w-[90px]">{label}</p>
+    </div>
+  );
+}
+
+type ActionButtonProps = {
+  onClick: () => void;
+  children: React.ReactNode;
+};
+
+function ActionButton({ onClick, children }: ActionButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="bg-white/20 shadow hover:brightness-150 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
+    >
+      {children}
+    </button>
+  );
+}
+
+function MainSection() {
   const router = useRouter();
   const { data: session } = useSession();
   const { assetCount, marketCount } = useUpbitStats();
 
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const statRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const statRef = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(statRef, { amount: 0.5 });
 
-  const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, { duration: 2000, trigger: isInView });
-  const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, { duration: 2000, trigger: isInView });
+  const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, {
+    duration: 2000,
+    trigger: isInView,
+  });
+
+  const animatedMarketCount = useAnimatedNumber(isInView ? marketCount : 0, {
+    duration: 2000,
+    trigger: isInView,
+  });
 
   useEffect(() => {
     if (!sectionRef.current) return;
+
     const ctx = gsap.context(() => {
-      gsap.to(sectionRef.current, {
+      const section = sectionRef.current;
+      if (!section) return;
+
+      gsap.to(section, {
         opacity: 0,
         scale: 5,
         ease: 'power2.out',
         transformOrigin: 'center center',
         scrollTrigger: {
-          trigger: sectionRef.current,
+          trigger: section,
           start: 'center center',
           end: 'bottom top',
           scrub: 0.2,
         },
       });
     }, sectionRef);
-    return () => ctx.revert();
+
+    return () => {
+      ctx.revert();
+    };
   }, []);
 
-  const handleMainAction = useCallback(() => {
-    router.push(session ? '/portfolio' : '/login');
-  }, [router, session]);
+  function handleMainAction() {
+    if (session) {
+      router.push('/portfolio');
+    } else {
+      router.push('/login');
+    }
+  }
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -101,7 +156,8 @@ const MainSection = () => {
             className="text-neutral-300 text-sm md:text-lg"
           >
             암호화폐 가격을 실시간으로 조회하고,
-            <br className="hidden md:block" /> 트렌드를 분석하여 나만의 맞춤형 포트폴리오를 만들어보세요.
+            <br className="hidden md:block" /> 트렌드를 분석하여 나만의 맞춤형 포트폴리오를
+            만들어보세요.
           </motion.p>
 
           <motion.div
@@ -121,29 +177,17 @@ const MainSection = () => {
             transition={{ delay: 1, duration: 1, ease: 'easeOut' }}
             className="flex flex-col xs:flex-row items-center justify-center gap-4 mt-12"
           >
-            <ActionButton onClick={() => router.push('/chart/KRW-BTC')}>차트 확인하기</ActionButton>
-            <ActionButton onClick={handleMainAction}>{session ? '내 포트폴리오' : '로그인'}</ActionButton>
+            <ActionButton onClick={() => router.push('/chart/KRW-BTC')}>
+              차트 확인하기
+            </ActionButton>
+            <ActionButton onClick={handleMainAction}>
+              {session ? '내 포트폴리오' : '로그인'}
+            </ActionButton>
           </motion.div>
         </div>
       </div>
     </div>
   );
-};
-
-const StatItem = ({ count, label }: { count: string | number; label: string }) => (
-  <div>
-    <p className="text-4xl md:text-5xl font-bold">{count}</p>
-    <p className="text-sm text-neutral-300 min-w-[90px]">{label}</p>
-  </div>
-);
-
-const ActionButton = ({ onClick, children }: { onClick: () => void; children: React.ReactNode }) => (
-  <button
-    onClick={onClick}
-    className="bg-white/20 shadow hover:brightness-150 min-w-[188px] text-neutral-100 text-2xl font-semibold py-2 px-6 rounded transition pointer-events-auto"
-  >
-    {children}
-  </button>
-);
+}
 
 export default MainSection;

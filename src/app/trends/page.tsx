@@ -44,6 +44,7 @@ const TrendsPage = () => {
           >
             <TopRise />
           </motion.div>
+
           <motion.div
             variants={fadeInUp}
             initial="initial"

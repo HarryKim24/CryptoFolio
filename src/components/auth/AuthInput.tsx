@@ -7,7 +7,7 @@ type Props = {
   id?: string;
   label?: string;
   value: string;
-  onChange: (val: string) => void;
+  onChange: (value: string) => void;
   type?: string;
   placeholder?: string;
   error?: string;
@@ -27,9 +27,19 @@ const AuthInput = ({
   showPasswordToggle = false,
 }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
-  const isPasswordType = type === "password";
-  const inputId = id || label?.toLowerCase().replace(/\s+/g, "-") || undefined;
-  const shouldShowToggle = showPasswordToggle && isPasswordType;
+
+  const isPasswordField = type === "password";
+  const inputId =
+    id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
+  const canTogglePassword = showPasswordToggle && isPasswordField;
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(event.target.value);
+  };
+
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   return (
     <div className="w-full">
@@ -41,20 +51,22 @@ const AuthInput = ({
           {label}
         </label>
       )}
+
       <div className="relative rounded bg-second-gradient p-[1px]">
         <input
           id={inputId}
-          type={shouldShowToggle && showPassword ? "text" : type}
+          type={canTogglePassword && showPassword ? "text" : type}
           placeholder={placeholder}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={handleChange}
           disabled={disabled}
           className="w-full rounded bg-primary px-4 py-2 pr-10 text-white placeholder-pink-200 focus:outline-none focus:ring-2 focus:ring-third disabled:cursor-not-allowed disabled:opacity-50"
         />
-        {shouldShowToggle && (
+
+        {canTogglePassword && (
           <button
             type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
+            onClick={handleTogglePassword}
             className="absolute right-3 top-1/2 -translate-y-1/2"
             aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
           >
@@ -66,6 +78,7 @@ const AuthInput = ({
           </button>
         )}
       </div>
+
       {error && <p className="mt-1 text-sm text-warning">{error}</p>}
     </div>
   );

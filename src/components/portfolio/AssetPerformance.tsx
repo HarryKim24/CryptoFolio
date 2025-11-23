@@ -1,8 +1,7 @@
 'use client'
 
-import React from 'react'
 import { motion } from 'framer-motion'
-import { Asset } from '../../types/assetTypes'
+import type { Asset } from '../../types/assetTypes'
 import { formatNumberForDisplay, formatPrice } from '@/utils/formatNumber'
 import { calculateAssetsPerformance } from '@/utils/calculateAssetsPerformance'
 
@@ -13,6 +12,7 @@ interface Props {
 
 const AssetPerformance = ({ assets, priceMap }: Props) => {
   const data = calculateAssetsPerformance(assets, priceMap)
+  const sortedData = [...data].sort((a, b) => b.profit - a.profit)
 
   return (
     <motion.div
@@ -36,40 +36,38 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
             </tr>
           </thead>
           <tbody>
-            {data
-              .sort((a, b) => b.profit - a.profit)
-              .map((d, i) => (
-                <tr key={i} className="border-t border-gray-400">
-                  <td className="py-2 pr-2 pl-2 truncate">
-                    {d.symbol} - {d.name}
-                  </td>
-                  <td className="py-2 pr-2 text-right">
-                    {formatNumberForDisplay(d.quantity)}
-                  </td>
-                  <td className="py-2 pr-2 text-right">
-                    {formatPrice(d.averagePrice)} 원
-                  </td>
-                  <td className="py-2 pr-2 text-right">
-                    {formatPrice(d.currentPrice)} 원
-                  </td>
-                  <td
-                    className={`py-2 pr-2 text-right ${
-                      d.profit >= 0 ? 'text-green-400' : 'text-red-400'
-                    }`}
-                  >
-                    {d.profit >= 0 ? '+' : ''}
-                    {Math.floor(d.profit).toLocaleString()} 원
-                  </td>
-                  <td
-                    className={`py-2 pr-2 text-right ${
-                      d.rate >= 0 ? 'text-green-400' : 'text-red-400'
-                    }`}
-                  >
-                    {d.rate >= 0 ? '+' : ''}
-                    {d.rate.toFixed(2)}%
-                  </td>
-                </tr>
-              ))}
+            {sortedData.map((item, index) => (
+              <tr key={index} className="border-t border-gray-400">
+                <td className="py-2 pr-2 pl-2 truncate">
+                  {item.symbol} - {item.name}
+                </td>
+                <td className="py-2 pr-2 text-right">
+                  {formatNumberForDisplay(item.quantity)}
+                </td>
+                <td className="py-2 pr-2 text-right">
+                  {formatPrice(item.averagePrice)} 원
+                </td>
+                <td className="py-2 pr-2 text-right">
+                  {formatPrice(item.currentPrice)} 원
+                </td>
+                <td
+                  className={`py-2 pr-2 text-right ${
+                    item.profit >= 0 ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {item.profit >= 0 ? '+' : ''}
+                  {Math.floor(item.profit).toLocaleString()} 원
+                </td>
+                <td
+                  className={`py-2 pr-2 text-right ${
+                    item.rate >= 0 ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {item.rate >= 0 ? '+' : ''}
+                  {item.rate.toFixed(2)}%
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

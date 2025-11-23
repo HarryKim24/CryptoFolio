@@ -1,10 +1,14 @@
-'use client';
+"use client";
 
-import React, { useCallback, useMemo, useState } from 'react';
-import useCandles from '@/hooks/useCandles';
-import { CandleType, GetCandlesOptions, NormalizedCandle } from '@/types/upbitTypes';
-import { fetchNormalizedCandles } from '@/utils/fetchCandles';
-import CoinChartView from './CoinChartView';
+import { useCallback, useMemo, useState } from "react";
+import useCandles from "@/hooks/useCandles";
+import {
+  CandleType,
+  GetCandlesOptions,
+  NormalizedCandle,
+} from "@/types/upbitTypes";
+import { fetchNormalizedCandles } from "@/utils/fetchCandles";
+import CoinChartView from "./CoinChartView";
 
 type ChartPoint = { x: Date; y: number | [number, number, number, number] };
 
@@ -13,11 +17,26 @@ type Props = {
   disableZoom?: boolean;
 };
 
-const CANDLE_TYPES: CandleType[] = ['minutes', 'days', 'weeks', 'months', 'years'];
+const CANDLE_TYPES: CandleType[] = [
+  "minutes",
+  "days",
+  "weeks",
+  "months",
+  "years",
+];
+
 const MINUTE_UNITS = [1, 3, 5, 10, 15, 30, 60, 240] as const;
 
+const CANDLE_TYPE_LABELS: Record<CandleType, string> = {
+  minutes: "분",
+  days: "일",
+  weeks: "주",
+  months: "월",
+  years: "년",
+};
+
 const CoinChart = ({ market, disableZoom = false }: Props) => {
-  const [candleType, setCandleType] = useState<CandleType>('days');
+  const [candleType, setCandleType] = useState<CandleType>("days");
   const [unit, setUnit] = useState<number>(1);
   const count = 200;
 
@@ -25,7 +44,7 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
     () => ({
       market,
       candleType,
-      unit: candleType === 'minutes' ? unit : undefined,
+      unit: candleType === "minutes" ? unit : undefined,
       count,
     }),
     [market, candleType, unit]
@@ -34,75 +53,97 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
   const { data: candles = [], cache } = useCandles(requestOptions);
 
   const prefetch = useCallback(
-    (type: CandleType, u?: number) => {
-      const key = `${market}_${type}_${type === 'minutes' ? u ?? 1 : 'default'}`;
-      if (cache.has(key)) return;
+    (nextCandleType: CandleType, minuteUnit?: number) => {
+      const unitKey =
+        nextCandleType === "minutes" ? minuteUnit ?? 1 : "default";
+      const cacheKey = `${market}_${nextCandleType}_${unitKey}`;
 
-      const prefetchOptions: GetCandlesOptions = {
+      if (cache.has(cacheKey)) {
+        return;
+      }
+
+      const options: GetCandlesOptions = {
         market,
-        candleType: type,
-        unit: type === 'minutes' ? u ?? 1 : undefined,
+        candleType: nextCandleType,
+        unit: nextCandleType === "minutes" ? minuteUnit ?? 1 : undefined,
         count,
       };
 
-      fetchNormalizedCandles(prefetchOptions).then((res) => {
-        cache.set(key, res);
+      fetchNormalizedCandles(options).then((normalizedCandles) => {
+        cache.set(cacheKey, normalizedCandles);
       });
     },
     [market, cache]
   );
 
-  const [ohlc, volume] = useMemo<[ChartPoint[], ChartPoint[]]>(() => {
-    return (candles as NormalizedCandle[]).reduce<[ChartPoint[], ChartPoint[]]>(
-      ([ohlcAcc, volumeAcc], c) => {
-        const date = new Date(c.date);
-        ohlcAcc.push({ x: date, y: [c.open, c.high, c.low, c.close] });
-        volumeAcc.push({ x: date, y: c.volume });
-        return [ohlcAcc, volumeAcc];
-      },
-      [[], []]
-    );
-  }, [candles]);
+  const [ohlcPoints, volumePoints] = useMemo<[ChartPoint[], ChartPoint[]]>(
+    () =>
+      (candles as NormalizedCandle[]).reduce<
+        [ChartPoint[], ChartPoint[]]
+      >(
+        ([ohlcAccumulator, volumeAccumulator], candle) => {
+          const date = new Date(candle.date);
+
+          ohlcAccumulator.push({
+            x: date,
+            y: [candle.open, candle.high, candle.low, candle.close],
+          });
+
+          volumeAccumulator.push({
+            x: date,
+            y: candle.volume,
+          });
+
+          return [ohlcAccumulator, volumeAccumulator];
+        },
+        [[], []]
+      ),
+    [candles]
+  );
 
   return (
     <div className="flex flex-col flex-1 min-h-0 h-full w-full px-2 py-2 overflow-hidden">
       <div className="flex flex-wrap justify-end gap-2 px-2 text-sm mb-2">
-        {CANDLE_TYPES.map((type) => (
+        {CANDLE_TYPES.map((typeOption) => (
           <button
-            key={type}
-            onClick={() => setCandleType(type)}
-            onMouseEnter={() => prefetch(type, unit)}
+            key={typeOption}
+            onClick={() => setCandleType(typeOption)}
+            onMouseEnter={() => prefetch(typeOption, unit)}
             className={`px-3 py-1 border rounded ${
-              candleType === type ? 'bg-white text-black' : 'text-white border-white/20'
+              candleType === typeOption
+                ? "bg-white text-black"
+                : "text-white border-white/20"
             }`}
           >
-            {{ minutes: '분', days: '일', weeks: '주', months: '월', years: '년' }[type]}
+            {CANDLE_TYPE_LABELS[typeOption]}
           </button>
         ))}
       </div>
 
       <div className="flex justify-end gap-2 px-2 mb-2 min-h-[32px]">
-        {candleType === 'minutes' ? (
-          MINUTE_UNITS.map((u) => (
+        {candleType === "minutes" ? (
+          MINUTE_UNITS.map((minuteUnit) => (
             <button
-              key={u}
-              onClick={() => setUnit(u)}
-              onMouseEnter={() => prefetch('minutes', u)}
+              key={minuteUnit}
+              onClick={() => setUnit(minuteUnit)}
+              onMouseEnter={() => prefetch("minutes", minuteUnit)}
               className={`px-2 py-1 text-xs border rounded ${
-                unit === u ? 'bg-white text-black' : 'text-white border-white/20'
+                unit === minuteUnit
+                  ? "bg-white text-black"
+                  : "text-white border-white/20"
               }`}
             >
-              {u}분
+              {minuteUnit}분
             </button>
           ))
         ) : (
           <div className="invisible flex gap-2">
-            {MINUTE_UNITS.map((u) => (
+            {MINUTE_UNITS.map((minuteUnit) => (
               <button
-                key={u}
+                key={minuteUnit}
                 className="px-2 py-1 text-xs border rounded border-transparent"
               >
-                {u}분
+                {minuteUnit}분
               </button>
             ))}
           </div>
@@ -112,8 +153,8 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
       <CoinChartView
         market={market}
         candles={candles as NormalizedCandle[]}
-        ohlc={ohlc}
-        volume={volume}
+        ohlc={ohlcPoints}
+        volume={volumePoints}
         candleType={candleType}
         unit={unit}
         disableZoom={disableZoom}

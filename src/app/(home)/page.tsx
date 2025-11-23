@@ -12,14 +12,21 @@ const SectionSkeleton = ({ heightClass }: { heightClass: string }) => (
 const ChartSection = dynamic(() => import("@/components/home/ChartSection"), {
   loading: () => <SectionSkeleton heightClass="h-[800px]" />,
 });
+
 const TrendSection = dynamic(() => import("@/components/home/TrendSection"), {
   loading: () => <SectionSkeleton heightClass="h-[600px]" />,
 });
-const PortfolioSection = dynamic(() => import("@/components/home/PortfolioSection"), {
-  loading: () => <SectionSkeleton heightClass="h-[500px]" />,
-});
 
-const Spacer = ({ className }: { className: string }) => <section className={className} />;
+const PortfolioSection = dynamic(
+  () => import("@/components/home/PortfolioSection"),
+  {
+    loading: () => <SectionSkeleton heightClass="h-[500px]" />,
+  }
+);
+
+const Spacer = ({ className }: { className: string }) => (
+  <section className={className} />
+);
 
 const HomePage = () => {
   return (
@@ -31,7 +38,10 @@ const HomePage = () => {
       <Spacer className="h-96" />
 
       <section className="panel h-screen flex flex-col items-center justify-center">
-        <DelayedRender delay={2000} fallback={<SectionSkeleton heightClass="h-full" />}>
+        <DelayedRender
+          delay={2000}
+          fallback={<SectionSkeleton heightClass="h-full" />}
+        >
           <ChartSection />
         </DelayedRender>
       </section>
@@ -39,7 +49,10 @@ const HomePage = () => {
       <Spacer className="h-32" />
 
       <section className="panel h-screen flex flex-col items-center justify-center">
-        <DelayedRender delay={2000} fallback={<SectionSkeleton heightClass="h-full" />}>
+        <DelayedRender
+          delay={2000}
+          fallback={<SectionSkeleton heightClass="h-full" />}
+        >
           <TrendSection />
         </DelayedRender>
       </section>
@@ -47,7 +60,10 @@ const HomePage = () => {
       <Spacer className="h-32" />
 
       <section className="panel h-screen flex items-center justify-center">
-        <DelayedRender delay={2000} fallback={<SectionSkeleton heightClass="h-full" />}>
+        <DelayedRender
+          delay={2000}
+          fallback={<SectionSkeleton heightClass="h-full" />}
+        >
           <PortfolioSection />
         </DelayedRender>
       </section>

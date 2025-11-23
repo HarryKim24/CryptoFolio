@@ -1,5 +1,4 @@
-import Link from 'next/link'
-import React from 'react'
+import Link from "next/link";
 
 const NotFoundContent = () => {
   return (
@@ -16,7 +15,7 @@ const NotFoundContent = () => {
         홈페이지로 돌아가기
       </Link>
     </div>
-  )
-}
+  );
+};
 
-export default NotFoundContent
+export default NotFoundContent;

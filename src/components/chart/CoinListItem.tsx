@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import type { Ticker, CautionType } from "@/types/upbitTypes";
 import CoinCautionBadge from "./CautionBadge";
@@ -36,14 +35,23 @@ const formatPrice = (ticker: Ticker) => {
   const value = ticker.trade_price;
   if (value == null) return "--";
 
-  if (ticker.market.startsWith("KRW")) return `${value.toLocaleString()} 원`;
-  if (ticker.market.startsWith("BTC")) return `${value.toFixed(8)} BTC`;
-  return value >= 1000 ? `$${Math.round(value).toLocaleString()}` : `$${value.toFixed(3)}`;
+  if (ticker.market.startsWith("KRW")) {
+    return `${value.toLocaleString()} 원`;
+  }
+
+  if (ticker.market.startsWith("BTC")) {
+    return `${value.toFixed(8)} BTC`;
+  }
+
+  return value >= 1000
+    ? `$${Math.round(value).toLocaleString()}`
+    : `$${value.toFixed(3)}`;
 };
 
 const formatChangeRate = (ticker: Ticker) => {
   const rate = ticker.signed_change_rate;
   if (rate == null) return "--";
+
   const percent = (rate * 100).toFixed(2);
   return `${rate > 0 ? "+" : ""}${percent}%`;
 };
@@ -55,15 +63,19 @@ const formatVolume = (ticker: Ticker) => {
   if (ticker.market.startsWith("KRW")) {
     return `${Math.floor(value / 1_0000_000).toLocaleString()}백만`;
   }
+
   if (ticker.market.startsWith("BTC")) {
     return `${value.toFixed(6)} BTC`;
   }
-  return value >= 1000 ? `$${Math.round(value).toLocaleString()}` : `$${value.toFixed(4)}`;
+
+  return value >= 1000
+    ? `$${Math.round(value).toLocaleString()}`
+    : `$${value.toFixed(4)}`;
 };
 
-const getCautionCount = (cautionObj: CautionType | undefined): number => {
-  if (!cautionObj) return 0;
-  return Object.values(cautionObj).filter(Boolean).length;
+const getCautionCount = (caution: CautionType | undefined): number => {
+  if (!caution) return 0;
+  return Object.values(caution).filter(Boolean).length;
 };
 
 const CoinListItem = (props: CoinListItemProps) => {
@@ -80,13 +92,19 @@ const CoinListItem = (props: CoinListItemProps) => {
           <div className="flex items-center gap-1 text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
             <span className="truncate text-neutral-100">종목명</span>
           </div>
-          <div className="text-sm text-gray-400">{props.market || "마켓"}</div>
+          <div className="text-sm text-gray-400">
+            {props.market || "마켓"}
+          </div>
         </div>
 
         <div className="text-right whitespace-nowrap">
-          <div className="text-base text-neutral-100">{getLoadingPrice(marketType)}</div>
+          <div className="text-base text-neutral-100">
+            {getLoadingPrice(marketType)}
+          </div>
           <div className="text-sm text-gray-400">0.00%</div>
-          <div className="text-[10px] text-gray-400">{getLoadingVolume(marketType)}</div>
+          <div className="text-[10px] text-gray-400">
+            {getLoadingVolume(marketType)}
+          </div>
         </div>
       </div>
     );
@@ -105,7 +123,8 @@ const CoinListItem = (props: CoinListItemProps) => {
   };
 
   const changeRate = ticker.signed_change_rate ?? 0;
-  const isCompact = korean_name.length >= 7 || getCautionCount(caution) >= 2;
+  const isCompact =
+    korean_name.length >= 7 || getCautionCount(caution) >= 2;
 
   return (
     <div
@@ -133,7 +152,9 @@ const CoinListItem = (props: CoinListItemProps) => {
         >
           {formatChangeRate(ticker)}
         </div>
-        <div className="text-[10px] text-gray-400">{formatVolume(ticker)}</div>
+        <div className="text-[10px] text-gray-400">
+          {formatVolume(ticker)}
+        </div>
       </div>
     </div>
   );

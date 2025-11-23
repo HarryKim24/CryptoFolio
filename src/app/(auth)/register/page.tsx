@@ -15,26 +15,31 @@ const RegisterPage = () => {
   const [name, setName] = useState<User["name"]>("");
   const [password, setPassword] = useState<User["password"]>("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [shake, setShake] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const showError = (message: string) =>
-    triggerError(setError, setShake, message);
+  const showError = (message: string) => {
+    triggerError(setErrorMessage, setShake, message);
+  };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loading) return;
+  const handleRegister = async (event: React.FormEvent) => {
+    event.preventDefault();
 
-    const result = validateRegisterInputs(
+    if (isLoading) {
+      return;
+    }
+
+    const validationResult = validateRegisterInputs(
       email,
       password,
       name,
       confirmPassword
     );
-    if (!result.valid) {
-      showError(result.message!);
+
+    if (!validationResult.valid) {
+      showError(validationResult.message!);
       return;
     }
 
@@ -45,23 +50,24 @@ const RegisterPage = () => {
     };
 
     try {
-      setLoading(true);
-      const res = await fetch("/api/register", {
+      setIsLoading(true);
+
+      const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
       });
 
-      if (res.status === 201) {
+      if (response.status === 201) {
         router.push("/login");
       } else {
-        const text = await res.text();
+        const text = await response.text();
         showError(text);
       }
     } catch {
       showError("서버 오류가 발생했습니다.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -71,7 +77,7 @@ const RegisterPage = () => {
         회원가입
       </h1>
 
-      <AuthForm onSubmit={handleRegister} error={error} shake={shake}>
+      <AuthForm onSubmit={handleRegister} error={errorMessage} shake={shake}>
         <AuthInput
           type="text"
           placeholder="이름"
@@ -99,7 +105,7 @@ const RegisterPage = () => {
           showPasswordToggle
         />
         <SubmitButton
-          loading={loading}
+          loading={isLoading}
           idleText="회원가입"
           loadingText="회원가입 중..."
           className="w-full py-2 px-4 bg-secondary font-semibold rounded hover:brightness-105 transition focus:outline-none text-neutral-100 focus:ring-2 focus:ring-third disabled:opacity-60 disabled:cursor-not-allowed"

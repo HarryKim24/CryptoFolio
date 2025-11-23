@@ -12,11 +12,12 @@ const TitleHeader = () => {
   const pathname = usePathname();
 
   const title =
-    Object.entries(TITLE_MAP).find(([path]) =>
-      pathname.startsWith(path)
-    )?.[1] ?? null;
+    Object.entries(TITLE_MAP).find(([path]) => pathname.startsWith(path))?.[1] ||
+    null;
 
-  if (!title) return null;
+  if (!title) {
+    return null;
+  }
 
   return (
     <motion.h1
