@@ -27,13 +27,19 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap"
           rel="stylesheet"
         />
       </head>
+
       <body>
         <UpbitTickerProvider>
           <SessionClientLayout>

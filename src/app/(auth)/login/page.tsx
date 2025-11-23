@@ -12,18 +12,21 @@ import AuthInput from "@/components/auth/AuthInput";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [shake, setShake] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const showError = (message: string) => {
-    triggerError(setError, setShake, message);
+    triggerError(setErrorMessage, setShake, message);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loading) return;
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (isLoading) {
+      return;
+    }
 
     if (!email || !password) {
       showError("이메일과 비밀번호를 모두 입력하세요.");
@@ -31,10 +34,15 @@ const LoginPage = () => {
     }
 
     try {
-      setLoading(true);
-      const res = await signIn("credentials", { email, password, redirect: false });
+      setIsLoading(true);
 
-      if (res?.ok) {
+      const response = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (response?.ok) {
         router.push("/");
       } else {
         showError("이메일 또는 비밀번호가 틀렸습니다.");
@@ -42,7 +50,7 @@ const LoginPage = () => {
     } catch {
       showError("로그인 중 오류가 발생했습니다.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -52,7 +60,7 @@ const LoginPage = () => {
         로그인
       </h1>
 
-      <AuthForm onSubmit={handleLogin} error={error} shake={shake}>
+      <AuthForm onSubmit={handleLogin} error={errorMessage} shake={shake}>
         <AuthInput
           type="email"
           placeholder="이메일"
@@ -67,7 +75,7 @@ const LoginPage = () => {
           showPasswordToggle
         />
         <SubmitButton
-          loading={loading}
+          loading={isLoading}
           idleText="로그인"
           loadingText="로그인 중..."
           className="w-full py-2 px-4 bg-secondary text-neutral-100 font-semibold rounded hover:brightness-105 transition focus:outline-none focus:ring-2 focus:ring-third disabled:opacity-60 disabled:cursor-not-allowed"

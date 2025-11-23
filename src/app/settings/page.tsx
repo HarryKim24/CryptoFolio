@@ -5,7 +5,10 @@ import { authOptions } from "@/lib/authOptions";
 
 const SettingsPage = async () => {
   const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
+
+  if (!session) {
+    redirect("/login");
+  }
 
   return <SettingsClient session={session} />;
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -18,23 +18,23 @@ const ChartPage = () => {
   const params = useParams();
   const market = typeof params?.id === "string" ? params.id : "";
 
-  const tickers = useUpbitTickerStore((s) => s.tickers);
-  const markets = useUpbitTickerStore((s) => s.markets);
-  const loading = useUpbitTickerStore((s) => s.loading);
+  const tickers = useUpbitTickerStore((state) => state.tickers);
+  const markets = useUpbitTickerStore((state) => state.markets);
+  const loading = useUpbitTickerStore((state) => state.loading);
 
   const [view, setView] = useState<"chart" | "list">("chart");
   const isMobile = useIsMobile();
 
   const { isInitialLoading, isInvalidMarket, tab } = useMemo(() => {
-    const initialLoading =
-      loading ||
-      !market ||
-      Object.keys(tickers).length === 0 ||
-      markets.length === 0;
+    const hasNoMarket = !market;
+    const hasNoTickers = Object.keys(tickers).length === 0;
+    const hasNoMarkets = markets.length === 0;
+
+    const initialLoading = loading || hasNoMarket || hasNoTickers || hasNoMarkets;
 
     const invalidMarket =
       !initialLoading &&
-      (!market.includes("-") || !markets.some((m) => m.market === market));
+      (!market.includes("-") || !markets.some((item) => item.market === market));
 
     const parsedTab: MarketTab = parseMarketTab(market);
 
@@ -46,7 +46,7 @@ const ChartPage = () => {
   }, [loading, market, tickers, markets]);
 
   const handleToggleView = () => {
-    setView((prev) => (prev === "chart" ? "list" : "chart"));
+    setView(view === "chart" ? "list" : "chart");
   };
 
   return (

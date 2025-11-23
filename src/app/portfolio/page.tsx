@@ -13,7 +13,12 @@ const PortfolioPage = async () => {
 
   const assets = await getAssets(session.user.id);
 
-  return <PortfolioClient initialAssets={assets} userId={session.user.id} />;
+  return (
+    <PortfolioClient
+      initialAssets={assets}
+      userId={session.user.id}
+    />
+  );
 };
 
 export default PortfolioPage;

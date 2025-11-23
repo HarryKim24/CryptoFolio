@@ -3,41 +3,45 @@ import client from "@/lib/mongodb";
 import { User } from "@/types/user";
 import { validateUserPayload } from "@/utils/validateRegisterInputs";
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const { email, password, name }: Pick<User, "email" | "password" | "name"> =
-      await req.json();
+    const {
+      email,
+      password,
+      name,
+    }: Pick<User, "email" | "password" | "name"> = await request.json();
 
-    const validation = validateUserPayload(email, password, name);
-    if (!validation.valid) {
-      return new Response(validation.message ?? "유효하지 않은 입력입니다", {
-        status: 400,
-      });
+    const validationResult = validateUserPayload(email, password, name);
+    if (!validationResult.valid) {
+      return new Response(
+        validationResult.message ?? "유효하지 않은 입력입니다",
+        { status: 400 }
+      );
     }
 
     const mongoClient = await client;
     const db = mongoClient.db("cryptofolio");
-    const users = db.collection("users");
+    const usersCollection = db.collection("users");
 
-    const existingUser = await users.findOne({ email });
+    const existingUser = await usersCollection.findOne({ email });
     if (existingUser) {
       return new Response("이미 존재하는 이메일입니다", { status: 409 });
     }
 
-    const hashed = await hashPassword(password);
-    const now = new Date().toISOString();
+    const hashedPassword = await hashPassword(password);
+    const timestamp = new Date().toISOString();
 
-    await users.insertOne({
+    await usersCollection.insertOne({
       email,
-      password: hashed,
+      password: hashedPassword,
       name,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: timestamp,
+      updatedAt: timestamp,
     });
 
     return new Response("회원가입 성공", { status: 201 });
-  } catch (err) {
-    console.error("회원가입 오류:", err);
+  } catch (error) {
+    console.error("회원가입 오류:", error);
     return new Response("서버 오류", { status: 500 });
   }
 }
