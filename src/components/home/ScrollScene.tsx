@@ -4,7 +4,8 @@ import { useLayoutEffect, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -20,10 +21,10 @@ const ScrollScene = () => {
     const ctx = gsap.context(() => {
       const count = Math.min(sections.length, layers.length);
 
-      sections.slice(0, count).forEach((section, i) => {
-        const layer = layers[i];
+      sections.slice(0, count).forEach((section, index) => {
+        const layer = layers[index];
 
-        gsap.set(layer, { zIndex: i });
+        gsap.set(layer, { zIndex: index });
 
         gsap.to(layer, {
           opacity: 1,
@@ -39,8 +40,8 @@ const ScrollScene = () => {
           },
         });
 
-        if (i > 0) {
-          gsap.to(layers[i - 1], {
+        if (index > 0) {
+          gsap.to(layers[index - 1], {
             opacity: 0,
             duration: 1,
             ease: 'power2.inOut',
@@ -62,4 +63,4 @@ const ScrollScene = () => {
   return null;
 };
 
-export default ScrollScene
+export default ScrollScene;

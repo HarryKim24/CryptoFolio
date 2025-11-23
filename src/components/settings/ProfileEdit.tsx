@@ -1,26 +1,25 @@
-"use client";
-
-import React from "react";
-import PasswordField from "./PasswordField";
+'use client'
 
 type ProfileEditProps = {
-  name: string;
-  onChangeName: (value: string) => void;
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-  onChangeCurrentPassword: (value: string) => void;
-  onChangeNewPassword: (value: string) => void;
-  onChangeConfirmPassword: (value: string) => void;
-  showCurrent: boolean;
-  showNew: boolean;
-  showConfirm: boolean;
-  onToggleShowCurrent: () => void;
-  onToggleShowNew: () => void;
-  onToggleShowConfirm: () => void;
-};
+  name: string
+  onChangeName: (value: string) => void
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+  onChangeCurrentPassword: (value: string) => void
+  onChangeNewPassword: (value: string) => void
+  onChangeConfirmPassword: (value: string) => void
+  showCurrent: boolean
+  showNew: boolean
+  showConfirm: boolean
+  onToggleShowCurrent: () => void
+  onToggleShowNew: () => void
+  onToggleShowConfirm: () => void
+}
 
-const ProfileEdit: React.FC<ProfileEditProps> = ({
+import PasswordField from './PasswordField'
+
+const ProfileEdit = ({
   name,
   onChangeName,
   currentPassword,
@@ -35,7 +34,11 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
   onToggleShowCurrent,
   onToggleShowNew,
   onToggleShowConfirm,
-}) => {
+}: ProfileEditProps) => {
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChangeName(e.target.value)
+  }
+
   return (
     <>
       <div className="pb-4">
@@ -43,7 +46,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
         <input
           type="text"
           value={name}
-          onChange={(e) => onChangeName(e.target.value)}
+          onChange={handleNameChange}
           placeholder="이름 입력"
           className="w-full p-2 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
         />
@@ -76,7 +79,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
         placeholder="새 비밀번호 확인"
       />
     </>
-  );
-};
+  )
+}
 
-export default ProfileEdit;
+export default ProfileEdit

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
 import {
@@ -33,12 +33,17 @@ interface CoinVolume {
   korean_name: string;
 }
 
+type CandlePoint = {
+  x: Date;
+  y: number;
+};
+
 const TopVolume = () => {
   const [topCoins, setTopCoins] = useState<CoinVolume[]>([]);
   const [current, setCurrent] = useState(0);
-  const [chartData, setChartData] = useState<Record<string, any>>({});
+  const [chartData, setChartData] = useState<Record<string, CandlePoint[]>>({});
 
-  const chartDataRef = useRef<Record<string, any>>({});
+  const chartDataRef = useRef<Record<string, CandlePoint[]>>({});
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -49,8 +54,12 @@ const TopVolume = () => {
   }, [topCoins.length]);
 
   const pauseAndSetCurrent = (updateFn: (prev: number) => number) => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current);
+    }
 
     setCurrent(updateFn);
 
@@ -60,48 +69,82 @@ const TopVolume = () => {
   };
 
   const handlePrev = () => {
-    pauseAndSetCurrent((prev) => (prev - 1 + topCoins.length) % topCoins.length);
+    pauseAndSetCurrent(
+      (prev) => (prev - 1 + topCoins.length) % topCoins.length
+    );
   };
 
   const handleNext = () => {
     pauseAndSetCurrent((prev) => (prev + 1) % topCoins.length);
   };
 
+  const formatYAxisTick = (value: any) => {
+    if (typeof value === "number" && !Number.isNaN(value)) {
+      const localized = value.toLocaleString("ko-KR");
+      return `${localized} 원`;
+    }
+    return "- 원";
+  };
+
   useEffect(() => {
     const fetchTopVolumeCoins = async () => {
       try {
-        const marketRes = await axios.get("/api/proxy/v1/market/all", {
+        const marketResponse = await axios.get("/api/proxy/v1/market/all", {
           params: { isDetails: false },
         });
-        const krwMarkets = marketRes.data.filter((m: any) =>
-          m.market.startsWith("KRW-")
-        );
-        const altMarkets = krwMarkets.filter(
-          (m: any) => m.market !== "KRW-BTC"
-        );
 
-        const marketQuery = altMarkets.map((m: any) => m.market).join(",");
-        const tickerRes = await axios.get("/api/proxy/v1/ticker", {
+        const marketList = Array.isArray(marketResponse.data)
+          ? marketResponse.data
+          : [];
+
+        const krwMarkets = marketList.filter((item: any) => {
+          return item.market.startsWith("KRW-");
+        });
+
+        const altMarkets = krwMarkets.filter((item: any) => {
+          return item.market !== "KRW-BTC";
+        });
+
+        const marketQuery = altMarkets.map((item: any) => item.market).join(",");
+
+        const tickerResponse = await axios.get("/api/proxy/v1/ticker", {
           params: { markets: marketQuery },
         });
-        const tickers = tickerRes.data.filter(
-          (t: any) => t.market !== "KRW-BTC"
-        );
 
-        const sorted = tickers
-          .sort((a: any, b: any) => b.acc_trade_price_24h - a.acc_trade_price_24h)
-          .slice(0, 3)
-          .map((t: any) => {
-            const m = altMarkets.find((k: any) => k.market === t.market);
-            return {
-              market: t.market,
-              korean_name: m?.korean_name ?? t.market,
-            };
-          });
+        const tickerList = Array.isArray(tickerResponse.data)
+          ? tickerResponse.data
+          : [];
 
-        setTopCoins(sorted);
-      } catch (err) {
-        console.error("Top volume fetch error:", err);
+        const filteredTickers = tickerList.filter((ticker: any) => {
+          return ticker.market !== "KRW-BTC";
+        });
+
+        const sortedTickers = filteredTickers
+          .slice()
+          .sort((first: any, second: any) => {
+            return second.acc_trade_price_24h - first.acc_trade_price_24h;
+          })
+          .slice(0, 3);
+
+        const volumeCoins: CoinVolume[] = sortedTickers.map((ticker: any) => {
+          const marketInfo = altMarkets.find(
+            (item: any) => item.market === ticker.market
+          );
+
+          const koreanName =
+            marketInfo && marketInfo.korean_name
+              ? marketInfo.korean_name
+              : ticker.market;
+
+          return {
+            market: ticker.market,
+            korean_name: koreanName,
+          };
+        });
+
+        setTopCoins(volumeCoins);
+      } catch (error) {
+        console.error("Top volume fetch error:", error);
       }
     };
 
@@ -111,46 +154,96 @@ const TopVolume = () => {
   useEffect(() => {
     const fetchChart = async (market: string) => {
       try {
-        const res = await axios.get("/api/proxy/v1/candles/minutes/30", {
+        const response = await axios.get("/api/proxy/v1/candles/minutes/30", {
           params: { market, count: 48 },
         });
-        const data = res.data
-          .reverse()
-          .map((item: any) => ({
-            x: new Date(item.candle_date_time_kst),
-            y: item.trade_price,
-          }));
 
-        setChartData((prev) => {
-          const updated = { ...prev, [market]: data };
+        const candleList = Array.isArray(response.data)
+          ? response.data
+          : [];
+
+        const data: CandlePoint[] = candleList
+          .slice()
+          .reverse()
+          .map((item: any) => {
+            const time = new Date(item.candle_date_time_kst);
+            const price = item.trade_price;
+
+            return {
+              x: time,
+              y: price,
+            };
+          });
+
+        setChartData((previous) => {
+          const updated = { ...previous, [market]: data };
           chartDataRef.current = updated;
           return updated;
         });
-      } catch (err) {
-        console.error("Chart data error:", err);
+      } catch (error) {
+        console.error("Chart data error:", error);
       }
     };
 
     topCoins.forEach((coin) => {
-      if (!chartDataRef.current[coin.market]?.length) {
+      const hasData = chartDataRef.current[coin.market];
+      if (!hasData || hasData.length === 0) {
         fetchChart(coin.market);
       }
     });
   }, [topCoins]);
 
   useEffect(() => {
-    if (topCoins.length === 0) return;
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (topCoins.length === 0) {
+      return;
+    }
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
     startAutoSlide();
 
     return () => {
-      clearInterval(timerRef.current!);
-      clearTimeout(pauseTimeoutRef.current!);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
     };
   }, [topCoins, startAutoSlide]);
 
   const currentCoin = topCoins[current] ?? null;
-  const currentMarket = currentCoin?.market ?? "";
+  const currentMarket = currentCoin ? currentCoin.market : "";
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        type: "time" as const,
+        time: {
+          unit: "hour" as const,
+          displayFormats: { hour: "HH시" },
+        },
+        ticks: {
+          color: "#aaa",
+          maxRotation: 0,
+          minRotation: 0,
+        },
+        grid: { color: "rgba(255,255,255,0.05)" },
+      },
+      y: {
+        ticks: {
+          color: "#aaa",
+          callback: (value: any) => formatYAxisTick(value),
+        },
+        grid: { color: "rgba(255,255,255,0.05)" },
+      },
+    },
+    plugins: { legend: { display: false } },
+  };
 
   return (
     <section className="bg-white/5 rounded-xl p-6 shadow flex flex-col gap-4 flex-1">
@@ -187,36 +280,7 @@ const TopVolume = () => {
                       },
                     ],
                   }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                      x: {
-                        type: "time",
-                        time: {
-                          unit: "hour",
-                          displayFormats: { hour: "HH시" },
-                        },
-                        ticks: {
-                          color: "#aaa",
-                          maxRotation: 0,
-                          minRotation: 0,
-                        },
-                        grid: { color: "rgba(255,255,255,0.05)" },
-                      },
-                      y: {
-                        ticks: {
-                          color: "#aaa",
-                          callback: (val: any) =>
-                            typeof val === "number" && !isNaN(val)
-                              ? `${val.toLocaleString("ko-KR")} 원`
-                              : "- 원",
-                        },
-                        grid: { color: "rgba(255,255,255,0.05)" },
-                      },
-                    },
-                    plugins: { legend: { display: false } },
-                  }}
+                  options={chartOptions}
                 />
               </div>
             </motion.div>
@@ -230,36 +294,7 @@ const TopVolume = () => {
                   data={{
                     datasets: [],
                   }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                      x: {
-                        type: "time",
-                        time: {
-                          unit: "hour",
-                          displayFormats: { hour: "HH시" },
-                        },
-                        ticks: {
-                          color: "#aaa",
-                          maxRotation: 0,
-                          minRotation: 0,
-                        },
-                        grid: { color: "rgba(255,255,255,0.05)" },
-                      },
-                      y: {
-                        ticks: {
-                          color: "#aaa",
-                          callback: (val: any) =>
-                            typeof val === "number" && !isNaN(val)
-                              ? `${val.toLocaleString("ko-KR")} 원`
-                              : "- 원",
-                        },
-                        grid: { color: "rgba(255,255,255,0.05)" },
-                      },
-                    },
-                    plugins: { legend: { display: false } },
-                  }}
+                  options={chartOptions}
                 />
               </div>
             </div>

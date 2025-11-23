@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
 import CoinCautionBadge from "./CautionBadge";
 import { useCoinDetailData } from "@/hooks/useCoinDetailData";
@@ -74,6 +73,7 @@ const CoinDetail = ({
 
           {isMobile && onToggleView && (
             <button
+              type="button"
               onClick={onToggleView}
               className="p-1 text-neutral-100 bg-transparent border-none shadow-none"
             >

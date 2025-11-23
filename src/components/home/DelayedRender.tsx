@@ -1,38 +1,36 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-interface DelayedRenderProps {
+type DelayedRenderProps = {
   children: React.ReactNode;
   delay: number;
   fallback?: React.ReactNode;
-}
+};
 
-const DelayedRender = ({ children, delay, fallback = null }: DelayedRenderProps) => {
+function DelayedRender({ children, delay, fallback = null }: DelayedRenderProps) {
   const [isShown, setIsShown] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timerId = window.setTimeout(() => {
       setIsShown(true);
     }, delay);
 
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timerId);
   }, [delay]);
 
   useEffect(() => {
-    if (isShown) {
-      setTimeout(() => {
-        ScrollTrigger.refresh();
-      }, 100);
-    }
+    if (!isShown) return;
+
+    const refreshId = window.setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
+    return () => window.clearTimeout(refreshId);
   }, [isShown]);
 
-  if (!isShown) {
-    return <>{fallback}</>;
-  }
-
-  return <>{children}</>;
-};
+  return <>{isShown ? children : fallback}</>;
+}
 
 export default DelayedRender;

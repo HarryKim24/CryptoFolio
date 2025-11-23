@@ -18,12 +18,12 @@ const ChartLoading = () => (
 
 const CoinChart = dynamic(() => import('@/components/chart/CoinChart'), {
   ssr: false,
-  loading: () => <ChartLoading />,
+  loading: ChartLoading,
 });
 
-const ChartSection = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<HTMLDivElement>(null);
+function ChartSection() {
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const chartRef = useRef<HTMLDivElement | null>(null);
   const [showChart, setShowChart] = useState(false);
 
   const market = 'KRW-BTC';
@@ -40,7 +40,7 @@ const ChartSection = () => {
     if (!cw || !ch) return;
 
     const scale = Math.min(vw / cw, vh / ch);
-    
+
     gsap.set(chartEl, {
       scale,
       transformOrigin: 'bottom center',
@@ -72,7 +72,7 @@ const ChartSection = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    
+
     const timerId = window.setTimeout(() => setShowChart(true), 500);
 
     return () => {
@@ -100,7 +100,6 @@ const ChartSection = () => {
           view="chart"
           onToggleView={() => {}}
         />
-
         <div className="flex-1 relative min-h-0">
           {showChart ? <CoinChart market={market} disableZoom /> : <ChartLoading />}
         </div>
@@ -109,6 +108,6 @@ const ChartSection = () => {
       <ChartDescription />
     </motion.div>
   );
-};
+}
 
 export default ChartSection;

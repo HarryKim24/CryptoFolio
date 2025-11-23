@@ -1,33 +1,37 @@
-"use client";
+'use client'
 
-import React from "react";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import type { ChangeEvent } from 'react'
 
-interface PasswordFieldProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  isVisible: boolean;
-  onToggleVisibility: () => void;
-  placeholder?: string;
+type PasswordFieldProps = {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  isVisible: boolean
+  onToggleVisibility: () => void
+  placeholder?: string
 }
 
-const PasswordField: React.FC<PasswordFieldProps> = ({
+const PasswordField = ({
   label,
   value,
   onChange,
   isVisible,
   onToggleVisibility,
   placeholder,
-}) => {
+}: PasswordFieldProps) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value)
+  }
+
   return (
     <div>
       <label className="block text-third font-semibold pb-1">{label}</label>
       <div className="relative">
         <input
-          type={isVisible ? "text" : "password"}
+          type={isVisible ? 'text' : 'password'}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={handleChange}
           placeholder={placeholder}
           className="w-full p-2 pr-10 rounded bg-white/5 border border-white/10 text-white placeholder:text-neutral-400 focus:outline-none"
         />
@@ -44,7 +48,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PasswordField;
+export default PasswordField

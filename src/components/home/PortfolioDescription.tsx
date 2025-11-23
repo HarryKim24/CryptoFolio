@@ -7,8 +7,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PortfolioDescription = () => {
-  const ref = useRef<HTMLDivElement>(null);
+type MatchMediaConditions = {
+  isMobile?: boolean;
+  isDesktop?: boolean;
+};
+
+function PortfolioDescription() {
+  const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -17,16 +22,21 @@ const PortfolioDescription = () => {
 
     mm.add(
       {
-        isMobile: "(max-width: 767px)",
-        isDesktop: "(min-width: 768px)",
+        isMobile: '(max-width: 767px)',
+        isDesktop: '(min-width: 768px)',
       },
       (context) => {
-        const { isMobile } = context.conditions as { isMobile: boolean };
+        const conditions = context.conditions as MatchMediaConditions | null;
+        const isMobile = conditions?.isMobile ?? false;
+
         const fromY = isMobile ? 240 : 80;
         const toY = isMobile ? 160 : -80;
 
+        const element = ref.current;
+        if (!element) return;
+
         gsap.fromTo(
-          ref.current,
+          element,
           { opacity: 0, y: fromY },
           {
             opacity: 1,
@@ -34,7 +44,7 @@ const PortfolioDescription = () => {
             duration: 1.2,
             ease: 'power2.out',
             scrollTrigger: {
-              trigger: ref.current,
+              trigger: element,
               start: 'top 90%',
               toggleActions: 'play none none reverse',
             },
@@ -43,7 +53,9 @@ const PortfolioDescription = () => {
       }
     );
 
-    return () => mm.revert();
+    return () => {
+      mm.revert();
+    };
   }, []);
 
   return (
@@ -63,6 +75,6 @@ const PortfolioDescription = () => {
       </div>
     </div>
   );
-};
+}
 
 export default PortfolioDescription;

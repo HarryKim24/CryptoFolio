@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
-interface ConfirmModalProps {
+type ConfirmModalProps = {
   open: boolean
   title?: string
   description?: string

@@ -8,38 +8,27 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const ChartDescription = () => {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;
 
     const ctx = gsap.context(() => {
+      const element = ref.current;
+      if (!element) return;
+
       gsap.fromTo(
-        ref.current,
-        { y: 0 },
+        element,
+        { y: 0, opacity: 0 },
         {
           y: -200,
+          opacity: 1,
           ease: 'none',
           scrollTrigger: {
-            trigger: ref.current,
+            trigger: element,
             start: 'top bottom',
             end: 'bottom top',
             scrub: true,
-          },
-        }
-      );
-
-      gsap.fromTo(
-        ref.current,
-        { opacity: 0 },
-        {
-          opacity: 1,
-          duration: 1.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: ref.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
           },
         }
       );
@@ -57,7 +46,7 @@ const ChartDescription = () => {
         <span>실시간으로</span>
         <div className="flex flex-col space-y-3">
           <span>확인할 수 있는</span>
-          <Link 
+          <Link
             href="/chart/KRW-BTC"
             className="text-chart brightness-200 whitespace-nowrap cursor-pointer hover:brightness-150 transition-all"
           >

@@ -1,13 +1,11 @@
 'use client'
 
-import React from 'react'
-
-interface Props {
+type EmptyPortfolioModalProps = {
   open: boolean
   onClose: () => void
 }
 
-const EmptyPortfolioModal = ({ open, onClose }: Props) => {
+const EmptyPortfolioModal = ({ open, onClose }: EmptyPortfolioModalProps) => {
   if (!open) return null
 
   return (

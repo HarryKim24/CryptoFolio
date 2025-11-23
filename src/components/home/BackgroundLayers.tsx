@@ -1,6 +1,4 @@
-import React from 'react';
-
-const LAYERS = [
+const LAYERS: string[] = [
   'bg-main-gradient opacity-1',
   'bg-chart-gradient opacity-0',
   'bg-trends-gradient opacity-0',
@@ -8,7 +6,7 @@ const LAYERS = [
   'bg-setting-gradient opacity-0',
 ];
 
-const BackgroundLayers = () => {
+function BackgroundLayers() {
   return (
     <>
       {LAYERS.map((layerClass, index) => (
@@ -19,6 +17,6 @@ const BackgroundLayers = () => {
       ))}
     </>
   );
-};
+}
 
-export default React.memo(BackgroundLayers);
+export default BackgroundLayers;

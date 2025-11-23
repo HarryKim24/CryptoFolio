@@ -1,8 +1,9 @@
 "use client";
+
 import ErrorMessage from "@/components/auth/ErrorMessage";
 
 type Props = {
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (event: React.FormEvent) => void;
   error: string;
   shake: boolean;
   children: React.ReactNode;

@@ -1,16 +1,17 @@
-"use client";
+'use client'
 
-import React from "react";
-import { motion } from "framer-motion";
-import { useAnimatedNumber } from "@/utils/animatedNumber";
-import { PortfolioStats } from "@/utils/calculateStats";
+import { motion } from 'framer-motion'
+import { useAnimatedNumber } from '@/utils/animatedNumber'
+import type { PortfolioStats } from '@/utils/calculateStats'
 
-interface Props {
-  stats: PortfolioStats | null;
+type AssetSummaryProps = {
+  stats: PortfolioStats | null
 }
 
-const AssetSummary = ({ stats }: Props) => {
-  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, { duration: 2000 });
+const AssetSummary = ({ stats }: AssetSummaryProps) => {
+  const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, {
+    duration: 2000,
+  })
 
   if (!stats) {
     return (
@@ -21,7 +22,7 @@ const AssetSummary = ({ stats }: Props) => {
         </div>
         <div className="w-full bg-white/5 rounded-xl shadow p-4 animate-pulse h-[124px] lg:h-[152px]" />
       </section>
-    );
+    )
   }
 
   return (
@@ -40,7 +41,7 @@ const AssetSummary = ({ stats }: Props) => {
         </div>
 
         <div className="w-full items-center bg-white/5 shadow p-4 rounded-xl flex flex-row justify-between">
-          <div className="text-xl  font-bold text-neutral-100">총 투자금</div>
+          <div className="text-xl font-bold text-neutral-100">총 투자금</div>
           <div className="text-2xl font-bold">
             {Math.floor(stats.totalBuy).toLocaleString()} 원
           </div>
@@ -52,10 +53,10 @@ const AssetSummary = ({ stats }: Props) => {
           <div className="text-xl font-bold text-neutral-100">총 수익</div>
           <div
             className={`text-2xl lg:text-3xl font-bold ${
-              stats.allTimeProfit >= 0 ? "text-green-400" : "text-red-400"
+              stats.allTimeProfit >= 0 ? 'text-green-400' : 'text-red-400'
             }`}
           >
-            {stats.allTimeProfit > 0 ? "+" : ""}
+            {stats.allTimeProfit > 0 ? '+' : ''}
             {Math.floor(animatedProfit).toLocaleString()} 원
           </div>
         </div>
@@ -63,46 +64,46 @@ const AssetSummary = ({ stats }: Props) => {
           <div className="flex justify-between lg:text-base">
             <span>실현 수익</span>
             <span
-              className={`${
+              className={
                 stats.realisedProfit >= 0
-                  ? "text-green-400 font-bold"
-                  : "text-red-400 font-bold"
-              }`}
+                  ? 'text-green-400 font-bold'
+                  : 'text-red-400 font-bold'
+              }
             >
-              {stats.realisedProfit > 0 ? "+" : ""}
+              {stats.realisedProfit > 0 ? '+' : ''}
               {Math.floor(stats.realisedProfit).toLocaleString()} 원
             </span>
           </div>
           <div className="flex justify-between lg:text-base">
             <span>미실현 수익</span>
             <span
-              className={`${
+              className={
                 stats.unrealisedProfit >= 0
-                  ? "text-green-400 font-bold"
-                  : "text-red-400 font-bold"
-              }`}
+                  ? 'text-green-400 font-bold'
+                  : 'text-red-400 font-bold'
+              }
             >
-              {stats.unrealisedProfit > 0 ? "+" : ""}
+              {stats.unrealisedProfit > 0 ? '+' : ''}
               {Math.floor(stats.unrealisedProfit).toLocaleString()} 원
             </span>
           </div>
           <div className="flex justify-between lg:text-base">
             <span>총 수익률</span>
             <span
-              className={`${
+              className={
                 stats.profitRate >= 0
-                  ? "text-green-400 font-bold"
-                  : "text-red-400 font-bold"
-              }`}
+                  ? 'text-green-400 font-bold'
+                  : 'text-red-400 font-bold'
+              }
             >
-              {stats.profitRate > 0 ? "+" : ""}
+              {stats.profitRate > 0 ? '+' : ''}
               {stats.profitRate.toFixed(2)}%
             </span>
           </div>
         </div>
       </div>
     </motion.section>
-  );
-};
+  )
+}
 
-export default AssetSummary;
+export default AssetSummary

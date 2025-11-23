@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
-import React, { useMemo } from 'react';
-import { ApexOptions } from 'apexcharts';
-import { format } from 'date-fns';
-import { formatNumberForDisplay } from '@/utils/formatNumber';
-import { CandleType, NormalizedCandle } from '@/types/upbitTypes';
+import dynamic from "next/dynamic";
+import { useMemo } from "react";
+import type { ApexOptions } from "apexcharts";
+import { format } from "date-fns";
+import { formatNumberForDisplay } from "@/utils/formatNumber";
+import { CandleType, NormalizedCandle } from "@/types/upbitTypes";
 
-const BaseApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
-const ReactApexChart = React.memo(BaseApexChart);
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
 
 type ChartPoint = { x: Date; y: number | [number, number, number, number] };
 
@@ -34,14 +35,14 @@ const CoinChartView = ({
   const candlestickOptions: ApexOptions = useMemo(
     () => ({
       chart: {
-        id: 'candlestick-chart',
-        type: 'candlestick',
-        background: '#0b0f19',
+        id: "candlestick-chart",
+        type: "candlestick",
+        background: "#0b0f19",
         toolbar: { show: false },
         zoom: { enabled: !disableZoom },
       },
       xaxis: {
-        type: 'datetime',
+        type: "datetime",
         labels: { show: false },
         axisBorder: { show: false },
         axisTicks: { show: false },
@@ -50,24 +51,29 @@ const CoinChartView = ({
         opposite: true,
         tooltip: { enabled: true },
         labels: {
-          style: { colors: '#fff' },
+          style: { colors: "#fff" },
           minWidth: 60,
-          formatter: (val: number) => String(formatNumberForDisplay(val)),
+          formatter: (value: number) => String(formatNumberForDisplay(value)),
         },
       },
-      grid: { borderColor: '#222' },
+      grid: { borderColor: "#222" },
       tooltip: {
         shared: true,
         custom: ({ dataPointIndex }) => {
-          const d = candles[dataPointIndex];
-          if (!d) return '';
-          return `<div><strong>${format(d.date, 'yyyy-MM-dd HH:mm')}</strong><br/>시가: ${d.open}<br/>고가: ${d.high}<br/>저가: ${d.low}<br/>종가: ${d.close}</div>`;
+          const candle = candles[dataPointIndex];
+          if (!candle) return "";
+          return `<div><strong>${format(
+            candle.date,
+            "yyyy-MM-dd HH:mm"
+          )}</strong><br/>시가: ${candle.open}<br/>고가: ${
+            candle.high
+          }<br/>저가: ${candle.low}<br/>종가: ${candle.close}</div>`;
         },
       },
-      theme: { mode: 'dark' },
+      theme: { mode: "dark" },
       plotOptions: {
         candlestick: {
-          colors: { upward: '#3FB68B', downward: '#F46A6A' },
+          colors: { upward: "#3FB68B", downward: "#F46A6A" },
         },
       },
     }),
@@ -77,22 +83,22 @@ const CoinChartView = ({
   const volumeOptions: ApexOptions = useMemo(
     () => ({
       chart: {
-        id: 'volume-chart',
-        type: 'bar',
-        background: '#0b0f19',
+        id: "volume-chart",
+        type: "bar",
+        background: "#0b0f19",
         toolbar: { show: false },
         zoom: { enabled: false },
       },
       xaxis: {
-        type: 'datetime',
+        type: "datetime",
         labels: {
-          style: { colors: '#ccc' },
+          style: { colors: "#ccc" },
           datetimeFormatter: {
-            year: 'yyyy',
-            month: 'yyyy-MM',
-            day: 'MM-dd',
-            hour: 'HH:mm',
-            minute: 'HH:mm',
+            year: "yyyy",
+            month: "yyyy-MM",
+            day: "MM-dd",
+            hour: "HH:mm",
+            minute: "HH:mm",
           },
         },
       },
@@ -100,19 +106,21 @@ const CoinChartView = ({
         opposite: true,
         show: true,
         labels: {
-          style: { colors: '#fff' },
+          style: { colors: "#fff" },
           minWidth: 60,
-          formatter: () => '',
+          formatter: () => "",
         },
       },
       dataLabels: { enabled: false },
       tooltip: {
         enabled: true,
-        y: { formatter: (val: number) => formatNumberForDisplay(val) },
+        y: {
+          formatter: (value: number) => formatNumberForDisplay(value),
+        },
       },
-      plotOptions: { bar: { columnWidth: '75%' } },
-      grid: { borderColor: '#222' },
-      theme: { mode: 'dark' },
+      plotOptions: { bar: { columnWidth: "75%" } },
+      grid: { borderColor: "#222" },
+      theme: { mode: "dark" },
     }),
     []
   );
@@ -123,16 +131,17 @@ const CoinChartView = ({
         <ReactApexChart
           key={`${market}-${candleType}-${unit}-price`}
           options={candlestickOptions}
-          series={[{ data: ohlc, name: '가격' }]}
+          series={[{ data: ohlc, name: "가격" }]}
           type="candlestick"
           height="100%"
         />
       </div>
+
       <div className="h-[120px] bg-[#0b0f19]">
         <ReactApexChart
           key={`${market}-${candleType}-${unit}-volume`}
           options={volumeOptions}
-          series={[{ data: volume, name: '거래량' }]}
+          series={[{ data: volume, name: "거래량" }]}
           type="bar"
           height="100%"
         />

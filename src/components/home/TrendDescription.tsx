@@ -8,7 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const TrendDescription = () => {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -17,12 +17,15 @@ const TrendDescription = () => {
 
     mm.add(
       {
-        isMobile: "(max-width: 767px)",
-        isDesktop: "(min-width: 768px)",
+        isMobile: '(max-width: 767px)',
+        isDesktop: '(min-width: 768px)',
       },
       () => {
+        const el = ref.current;
+        if (!el) return;
+
         gsap.fromTo(
-          ref.current,
+          el,
           { opacity: 0, y: 80 },
           {
             opacity: 1,
@@ -30,7 +33,7 @@ const TrendDescription = () => {
             duration: 1.2,
             ease: 'power2.out',
             scrollTrigger: {
-              trigger: ref.current,
+              trigger: el,
               start: 'top 80%',
               toggleActions: 'play none none reverse',
             },
@@ -39,7 +42,9 @@ const TrendDescription = () => {
       }
     );
 
-    return () => mm.revert();
+    return () => {
+      mm.revert();
+    };
   }, []);
 
   return (
