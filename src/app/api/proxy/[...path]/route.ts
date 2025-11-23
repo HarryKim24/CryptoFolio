@@ -2,12 +2,14 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
+type ProxyParams = Promise<{ path: string[] }>;
+
 export async function GET(
   request: NextRequest,
-  context: { params: { path: string[] } }
+  context: { params: ProxyParams }
 ) {
-  const { path } = context.params;
-  const pathSegments = path ?? [];
+  const resolvedParams = await context.params;
+  const pathSegments = resolvedParams.path ?? [];
   const targetUrl = `https://api.upbit.com/${pathSegments.join("/")}`;
 
   const searchParams = request.nextUrl.searchParams;
