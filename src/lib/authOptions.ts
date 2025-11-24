@@ -3,7 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { verifyPassword } from "@/lib/auth";
 import client from "@/lib/mongodb";
 
-const isDev = process.env.NODE_ENV !== "production";
+const isDevelopment = process.env.NODE_ENV !== "production";
+const INVALID_CREDENTIALS_MESSAGE = "이메일 또는 비밀번호가 올바르지 않습니다";
 
 const authOptions: AuthOptions = {
   providers: [
@@ -17,50 +18,51 @@ const authOptions: AuthOptions = {
         const email = credentials?.email;
         const password = credentials?.password;
 
-        if (isDev) {
-          console.log("🔍 로그인 요청 도착:", {
+        if (isDevelopment) {
+          console.log("로그인 요청 도착:", {
             email,
             hasPassword: Boolean(password),
           });
         }
 
         if (!email || !password) {
-          if (isDev) {
-            console.log("❌ 이메일 또는 비밀번호 없음");
+          if (isDevelopment) {
+            console.log("이메일 또는 비밀번호 없음");
           }
-          throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
+          throw new Error(INVALID_CREDENTIALS_MESSAGE);
         }
 
         const mongoClient = await client;
-        const db = mongoClient.db("cryptofolio");
-        const user = await db.collection("users").findOne({ email });
+        const database = mongoClient.db("cryptofolio");
+        const usersCollection = database.collection("users");
+        const user = await usersCollection.findOne({ email });
 
-        if (isDev) {
-          console.log("🔍 DB 조회 결과:", user ? "유저 찾음" : "유저 없음");
+        if (isDevelopment) {
+          console.log("DB 조회 결과:", user ? "유저 찾음" : "유저 없음");
         }
 
         if (!user) {
-          if (isDev) {
-            console.log("❌ 유저 없음");
+          if (isDevelopment) {
+            console.log("유저 없음");
           }
-          throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
+          throw new Error(INVALID_CREDENTIALS_MESSAGE);
         }
 
         const passwordMatch = await verifyPassword(password, user.password);
 
-        if (isDev) {
-          console.log("🔍 비밀번호 검증 결과:", passwordMatch);
+        if (isDevelopment) {
+          console.log("비밀번호 검증 결과:", passwordMatch);
         }
 
         if (!passwordMatch) {
-          if (isDev) {
-            console.log("❌ 비밀번호 불일치");
+          if (isDevelopment) {
+            console.log("비밀번호 불일치");
           }
-          throw new Error("이메일 또는 비밀번호가 올바르지 않습니다");
+          throw new Error(INVALID_CREDENTIALS_MESSAGE);
         }
 
-        if (isDev) {
-          console.log("✅ 로그인 성공");
+        if (isDevelopment) {
+          console.log("로그인 성공");
         }
 
         return {
@@ -73,7 +75,9 @@ const authOptions: AuthOptions = {
       },
     }),
   ],
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
     jwt: async ({ token, user }) => {
       if (user) {
@@ -83,14 +87,18 @@ const authOptions: AuthOptions = {
         token.createdAt = user.createdAt;
         token.updatedAt = user.updatedAt;
       }
+
       return token;
     },
     session: async ({ session, token }) => {
-      session.user.id = token.id as string;
-      session.user.email = token.email as string;
-      session.user.name = token.name as string;
-      session.user.createdAt = token.createdAt as string;
-      session.user.updatedAt = token.updatedAt as string;
+      const sessionUser = session.user;
+
+      sessionUser.id = token.id as string;
+      sessionUser.email = token.email as string;
+      sessionUser.name = token.name as string;
+      sessionUser.createdAt = token.createdAt as string;
+      sessionUser.updatedAt = token.updatedAt as string;
+
       return session;
     },
   },
