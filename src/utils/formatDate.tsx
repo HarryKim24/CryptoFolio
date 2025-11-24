@@ -1,16 +1,35 @@
 const formatDate = (isoString?: string): string => {
-  if (!isoString || typeof isoString !== "string") return "-";
+  if (!isoString) {
+    return '-';
+  }
+
+  if (typeof isoString !== 'string') {
+    return '-';
+  }
 
   const date = new Date(isoString);
-  if (isNaN(date.getTime())) return "-";
+  const time = date.getTime();
+
+  if (isNaN(time)) {
+    return '-';
+  }
 
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hour = String(date.getHours()).padStart(2, "0");
-  const minute = String(date.getMinutes()).padStart(2, "0");
 
-  return `${year}. ${month}. ${day}. ${hour}:${minute}`;
+  const rawMonth = date.getMonth() + 1;
+  const month = String(rawMonth).padStart(2, '0');
+
+  const rawDay = date.getDate();
+  const day = String(rawDay).padStart(2, '0');
+
+  const rawHour = date.getHours();
+  const hour = String(rawHour).padStart(2, '0');
+
+  const rawMinute = date.getMinutes();
+  const minute = String(rawMinute).padStart(2, '0');
+
+  const formatted = `${year}. ${month}. ${day}. ${hour}:${minute}`;
+  return formatted;
 };
 
 export { formatDate };

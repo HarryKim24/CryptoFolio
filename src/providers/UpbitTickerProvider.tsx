@@ -1,5 +1,7 @@
 'use client';
+
 import { useEffect, useRef } from 'react';
+import type React from 'react';
 import axios from 'axios';
 import type { Market, Ticker as RestTicker } from '@/types/upbitTypes';
 import { useUpbitTickerStore } from '@/stores/upbitTickerStore';
@@ -9,49 +11,88 @@ const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
 type WsTicker = { code: string };
 type Ticker = RestTicker;
 
-const toCommonTicker = (t: WsTicker | RestTicker): Ticker => {
-  const market = 'code' in t ? t.code : t.market;
-  return { ...(t as RestTicker), market };
+const toCommonTicker = (ticker: WsTicker | RestTicker): Ticker => {
+  let market = '';
+
+  if ('code' in ticker) {
+    market = ticker.code;
+  } else {
+    market = ticker.market;
+  }
+
+  const restTicker = ticker as RestTicker;
+
+  return {
+    ...restTicker,
+    market,
+  };
 };
 
-export const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const markets = useUpbitTickerStore((s) => s.markets);
-  const { setMarkets, setLoading, setTickers, setTickersMap } = useUpbitTickerStore((s) => s);
+export const UpbitTickerProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const markets = useUpbitTickerStore((state) => state.markets);
+  const { setMarkets, setLoading, setTickers, setTickersMap } =
+    useUpbitTickerStore((state) => state);
+
   const wsRef = useRef<WebSocket | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    let alive = true;
-    const ctl = new AbortController();
+    let isAlive = true;
+    const controller = new AbortController();
 
-    (async () => {
+    const fetchMarkets = async () => {
       try {
-        const res = await axios.get<Market[]>('/api/proxy/market', {
+        const response = await axios.get<Market[]>('/api/proxy/market', {
           params: { isDetails: true },
-          signal: ctl.signal,
+          signal: controller.signal,
         });
-        if (!alive) return;
-        const filtered = res.data.filter(
-          (m) =>
-            m.market.startsWith('KRW-') ||
-            m.market.startsWith('BTC-') ||
-            m.market.startsWith('USDT-')
-        );
-        setMarkets(filtered);
-      } catch (e) {
-        if (axios.isCancel(e)) return;
-        console.error('마켓 정보 로딩 실패', e);
+
+        if (!isAlive) {
+          return;
+        }
+
+        const filteredMarkets = response.data.filter((market) => {
+          const name = market.market;
+
+          if (name.startsWith('KRW-')) return true;
+          if (name.startsWith('BTC-')) return true;
+          if (name.startsWith('USDT-')) return true;
+
+          return false;
+        });
+
+        setMarkets(filteredMarkets);
+      } catch (_) {
+        if (axios.isCancel(_)) {
+          return;
+        }
+
+        console.error('마켓 정보 로딩 실패', _);
       }
-    })();
+    };
+
+    fetchMarkets();
 
     return () => {
-      alive = false;
-      ctl.abort();
+      isAlive = false;
+      controller.abort();
     };
   }, [setMarkets]);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || markets.length === 0) return;
+    const hasWindow = typeof window !== 'undefined';
+
+    if (!hasWindow) {
+      return;
+    }
+
+    if (markets.length === 0) {
+      return;
+    }
 
     if (pollRef.current) {
       clearInterval(pollRef.current);
@@ -69,59 +110,94 @@ export const UpbitTickerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const socket = new WebSocket('wss://api.upbit.com/websocket/v1');
       wsRef.current = socket;
 
-      socket.onopen = () => {
+      const codes = markets.map((market) => market.market);
+
+      const handleOpen = () => {
         const ticket = { ticket: 'ticker' };
-        const type = { type: 'ticker', codes: markets.map((m) => m.market) };
-        socket.send(JSON.stringify([ticket, type]));
+        const type = { type: 'ticker', codes };
+        const message = JSON.stringify([ticket, type]);
+        socket.send(message);
       };
 
-      socket.onmessage = (event) => {
+      const handleMessage = (event: MessageEvent) => {
         const reader = new FileReader();
+
         reader.onload = () => {
-          if (!reader.result) return;
-          const raw = JSON.parse(reader.result.toString()) as WsTicker;
-          const obj = toCommonTicker(raw);
-          setTickers((prev) => ({ ...prev, [obj.market]: obj }));
+          if (!reader.result) {
+            return;
+          }
+
+          const text = reader.result.toString();
+          const rawTicker = JSON.parse(text) as WsTicker;
+          const ticker = toCommonTicker(rawTicker);
+
+          setTickers((previous) => {
+            return {
+              ...previous,
+              [ticker.market]: ticker,
+            };
+          });
+
           setLoading(false);
         };
+
         reader.readAsText(event.data);
       };
 
-      socket.onerror = (e) => console.error('WS error', e);
+      const handleError = (event: Event) => {
+        console.error('WS error', event);
+      };
+
+      socket.onopen = handleOpen;
+      socket.onmessage = handleMessage;
+      socket.onerror = handleError;
 
       return () => {
         try {
           socket.close();
         } catch {}
-        if (wsRef.current === socket) wsRef.current = null;
+
+        if (wsRef.current === socket) {
+          wsRef.current = null;
+        }
       };
     }
 
-    const first = { value: true };
+    let isFirstFetch = true;
+
     const fetchTickers = async () => {
       try {
-        if (first.value) setLoading(true);
-        const codes = markets.map((m) => m.market);
-        const res = await axios.get<RestTicker[]>('/api/proxy/ticker', {
-          params: { markets: codes.join(',') },
+        if (isFirstFetch) {
+          setLoading(true);
+        }
+
+        const codes = markets.map((market) => market.market);
+        const joinedCodes = codes.join(',');
+
+        const response = await axios.get<RestTicker[]>('/api/proxy/ticker', {
+          params: { markets: joinedCodes },
         });
-        const map: Record<string, Ticker> = {};
-        res.data.forEach((t) => {
-          const obj = toCommonTicker(t);
-          map[obj.market] = obj;
+
+        const tickerMap: Record<string, Ticker> = {};
+
+        response.data.forEach((item) => {
+          const ticker = toCommonTicker(item);
+          tickerMap[ticker.market] = ticker;
         });
-        setTickersMap(map);
-      } catch (err) {
-        console.error('Polling 실패:', err);
+
+        setTickersMap(tickerMap);
+      } catch (_) {
+        console.error('Polling 실패:', _);
       } finally {
-        if (first.value) {
+        if (isFirstFetch) {
           setLoading(false);
-          first.value = false;
+          isFirstFetch = false;
         }
       }
     };
 
     fetchTickers();
+
     pollRef.current = setInterval(fetchTickers, 1500);
 
     return () => {

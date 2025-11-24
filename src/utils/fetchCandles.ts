@@ -1,15 +1,32 @@
-import { getUpbitCandles } from "@/api/upbitCandle";
-import { CandleType, GetCandlesOptions, NormalizedCandle, upbitCandle } from "@/types/upbitTypes";
+import { getUpbitCandles } from '@/api/upbitCandle';
+import {
+  CandleType,
+  GetCandlesOptions,
+  NormalizedCandle,
+  upbitCandle,
+} from '@/types/upbitTypes';
 
-const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] =>
-  candles.map((candle) => ({
-    date: new Date(candle.candle_date_time_kst),
-    open: candle.opening_price,
-    high: candle.high_price,
-    low: candle.low_price,
-    close: candle.trade_price,
-    volume: candle.candle_acc_trade_volume,
-  }));
+const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] => {
+  return candles.map((candle) => {
+    const date = new Date(candle.candle_date_time_kst);
+    const open = candle.opening_price;
+    const high = candle.high_price;
+    const low = candle.low_price;
+    const close = candle.trade_price;
+    const volume = candle.candle_acc_trade_volume;
+
+    const normalizedCandle: NormalizedCandle = {
+      date,
+      open,
+      high,
+      low,
+      close,
+      volume,
+    };
+
+    return normalizedCandle;
+  });
+};
 
 const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
   minutes: 400,
@@ -24,26 +41,37 @@ const fetchNormalizedCandles = async (
   signal?: AbortSignal
 ): Promise<NormalizedCandle[]> => {
   const now = new Date();
-  const paddedTo = new Date(now.getTime() + 2 * 60 * 1000).toISOString();
-  const { to = paddedTo, candleType, count = 100, ...rest } = options;
+  const nowTime = now.getTime();
+  const paddedTime = nowTime + 2 * 60 * 1000;
+  const paddedTo = new Date(paddedTime).toISOString();
+
+  const safeOptions = options || {};
+  const candleType = safeOptions.candleType;
+  const baseCount = safeOptions.count ?? 100;
+  const to = safeOptions.to ?? paddedTo;
+
+  const restOptions = { ...safeOptions };
+  delete (restOptions as Partial<GetCandlesOptions>).candleType;
+  delete (restOptions as Partial<GetCandlesOptions>).count;
+  delete (restOptions as Partial<GetCandlesOptions>).to;
 
   const maxCount = MAX_CANDLE_COUNTS[candleType];
-  const totalCount = Math.min(count, maxCount);
+  const totalCount = Math.min(baseCount, maxCount);
 
   const allCandles: upbitCandle[] = [];
   let remaining = totalCount;
   let nextTo = to;
 
   while (remaining > 0) {
-    if (signal?.aborted) {
-      throw new DOMException("Aborted", "AbortError");
+    if (signal && signal.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
     }
 
     const batchCount = Math.min(400, remaining);
 
     const batch = await getUpbitCandles(
       {
-        ...rest,
+        ...restOptions,
         candleType,
         count: batchCount,
         to: nextTo,
@@ -51,25 +79,45 @@ const fetchNormalizedCandles = async (
       signal
     );
 
-    if (!batch.length) break;
+    if (batch.length === 0) {
+      break;
+    }
 
     allCandles.push(...batch);
-    remaining -= batch.length;
-    nextTo = batch[batch.length - 1].candle_date_time_utc;
+    remaining = remaining - batch.length;
+
+    const lastCandle = batch[batch.length - 1];
+    const lastTime = lastCandle.candle_date_time_utc;
+    nextTo = lastTime;
 
     if (remaining > 0) {
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 500);
+      });
     }
   }
 
-  const normalized = normalizeCandles(allCandles).sort(
-    (a, b) => a.date.getTime() - b.date.getTime()
-  );
+  const normalized = normalizeCandles(allCandles).sort((a, b) => {
+    const timeA = a.date.getTime();
+    const timeB = b.date.getTime();
+    return timeA - timeB;
+  });
 
-  const deduplicated = normalized.filter(
-    (candle, index, self) =>
-      index === self.findIndex((t) => t.date.getTime() === candle.date.getTime())
-  );
+  const seenTimes = new Set<number>();
+  const deduplicated: NormalizedCandle[] = [];
+
+  for (const candle of normalized) {
+    const time = candle.date.getTime();
+
+    if (seenTimes.has(time)) {
+      continue;
+    }
+
+    seenTimes.add(time);
+    deduplicated.push(candle);
+  }
 
   return deduplicated;
 };
