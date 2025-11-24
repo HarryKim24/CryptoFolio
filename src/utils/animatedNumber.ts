@@ -9,40 +9,46 @@ type Options = {
 };
 
 const useAnimatedNumber = (target: number, options?: Options): number => {
-  const { 
-    duration = 1000, 
-    initial = 0, 
-    trigger = true,
-    delay = 0 
-  } = options || {};
+  const safeOptions = options || {};
+  const duration = safeOptions.duration ?? 1000;
+  const initial = safeOptions.initial ?? 0;
+  const trigger = safeOptions.trigger ?? true;
+  const delay = safeOptions.delay ?? 0;
 
-  const mv = useMotionValue(initial);
+  const motionValue = useMotionValue(initial);
   const [displayValue, setDisplayValue] = useState(initial);
   const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!trigger) return;
+    if (!trigger) {
+      return;
+    }
 
-    const controls = animate(mv, target, {
+    const animationControls = animate(motionValue, target, {
       duration: duration / 1000,
       delay: delay,
       ease: 'easeOut',
     });
 
     return () => {
-      controls.stop();
+      animationControls.stop();
+
       if (frameRef.current !== null) {
         cancelAnimationFrame(frameRef.current);
         frameRef.current = null;
       }
     };
-  }, [target, duration, trigger, delay, mv]);
+  }, [target, duration, trigger, delay, motionValue]);
 
-  useMotionValueEvent(mv, 'change', (latest) => {
-    if (frameRef.current !== null) return;
+  useMotionValueEvent(motionValue, 'change', (latest) => {
+    if (frameRef.current !== null) {
+      return;
+    }
 
     frameRef.current = requestAnimationFrame(() => {
-      setDisplayValue(Math.round(latest as number));
+      const latestNumber = latest as number;
+      const rounded = Math.round(latestNumber);
+      setDisplayValue(rounded);
       frameRef.current = null;
     });
   });

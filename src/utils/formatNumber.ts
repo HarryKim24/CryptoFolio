@@ -1,33 +1,58 @@
 const formatNumberForDisplay = (value: number): string => {
-  if (isNaN(value)) return '-';
-
-  const [intPartRaw, fracPartRaw = ''] = value.toString().split('.');
-  const intPartNum = Number(intPartRaw);
-  const intPartFormatted = intPartNum.toLocaleString('ko-KR');
-
-  if (intPartRaw.length >= 6) {
-    return intPartFormatted;
+  if (isNaN(value)) {
+    return '-';
   }
 
-  if (intPartNum > 0) {
-    const allowedFracLength = Math.max(0, 6 - intPartRaw.length);
-    return fracPartRaw
-      ? `${intPartFormatted}.${fracPartRaw.slice(0, allowedFracLength)}`
-      : intPartFormatted;
+  const stringValue = value.toString();
+  const splitValues = stringValue.split('.');
+  const integerRaw = splitValues[0];
+  const fractionRaw = splitValues[1] ?? '';
+
+  const integerNumber = Number(integerRaw);
+  const integerFormatted = integerNumber.toLocaleString('ko-KR');
+
+  const hasLargeInteger = integerRaw.length >= 6;
+  if (hasLargeInteger) {
+    return integerFormatted;
   }
 
-  let trimmedFrac = fracPartRaw.slice(0, 6);
-  const match = fracPartRaw.match(/0*(\d{3,})/);
+  const hasFraction = fractionRaw.length > 0;
+
+  if (integerNumber > 0) {
+    const maxFractionLength = 6 - integerRaw.length;
+
+    if (hasFraction) {
+      const slicedFraction = fractionRaw.slice(0, maxFractionLength);
+      const formatted = `${integerFormatted}.${slicedFraction}`;
+      return formatted;
+    }
+
+    return integerFormatted;
+  }
+
+  let trimmedFraction = fractionRaw.slice(0, 6);
+
+  const fractionPattern = /0*(\d{3,})/;
+  const match = fractionRaw.match(fractionPattern);
+
   if (match) {
-    trimmedFrac = match[0].slice(0, 6);
+    const matched = match[0];
+    const limited = matched.slice(0, 6);
+    trimmedFraction = limited;
   }
 
-  return `0.${trimmedFrac}`;
+  const formattedZero = `0.${trimmedFraction}`;
+  return formattedZero;
 };
 
 const formatPrice = (value: number): string => {
-  if (isNaN(value)) return '-';
-  return Math.floor(value).toLocaleString('ko-KR');
+  if (isNaN(value)) {
+    return '-';
+  }
+
+  const floored = Math.floor(value);
+  const formatted = floored.toLocaleString('ko-KR');
+  return formatted;
 };
 
 export { formatNumberForDisplay, formatPrice };

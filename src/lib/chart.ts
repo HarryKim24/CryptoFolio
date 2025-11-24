@@ -22,5 +22,5 @@ ChartJS.register(
   BarController,
   BarElement,
   CandlestickController,
-  CandlestickElement,
+  CandlestickElement
 );

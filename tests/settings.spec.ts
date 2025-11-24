@@ -5,6 +5,7 @@ test('change password on settings page', async ({ page, context }) => {
   test.setTimeout(200000);
 
   const sessionToken = await getSessionToken('test2@naver.com', 'test1234');
+
   await context.addCookies([
     {
       name: 'next-auth.session-token',
@@ -24,8 +25,20 @@ test('change password on settings page', async ({ page, context }) => {
   await editButton.click();
   await page.waitForTimeout(2000);
 
-  const currentPasswordInput = page.locator('input[placeholder="현재 비밀번호"]');
-  const currentPasswordSteps = ['t', 'te', 'tes', 'test', 'test1', 'test12', 'test123', 'test1234'];
+  const currentPasswordInput = page.locator(
+    'input[placeholder="현재 비밀번호"]'
+  );
+
+  const currentPasswordSteps = [
+    't',
+    'te',
+    'tes',
+    'test',
+    'test1',
+    'test12',
+    'test123',
+    'test1234',
+  ];
 
   for (const value of currentPasswordSteps) {
     await currentPasswordInput.fill(value);
@@ -35,7 +48,18 @@ test('change password on settings page', async ({ page, context }) => {
   await page.waitForTimeout(1000);
 
   const newPasswordInput = page.locator('input[placeholder="새 비밀번호"]');
-  const newPasswordSteps = ['t', 'te', 'tes', 'test', 'test1', 'test12', 'test123', 'test1234', 'test12345'];
+
+  const newPasswordSteps = [
+    't',
+    'te',
+    'tes',
+    'test',
+    'test1',
+    'test12',
+    'test123',
+    'test1234',
+    'test12345',
+  ];
 
   for (const value of newPasswordSteps) {
     await newPasswordInput.fill(value);
@@ -44,7 +68,10 @@ test('change password on settings page', async ({ page, context }) => {
 
   await page.waitForTimeout(1000);
 
-  const confirmPasswordInput = page.locator('input[placeholder="새 비밀번호 확인"]');
+  const confirmPasswordInput = page.locator(
+    'input[placeholder="새 비밀번호 확인"]'
+  );
+
   for (const value of newPasswordSteps) {
     await confirmPasswordInput.fill(value);
     await page.waitForTimeout(200);

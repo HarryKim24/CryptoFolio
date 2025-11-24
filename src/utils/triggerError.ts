@@ -1,12 +1,15 @@
 export const triggerError = (
-  setError: (v: string) => void,
-  setShake: (v: boolean) => void,
+  setError: (value: string) => void,
+  setShake: (value: boolean) => void,
   message: string
 ) => {
-  setError("");
+  setError('');
   setShake(false);
-  requestAnimationFrame(() => {
+
+  const run = () => {
     setError(message);
     setShake(true);
-  });
+  };
+
+  requestAnimationFrame(run);
 };

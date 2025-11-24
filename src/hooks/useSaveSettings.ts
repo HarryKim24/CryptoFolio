@@ -41,90 +41,111 @@ export const useSaveSettings = ({
   errorController,
 }: UseSaveSettingsParams) => {
   const handleSave = async () => {
-    const isNameChanged = localUser.name !== (session.user?.name ?? "");
-    const isPasswordChanged = !!newPassword;
+    const currentName = session.user?.name ?? "";
+    const isNameChanged = localUser.name !== currentName;
+    const hasNewPassword = newPassword.length > 0;
 
-    if (!isNameChanged && !isPasswordChanged) {
+    if (!isNameChanged && !hasNewPassword) {
       errorController.trigger("변경된 내용이 없습니다.");
       return;
     }
 
-    if (newPassword && !currentPassword.trim()) {
+    const trimmedCurrentPassword = currentPassword.trim();
+    const trimmedNewPassword = newPassword.trim();
+    const trimmedConfirmPassword = confirmPassword.trim();
+    const trimmedName = localUser.name.trim();
+
+    if (hasNewPassword && !trimmedCurrentPassword) {
       errorController.trigger("현재 비밀번호를 입력해주세요.");
       return;
     }
 
-    if (newPassword && !confirmPassword.trim()) {
+    if (hasNewPassword && !trimmedConfirmPassword) {
       errorController.trigger("새 비밀번호 확인을 입력해주세요.");
       return;
     }
 
-    if (newPassword && newPassword !== confirmPassword) {
+    if (hasNewPassword && trimmedNewPassword !== trimmedConfirmPassword) {
       errorController.trigger("새 비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    if (newPassword && currentPassword && newPassword === currentPassword) {
+    if (hasNewPassword && trimmedCurrentPassword && trimmedNewPassword === trimmedCurrentPassword) {
       errorController.trigger("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
       return;
     }
 
-    if (isNameChanged && !localUser.name.trim()) {
+    if (isNameChanged && !trimmedName) {
       errorController.trigger("이름을 빈 값으로 변경할 수 없습니다.");
       return;
     }
 
-    if (isNameChanged && !isPasswordChanged) {
-      if (!localUser.updatedAt) {
+    if (isNameChanged && !hasNewPassword) {
+      const hasUpdatedAt = !!localUser.updatedAt;
+
+      if (!hasUpdatedAt) {
         errorController.trigger("최근 수정일 정보를 불러올 수 없습니다.");
         return;
       }
 
-      const lastUpdated = new Date(localUser.updatedAt);
+      const lastUpdated = new Date(localUser.updatedAt as string);
       const now = new Date();
-      const oneMonth = 30 * 24 * 60 * 60 * 1000;
 
-      if (now.getTime() - lastUpdated.getTime() < oneMonth) {
-        errorController.trigger(
-          "이름은 최근 수정일로부터 1개월 후에만 변경할 수 있습니다."
-        );
+      const lastUpdatedTime = lastUpdated.getTime();
+      const nowTime = now.getTime();
+      const diff = nowTime - lastUpdatedTime;
+      const oneMonthMs = 30 * 24 * 60 * 60 * 1000;
+
+      const isWithinOneMonth = diff < oneMonthMs;
+
+      if (isWithinOneMonth) {
+        errorController.trigger("이름은 최근 수정일로부터 1개월 후에만 변경할 수 있습니다.");
         return;
       }
     }
 
     try {
-      const res = await fetch("/api/settings/update", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: localUser.name,
-          currentPassword,
-          newPassword,
-        }),
+      const body = JSON.stringify({
+        name: trimmedName,
+        currentPassword: trimmedCurrentPassword,
+        newPassword: trimmedNewPassword,
       });
 
-      if (!res.ok) {
-        const msg = await res.text();
-        errorController.trigger(msg);
+      const response = await fetch("/api/settings/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body,
+      });
+
+      const isError = !response.ok;
+
+      if (isError) {
+        const message = await response.text();
+        errorController.trigger(message);
         return;
       }
 
       alert("수정 완료");
-      setLocalUser((prev) => ({
-        ...prev,
-        updatedAt: new Date().toISOString(),
-      }));
+
+      setLocalUser((previous) => {
+        return {
+          ...previous,
+          updatedAt: new Date().toISOString(),
+        };
+      });
 
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setIsEditing(false);
       errorController.reset();
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       errorController.trigger("수정 중 오류 발생");
     }
   };
 
-  return { handleSave };
+  return {
+    handleSave,
+  };
 };

@@ -1,41 +1,96 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Asset } from "@/types/assetTypes";
+import { Asset } from '@/types/assetTypes';
+
+type DistributionItem = {
+  symbol: string;
+  value: number;
+};
+
+type SnapshotItem = {
+  timestamp: number;
+  value: number;
+};
 
 const getDistribution = (
   assets: Asset[],
   priceMap: Record<string, number>
-) => {
+): DistributionItem[] => {
   const result: Record<string, number> = {};
 
-  for (const a of assets) {
-    const qty = a.type === "buy" ? a.quantity : -a.quantity;
-    result[a.symbol] = (result[a.symbol] ?? 0) + qty;
+  for (const asset of assets) {
+    let quantity = asset.quantity;
+
+    if (asset.type === 'sell') {
+      quantity = -asset.quantity;
+    }
+
+    const previousQuantity = result[asset.symbol] ?? 0;
+    const nextQuantity = previousQuantity + quantity;
+
+    result[asset.symbol] = nextQuantity;
   }
 
-  return Object.entries(result)
-    .filter(([_, qty]) => qty > 0)
-    .map(([symbol, qty]) => ({
+  const entries = Object.entries(result);
+  const filteredEntries = entries.filter((entry) => {
+    const quantity = entry[1];
+    return quantity > 0;
+  });
+
+  const distribution: DistributionItem[] = [];
+
+  for (const entry of filteredEntries) {
+    const symbol = entry[0];
+    const quantity = entry[1];
+    const price = priceMap[symbol] ?? 0;
+    const value = quantity * price;
+
+    const item: DistributionItem = {
       symbol,
-      value: qty * (priceMap[symbol] ?? 0),
-    }));
+      value,
+    };
+
+    distribution.push(item);
+  }
+
+  return distribution;
 };
 
 const getSnapshot = (
   assets: Asset[],
   priceMap: Record<string, number>
-) => {
+): SnapshotItem[] => {
   const holdings: Record<string, number> = {};
 
-  for (const a of assets) {
-    const qty = a.type === "buy" ? a.quantity : -a.quantity;
-    holdings[a.symbol] = (holdings[a.symbol] ?? 0) + qty;
+  for (const asset of assets) {
+    let quantity = asset.quantity;
+
+    if (asset.type === 'sell') {
+      quantity = -asset.quantity;
+    }
+
+    const previousQuantity = holdings[asset.symbol] ?? 0;
+    const nextQuantity = previousQuantity + quantity;
+
+    holdings[asset.symbol] = nextQuantity;
   }
 
-  const value = Object.entries(holdings).reduce((sum, [symbol, qty]) => {
-    return sum + qty * (priceMap[symbol] ?? 0);
-  }, 0);
+  const entries = Object.entries(holdings);
+  let totalValue = 0;
 
-  return [{ timestamp: Date.now(), value }];
+  for (const entry of entries) {
+    const symbol = entry[0];
+    const quantity = entry[1];
+    const price = priceMap[symbol] ?? 0;
+    const value = quantity * price;
+
+    totalValue = totalValue + value;
+  }
+
+  const snapshot: SnapshotItem = {
+    timestamp: Date.now(),
+    value: totalValue,
+  };
+
+  return [snapshot];
 };
 
 export { getDistribution, getSnapshot };

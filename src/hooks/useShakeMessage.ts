@@ -4,14 +4,16 @@ export const useShakeMessage = () => {
   const [message, setMessage] = useState("");
   const [shake, setShake] = useState(false);
 
-  const trigger = (msg: string) => {
+  const trigger = (text: string) => {
     setMessage("");
     setShake(false);
 
-    requestAnimationFrame(() => {
-      setMessage(msg);
+    const run = () => {
+      setMessage(text);
       setShake(true);
-    });
+    };
+
+    requestAnimationFrame(run);
   };
 
   const reset = () => {
@@ -19,5 +21,10 @@ export const useShakeMessage = () => {
     setShake(false);
   };
 
-  return { message, shake, trigger, reset };
+  return {
+    message,
+    shake,
+    trigger,
+    reset,
+  };
 };
