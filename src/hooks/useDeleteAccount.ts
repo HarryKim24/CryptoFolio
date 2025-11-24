@@ -20,27 +20,33 @@ export const useDeleteAccount = ({
   errorController,
 }: UseDeleteAccountParams) => {
   const handleDeleteAccount = async () => {
-    if (!password.trim()) {
+    const trimmed = password.trim();
+
+    if (!trimmed) {
       errorController.trigger("비밀번호를 입력하세요.");
       return;
     }
 
     try {
-      const res = await fetch("/api/settings/delete", {
+      const body = JSON.stringify({ password: trimmed });
+
+      const response = await fetch("/api/settings/delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body,
       });
 
-      if (!res.ok) {
+      const isInvalid = !response.ok;
+
+      if (isInvalid) {
         errorController.trigger("잘못된 비밀번호를 입력했습니다.");
         return;
       }
 
       alert("탈퇴 완료. 메인 페이지로 이동합니다.");
       await signOut({ callbackUrl: "/" });
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       errorController.trigger("회원 탈퇴 중 오류 발생");
     }
   };
@@ -51,5 +57,8 @@ export const useDeleteAccount = ({
     errorController.reset();
   };
 
-  return { handleDeleteAccount, handleCancel };
+  return {
+    handleDeleteAccount,
+    handleCancel,
+  };
 };
