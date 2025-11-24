@@ -9,24 +9,71 @@ test('register and login flow', async ({ page }) => {
 
   const nameInput = page.locator('input[placeholder="이름"]');
   const nameSteps = ['t', 'te', 'tes', 'test'];
-  for (const value of nameSteps) { await nameInput.fill(value); await page.waitForTimeout(150); }
+
+  for (const value of nameSteps) {
+    await nameInput.fill(value);
+    await page.waitForTimeout(150);
+  }
+
   await page.waitForTimeout(500);
 
   const emailInput = page.locator('input[placeholder="이메일"]');
-  const emailSteps = ['t','te','tes','test','test5','test5@','test5@n','test5@na','test5@nav','test5@naver','test5@naver.','test5@naver.c','test5@naver.co','test5@naver.com'];
-  for (const value of emailSteps) { await emailInput.fill(value); await page.waitForTimeout(150); }
+  const emailSteps = [
+    't',
+    'te',
+    'tes',
+    'test',
+    'test5',
+    'test5@',
+    'test5@n',
+    'test5@na',
+    'test5@nav',
+    'test5@naver',
+    'test5@naver.',
+    'test5@naver.c',
+    'test5@naver.co',
+    'test5@naver.com',
+  ];
+
+  for (const value of emailSteps) {
+    await emailInput.fill(value);
+    await page.waitForTimeout(150);
+  }
+
   await page.waitForTimeout(500);
 
   const passwordInput = page.locator('input[placeholder="비밀번호"]');
-  const passwordSteps = ['t','te','tes','test','test1','test12','test123','test1234'];
-  for (const value of passwordSteps) { await passwordInput.fill(value); await page.waitForTimeout(150); }
+  const passwordSteps = [
+    't',
+    'te',
+    'tes',
+    'test',
+    'test1',
+    'test12',
+    'test123',
+    'test1234',
+  ];
+
+  for (const value of passwordSteps) {
+    await passwordInput.fill(value);
+    await page.waitForTimeout(150);
+  }
+
   await page.waitForTimeout(500);
 
-  const confirmPasswordInput = page.locator('input[placeholder="비밀번호 확인"]');
-  for (const value of passwordSteps) { await confirmPasswordInput.fill(value); await page.waitForTimeout(150); }
+  const confirmPasswordInput = page.locator(
+    'input[placeholder="비밀번호 확인"]'
+  );
+
+  for (const value of passwordSteps) {
+    await confirmPasswordInput.fill(value);
+    await page.waitForTimeout(150);
+  }
+
   await page.waitForTimeout(500);
 
   const registerButton = page.locator('button:has-text("회원가입")');
+
   await expect(registerButton).toBeEnabled({ timeout: 5000 });
   await page.waitForTimeout(300);
   await registerButton.hover();
@@ -34,16 +81,51 @@ test('register and login flow', async ({ page }) => {
   await page.waitForTimeout(2000);
 
   const loginEmailInput = page.locator('input[placeholder="이메일"]');
-  const loginEmailSteps = ['t','te','tes','test','test5','test5@','test5@n','test5@na','test5@nav','test5@naver','test5@naver.','test5@naver.c','test5@naver.co','test5@naver.com'];
-  for (const value of loginEmailSteps) { await loginEmailInput.fill(value); await page.waitForTimeout(150); }
+  const loginEmailSteps = [
+    't',
+    'te',
+    'tes',
+    'test',
+    'test5',
+    'test5@',
+    'test5@n',
+    'test5@na',
+    'test5@nav',
+    'test5@naver',
+    'test5@naver.',
+    'test5@naver.c',
+    'test5@naver.co',
+    'test5@naver.com',
+  ];
+
+  for (const value of loginEmailSteps) {
+    await loginEmailInput.fill(value);
+    await page.waitForTimeout(150);
+  }
+
   await page.waitForTimeout(500);
 
   const loginPasswordInput = page.locator('input[placeholder="비밀번호"]');
-  const loginPasswordSteps = ['t','te','tes','test','test1','test12','test123','test1234'];
-  for (const value of loginPasswordSteps) { await loginPasswordInput.fill(value); await page.waitForTimeout(150); }
+  const loginPasswordSteps = [
+    't',
+    'te',
+    'tes',
+    'test',
+    'test1',
+    'test12',
+    'test123',
+    'test1234',
+  ];
+
+  for (const value of loginPasswordSteps) {
+    await loginPasswordInput.fill(value);
+    await page.waitForTimeout(150);
+  }
+
   await page.waitForTimeout(500);
 
   const loginButton = page.locator('form button:has-text("로그인")');
+
   await expect(loginButton).toBeEnabled({ timeout: 5000 });
   await page.waitForTimeout(300);
   await loginButton.hover();

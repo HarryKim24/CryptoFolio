@@ -22,7 +22,9 @@ test('portfolio page with login session', async ({ page, context }) => {
   await page.waitForTimeout(1000);
 
   const confirmButton = page.locator('button:has-text("확인")');
-  if (await confirmButton.isVisible()) {
+  const isConfirmVisible = await confirmButton.isVisible();
+
+  if (isConfirmVisible) {
     await confirmButton.click();
   }
 
@@ -37,9 +39,9 @@ test('portfolio page with login session', async ({ page, context }) => {
   await page.waitForTimeout(1000);
 
   const searchInput = page.locator('input[placeholder="코인 검색"]');
-  const inputs = ['ㅂ', 'ㅂㅌ', 'ㅂㅌㅋ', 'ㅂㅌㅋㅇ'];
+  const searchSteps = ['ㅂ', 'ㅂㅌ', 'ㅂㅌㅋ', 'ㅂㅌㅋㅇ'];
 
-  for (const value of inputs) {
+  for (const value of searchSteps) {
     await searchInput.fill(value);
     await page.waitForTimeout(300);
   }
@@ -52,9 +54,19 @@ test('portfolio page with login session', async ({ page, context }) => {
   await page.waitForTimeout(300);
 
   const priceInput = page.locator('input[placeholder="코인당 가격"]');
-  const priceValues = ['1', '10', '100', '1000', '10000', '100000', '1000000', '10000000', '100000000'];
+  const priceSteps = [
+    '1',
+    '10',
+    '100',
+    '1000',
+    '10000',
+    '100000',
+    '1000000',
+    '10000000',
+    '100000000',
+  ];
 
-  for (const value of priceValues) {
+  for (const value of priceSteps) {
     await priceInput.fill(value);
     await page.waitForTimeout(150);
   }
@@ -70,9 +82,11 @@ test('portfolio page with login session', async ({ page, context }) => {
   await page.waitForTimeout(500);
 
   const saveButton = page.locator('form button:has-text("거래 추가")');
+
   await expect(saveButton).toBeEnabled({ timeout: 5000 });
   await page.waitForTimeout(300);
   await saveButton.hover();
   await saveButton.click({ force: true });
+
   await page.waitForTimeout(4000);
 });
