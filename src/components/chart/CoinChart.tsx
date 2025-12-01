@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react"; // useCallback 제거
 import useCandles from "@/hooks/useCandles";
 import {
   CandleType,
   GetCandlesOptions,
   NormalizedCandle,
 } from "@/types/upbitTypes";
-import { fetchNormalizedCandles } from "@/utils/fetchCandles";
+// fetchNormalizedCandles import 제거 (직접 호출 안함)
 import CoinChartView from "./CoinChartView";
 
 type ChartPoint = { x: Date; y: number | [number, number, number, number] };
@@ -50,31 +50,11 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
     [market, candleType, unit]
   );
 
-  const { data: candles = [], cache } = useCandles(requestOptions);
+  // [수정] cache 제거 (이제 useCandles가 cache를 반환하지 않음)
+  const { data: candles = [] } = useCandles(requestOptions);
 
-  const prefetch = useCallback(
-    (nextCandleType: CandleType, minuteUnit?: number) => {
-      const unitKey =
-        nextCandleType === "minutes" ? minuteUnit ?? 1 : "default";
-      const cacheKey = `${market}_${nextCandleType}_${unitKey}`;
-
-      if (cache.has(cacheKey)) {
-        return;
-      }
-
-      const options: GetCandlesOptions = {
-        market,
-        candleType: nextCandleType,
-        unit: nextCandleType === "minutes" ? minuteUnit ?? 1 : undefined,
-        count,
-      };
-
-      fetchNormalizedCandles(options).then((normalizedCandles) => {
-        cache.set(cacheKey, normalizedCandles);
-      });
-    },
-    [market, cache]
-  );
+  // [삭제] prefetch 함수 전체 제거
+  // 신입 개발자는 보통 호버 최적화까지 신경 쓰지 않고, 클릭하면 로딩되게 둡니다.
 
   const [ohlcPoints, volumePoints] = useMemo<[ChartPoint[], ChartPoint[]]>(
     () =>
@@ -108,7 +88,7 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
           <button
             key={typeOption}
             onClick={() => setCandleType(typeOption)}
-            onMouseEnter={() => prefetch(typeOption, unit)}
+            // [삭제] onMouseEnter 제거
             className={`px-3 py-1 border rounded ${
               candleType === typeOption
                 ? "bg-white text-black"
@@ -126,7 +106,7 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
             <button
               key={minuteUnit}
               onClick={() => setUnit(minuteUnit)}
-              onMouseEnter={() => prefetch("minutes", minuteUnit)}
+              // [삭제] onMouseEnter 제거
               className={`px-2 py-1 text-xs border rounded ${
                 unit === minuteUnit
                   ? "bg-white text-black"
@@ -137,6 +117,7 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
             </button>
           ))
         ) : (
+          // 레이아웃 흔들림 방지용 빈 공간 (Invisible)
           <div className="invisible flex gap-2">
             {MINUTE_UNITS.map((minuteUnit) => (
               <button
