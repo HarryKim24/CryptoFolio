@@ -7,8 +7,7 @@ import { GetCandlesOptions, NormalizedCandle } from '@/types/upbitTypes';
 const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
 
 const useCandles = (options: GetCandlesOptions) => {
-  // [수정 1] options 객체를 의존성 배열에 넣으면 무한 루프가 돌기 때문에,
-  // 여기서 미리 값들을 꺼내서(Destructuring) 관리합니다.
+
   const { market, candleType, unit, count, to } = options;
 
   const [data, setData] = useState<NormalizedCandle[]>([]);
@@ -17,7 +16,6 @@ const useCandles = (options: GetCandlesOptions) => {
   
   const wsRef = useRef<WebSocket | null>(null);
 
-  // 1. 초기 데이터 로딩 (REST API)
   useEffect(() => {
     if (!market) return;
 
@@ -28,8 +26,6 @@ const useCandles = (options: GetCandlesOptions) => {
       setError(null);
 
       try {
-        // [수정 2] API 함수에는 다시 객체로 묶어서 전달합니다.
-        // 이렇게 하면 의존성 배열에는 원시값(string, number)만 들어가서 안전합니다.
         const candles = await fetchNormalizedCandles({
           market,
           candleType,
@@ -58,12 +54,9 @@ const useCandles = (options: GetCandlesOptions) => {
     return () => {
       isMounted = false;
     };
-  // [수정 3] options 객체 대신, 풀어서 쓴 값들을 의존성으로 넣습니다.
   }, [market, candleType, unit, count, to]); 
 
-  // 2. 실시간 웹소켓 연결
   useEffect(() => {
-    // 여기서도 market 변수를 사용
     if (!market || data.length === 0 || !enableWebSocket) {
       return;
     }
@@ -79,7 +72,7 @@ const useCandles = (options: GetCandlesOptions) => {
     socket.onopen = () => {
       const payload = [
         { ticket: 'realtime-candle' },
-        { type: 'trade', codes: [market] } // options.market 대신 market 사용
+        { type: 'trade', codes: [market] }
       ];
       socket.send(JSON.stringify(payload));
     };
@@ -108,7 +101,6 @@ const useCandles = (options: GetCandlesOptions) => {
           const rawTime = raw.timestamp;
           const timeDiff = Math.abs(lastTime - rawTime);
           
-          // options.unit 대신 unit 사용
           const intervalMs = getIntervalMs(unit, candleType);
 
           if (timeDiff < intervalMs) {
@@ -132,7 +124,7 @@ const useCandles = (options: GetCandlesOptions) => {
       socket.close();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [market, enableWebSocket]); // data는 의존성에서 제외
+  }, [market, enableWebSocket]);
 
   return {
     data,
