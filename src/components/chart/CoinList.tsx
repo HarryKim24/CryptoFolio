@@ -35,9 +35,8 @@ const ACTIVE_TABS: MarketTab[] = ["KRW", "BTC", "USDT"];
 const LOCAL_STORAGE_KEY = "activeTab";
 
 const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
-  const tickers = useUpbitTickerStore(
-    (state) => state.tickers
-  ) as Record<string, Ticker>;
+
+  const tickers = useUpbitTickerStore((state) => state.tickers);
   const markets = useUpbitTickerStore((state) => state.markets);
   const loading = useUpbitTickerStore((state) => state.loading);
 
@@ -49,7 +48,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
   const isLoading =
     loading ||
     !currentMarket ||
-    Object.keys(tickers).length === 0 ||
+    tickers.length === 0 ||
     markets.length === 0;
 
   useEffect(() => {
@@ -75,28 +74,27 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
       return [];
     }
 
-    return Object.values(tickers)
+    return tickers
       .filter((ticker) => ticker.market.startsWith(`${activeTab}-`))
-      .flatMap((ticker) => {
+      .map((ticker) => {
         const marketInfo = markets.find(
           (item) => item.market === ticker.market
         );
 
         if (!marketInfo) {
-          return [];
+          return null;
         }
 
-        return [
-          {
-            ticker,
-            korean_name: marketInfo.korean_name,
-            english_name: marketInfo.english_name,
-            caution: marketInfo.market_event?.caution as
-              | CautionType
-              | undefined,
-          },
-        ];
-      });
+        return {
+          ticker,
+          korean_name: marketInfo.korean_name,
+          english_name: marketInfo.english_name,
+          caution: marketInfo.market_event?.caution as
+            | CautionType
+            | undefined,
+        };
+      })
+      .filter((item) => item !== null) as CombinedItem[];
   }, [tickers, markets, activeTab, isLoading]);
 
   const sorted = useMemo(() => {

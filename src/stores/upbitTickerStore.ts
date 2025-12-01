@@ -2,39 +2,49 @@
 
 import { create } from 'zustand';
 import type { Market, Ticker as RestTicker } from '@/types/upbitTypes';
-
-export type WsTicker = { code: string };
 export type Ticker = RestTicker;
 
-export type UpbitTickerState = {
-  tickers: Record<string, Ticker>;
+interface UpbitTickerState {
+  tickers: Ticker[];
   markets: Market[];
   loading: boolean;
-  setTickers: (
-    fn: (prev: Record<string, Ticker>) => Record<string, Ticker>
-  ) => void;
-  setTickersMap: (map: Record<string, Ticker>) => void;
+
+  setTickers: (tickers: Ticker[]) => void;
+  updateTicker: (ticker: Ticker) => void;
   setMarkets: (markets: Market[]) => void;
   setLoading: (value: boolean) => void;
-};
+}
 
 export const useUpbitTickerStore = create<UpbitTickerState>((set) => ({
-  tickers: {},
+  tickers: [],
   markets: [],
   loading: true,
-  setTickers: (updateFn) => {
+
+  setTickers: (tickers) => {
+    set({ tickers });
+  },
+
+  updateTicker: (newTicker) => {
     set((state) => {
-      const next = updateFn(state.tickers);
-      return { tickers: next };
+
+      const index = state.tickers.findIndex((t) => t.market === newTicker.market);
+      const newTickers = [...state.tickers];
+
+      if (index !== -1) {
+        newTickers[index] = newTicker;
+      } else {
+        newTickers.push(newTicker);
+      }
+
+      return { tickers: newTickers };
     });
   },
-  setTickersMap: (map) => {
-    set({ tickers: map });
-  },
+
   setMarkets: (markets) => {
     set({ markets });
   },
+
   setLoading: (value) => {
     set({ loading: value });
   },
-}));
+}))

@@ -8,24 +8,20 @@ import { useUpbitTickerStore } from '@/stores/upbitTickerStore';
 
 const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
 
-type WsTicker = { code: string };
 type Ticker = RestTicker;
 
+type WsTicker = Omit<Ticker, 'market'> & { code: string };
+
 const toCommonTicker = (ticker: WsTicker | RestTicker): Ticker => {
-  let market = '';
-
   if ('code' in ticker) {
-    market = ticker.code;
-  } else {
-    market = ticker.market;
+    const { code, ...rest } = ticker;
+    return {
+      ...rest,
+      market: code,
+    } as Ticker;
   }
-
-  const restTicker = ticker as RestTicker;
-
-  return {
-    ...restTicker,
-    market,
-  };
+  
+  return ticker;
 };
 
 export const UpbitTickerProvider = ({
@@ -34,179 +30,109 @@ export const UpbitTickerProvider = ({
   children: React.ReactNode;
 }) => {
   const markets = useUpbitTickerStore((state) => state.markets);
-  const { setMarkets, setLoading, setTickers, setTickersMap } =
-    useUpbitTickerStore((state) => state);
+  const { setMarkets, setLoading, setTickers, updateTicker } = useUpbitTickerStore();
 
   const wsRef = useRef<WebSocket | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
+  
   useEffect(() => {
-    let isAlive = true;
-    const controller = new AbortController();
+    let isMounted = true;
 
     const fetchMarkets = async () => {
       try {
         const response = await axios.get<Market[]>('/api/proxy/market', {
           params: { isDetails: true },
-          signal: controller.signal,
         });
 
-        if (!isAlive) {
-          return;
-        }
+        if (!isMounted) return;
 
         const filteredMarkets = response.data.filter((market) => {
           const name = market.market;
-
-          if (name.startsWith('KRW-')) return true;
-          if (name.startsWith('BTC-')) return true;
-          if (name.startsWith('USDT-')) return true;
-
-          return false;
+          return name.startsWith('KRW-') || name.startsWith('BTC-') || name.startsWith('USDT-');
         });
 
         setMarkets(filteredMarkets);
-      } catch (_) {
-        if (axios.isCancel(_)) {
-          return;
-        }
-
-        console.error('마켓 정보 로딩 실패', _);
+      } catch (error) {
+        console.error('마켓 로딩 실패:', error);
       }
     };
 
     fetchMarkets();
 
     return () => {
-      isAlive = false;
-      controller.abort();
+      isMounted = false;
     };
   }, [setMarkets]);
 
   useEffect(() => {
-    const hasWindow = typeof window !== 'undefined';
-
-    if (!hasWindow) {
-      return;
-    }
-
-    if (markets.length === 0) {
-      return;
-    }
-
-    if (pollRef.current) {
-      clearInterval(pollRef.current);
-      pollRef.current = null;
-    }
-
-    if (wsRef.current) {
-      try {
-        wsRef.current.close();
-      } catch {}
-      wsRef.current = null;
-    }
-
-    if (enableWebSocket) {
-      const socket = new WebSocket('wss://api.upbit.com/websocket/v1');
-      wsRef.current = socket;
-
-      const codes = markets.map((market) => market.market);
-
-      const handleOpen = () => {
-        const ticket = { ticket: 'ticker' };
-        const type = { type: 'ticker', codes };
-        const message = JSON.stringify([ticket, type]);
-        socket.send(message);
-      };
-
-      const handleMessage = (event: MessageEvent) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-          if (!reader.result) {
-            return;
-          }
-
-          const text = reader.result.toString();
-          const rawTicker = JSON.parse(text) as WsTicker;
-          const ticker = toCommonTicker(rawTicker);
-
-          setTickers((previous) => {
-            return {
-              ...previous,
-              [ticker.market]: ticker,
-            };
-          });
-
-          setLoading(false);
-        };
-
-        reader.readAsText(event.data);
-      };
-
-      const handleError = (event: Event) => {
-        console.error('WS error', event);
-      };
-
-      socket.onopen = handleOpen;
-      socket.onmessage = handleMessage;
-      socket.onerror = handleError;
-
-      return () => {
-        try {
-          socket.close();
-        } catch {}
-
-        if (wsRef.current === socket) {
-          wsRef.current = null;
-        }
-      };
-    }
-
-    let isFirstFetch = true;
+    if (typeof window === 'undefined' || markets.length === 0) return;
 
     const fetchTickers = async () => {
       try {
-        if (isFirstFetch) {
-          setLoading(true);
-        }
-
-        const codes = markets.map((market) => market.market);
-        const joinedCodes = codes.join(',');
-
+        const codes = markets.map((m) => m.market).join(',');
+        
         const response = await axios.get<RestTicker[]>('/api/proxy/ticker', {
-          params: { markets: joinedCodes },
+          params: { markets: codes },
         });
 
-        const tickerMap: Record<string, Ticker> = {};
-
-        response.data.forEach((item) => {
-          const ticker = toCommonTicker(item);
-          tickerMap[ticker.market] = ticker;
-        });
-
-        setTickersMap(tickerMap);
-      } catch (_) {
-        console.error('Polling 실패:', _);
-      } finally {
-        if (isFirstFetch) {
-          setLoading(false);
-          isFirstFetch = false;
-        }
+        const cleanData = response.data.map((item) => toCommonTicker(item));
+        
+        setTickers(cleanData);
+        setLoading(false);
+      } catch (err) {
+        console.error('Ticker 폴링 에러:', err);
       }
     };
 
     fetchTickers();
+    const intervalId = setInterval(fetchTickers, 1000);
 
-    pollRef.current = setInterval(fetchTickers, 1500);
+    if (enableWebSocket) {
+      if (wsRef.current) wsRef.current.close();
+
+      const socket = new WebSocket('wss://api.upbit.com/websocket/v1');
+      wsRef.current = socket;
+      socket.binaryType = 'blob'; 
+
+      socket.onopen = () => {
+        const codes = markets.map((m) => m.market);
+        const message = JSON.stringify([
+          { ticket: 'ticker-list' },
+          { type: 'ticker', codes, isOnlyRealtime: true }
+        ]);
+        socket.send(message);
+      };
+
+      socket.onmessage = async (event) => {
+        try {
+          let text = '';
+          if (event.data instanceof Blob) {
+            text = await event.data.text();
+          } else {
+            text = event.data as string;
+          }
+
+          if (!text) return;
+
+          const rawTicker = JSON.parse(text) as WsTicker;
+          const ticker = toCommonTicker(rawTicker);
+
+          updateTicker(ticker);
+          
+        } catch (e) {
+          console.error('WS 파싱 에러', e);
+        }
+      };
+      
+      socket.onerror = (e) => console.error('WS Error', e);
+    }
 
     return () => {
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
+      clearInterval(intervalId);
+      if (wsRef.current) {
+        wsRef.current.close();
       }
     };
-  }, [markets, setLoading, setTickers, setTickersMap]);
+  }, [markets, setTickers, updateTicker, setLoading]); 
 
   return <>{children}</>;
-};
+}
