@@ -6,15 +6,12 @@ const formatPrice = (value: number, activeTab: "KRW" | "BTC" | "USDT"): string =
   if (activeTab === "KRW") {
     return `${value.toLocaleString()} 원`;
   }
-
   if (activeTab === "BTC") {
     return `${value.toFixed(8)} BTC`;
   }
-
   if (value >= 1000) {
     return `$${Math.round(value).toLocaleString()}`;
   }
-
   return `$${value.toFixed(3)}`;
 };
 
@@ -24,15 +21,12 @@ const formatVolume = (value: number, activeTab: "KRW" | "BTC" | "USDT"): string 
     const formatted = divided.toLocaleString();
     return `${formatted}억`;
   }
-
   if (activeTab === "BTC") {
     return `${value.toFixed(6)} BTC`;
   }
-
   if (value >= 1000) {
     return `$${Math.round(value).toLocaleString()}`;
   }
-
   return `$${value.toFixed(4)}`;
 };
 
@@ -49,22 +43,15 @@ export type CoinDetailData = {
 };
 
 const normalizeTab = (prefix: string | undefined): "KRW" | "BTC" | "USDT" => {
-  if (prefix === "BTC") {
-    return "BTC";
-  }
-
-  if (prefix === "USDT") {
-    return "USDT";
-  }
-
+  if (prefix === "BTC") return "BTC";
+  if (prefix === "USDT") return "USDT";
   return "KRW";
 };
 
 export const useCoinDetailData = (market: string): CoinDetailData => {
   const tickers = useUpbitTickerStore((state) => state.tickers);
   const markets = useUpbitTickerStore((state) => state.markets);
-
-  const ticker = tickers[market];
+  const ticker = tickers.find((t) => t.market === market);
 
   const coinDetail = useMemo(() => {
     const marketInfo = markets.find((item: Market) => item.market === market);
@@ -82,7 +69,6 @@ export const useCoinDetailData = (market: string): CoinDetailData => {
     const volume24h = ticker?.acc_trade_price_24h ?? 0;
 
     let rateColor = "text-gray-300";
-
     if (changeRate > 0) {
       rateColor = "text-red-400";
     } else if (changeRate < 0) {
