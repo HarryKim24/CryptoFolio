@@ -1,165 +1,153 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { fetchNormalizedCandles } from '@/utils/fetchCandles';
-import axios from 'axios';
 import { GetCandlesOptions, NormalizedCandle } from '@/types/upbitTypes';
 
 const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
 
-const candleCache = new Map<string, NormalizedCandle[]>();
-
-const makeCacheKey = (options: GetCandlesOptions) => {
-  const market = options.market;
-  const candleType = options.candleType;
-  const unit = options.unit ?? 'default';
-
-  return `${market}_${candleType}_${unit}`;
-};
-
-const isAbortError = (error: unknown) => {
-  const isAxiosCancel = axios.isCancel(error);
-  const isDomAbort =
-    error instanceof DOMException && error.name === 'AbortError';
-
-  return isAxiosCancel || isDomAbort;
-};
-
 const useCandles = (options: GetCandlesOptions) => {
+  // [수정 1] options 객체를 의존성 배열에 넣으면 무한 루프가 돌기 때문에,
+  // 여기서 미리 값들을 꺼내서(Destructuring) 관리합니다.
+  const { market, candleType, unit, count, to } = options;
+
   const [data, setData] = useState<NormalizedCandle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  
   const wsRef = useRef<WebSocket | null>(null);
 
+  // 1. 초기 데이터 로딩 (REST API)
   useEffect(() => {
-    const controller = new AbortController();
-    const cacheKey = makeCacheKey(options);
+    if (!market) return;
 
-    const setCachedCandles = (candles: NormalizedCandle[]) => {
-      candleCache.set(cacheKey, candles);
-      setData(candles);
-    };
+    let isMounted = true;
 
     const loadCandles = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const cachedCandles = candleCache.get(cacheKey);
-
-        if (cachedCandles && cachedCandles.length > 0) {
-          setData(cachedCandles);
-          return;
+        // [수정 2] API 함수에는 다시 객체로 묶어서 전달합니다.
+        // 이렇게 하면 의존성 배열에는 원시값(string, number)만 들어가서 안전합니다.
+        const candles = await fetchNormalizedCandles({
+          market,
+          candleType,
+          unit,
+          count,
+          to
+        });
+        
+        if (isMounted) {
+          setData(candles);
         }
-
-        const candles = await fetchNormalizedCandles(
-          options,
-          controller.signal
-        );
-        setCachedCandles(candles);
       } catch (err) {
-        if (isAbortError(err)) {
-          return;
-        }
-
-        if (err instanceof Error) {
-          setError(err);
-        } else {
-          setError(new Error('Unknown error'));
+        if (isMounted) {
+          console.error('캔들 로딩 실패:', err);
+          setError(err instanceof Error ? err : new Error('Unknown error'));
         }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadCandles();
 
     return () => {
-      controller.abort();
+      isMounted = false;
     };
-  }, [options]);
+  // [수정 3] options 객체 대신, 풀어서 쓴 값들을 의존성으로 넣습니다.
+  }, [market, candleType, unit, count, to]); 
 
+  // 2. 실시간 웹소켓 연결
   useEffect(() => {
-    const hasMarket = !!options.market;
-    const hasData = data.length > 0;
-    const canUseWebSocket = enableWebSocket;
-
-    if (!hasMarket || !hasData || !canUseWebSocket) {
+    // 여기서도 market 변수를 사용
+    if (!market || data.length === 0 || !enableWebSocket) {
       return;
+    }
+
+    if (wsRef.current) {
+      wsRef.current.close();
     }
 
     const socket = new WebSocket('wss://api.upbit.com/websocket/v1');
     wsRef.current = socket;
+    socket.binaryType = 'blob'; 
 
-    const subscribeMarket = () => {
-      const ticket = { ticket: 'realtime-candle' };
-      const trade = { type: 'trade', codes: [options.market as string] };
-
-      const payload = [ticket, trade];
-      const message = JSON.stringify(payload);
-
-      socket.send(message);
+    socket.onopen = () => {
+      const payload = [
+        { ticket: 'realtime-candle' },
+        { type: 'trade', codes: [market] } // options.market 대신 market 사용
+      ];
+      socket.send(JSON.stringify(payload));
     };
 
-    const decodeMessage = async (event: MessageEvent) => {
-      const blob = event.data as Blob;
-      const buffer = await blob.arrayBuffer();
-      const text = new TextDecoder().decode(buffer);
-      const parsed = JSON.parse(text);
-      return parsed;
-    };
-
-    const updateLastCandle = (raw: any) => {
-      setData((prev) => {
-        const hasPrevData = prev.length > 0;
-
-        if (!hasPrevData) {
-          return prev;
+    socket.onmessage = async (event) => {
+      try {
+        let text = '';
+        if (event.data instanceof Blob) {
+          text = await event.data.text();
+        } else {
+          text = event.data;
         }
 
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
-        const lastCandle = { ...updated[lastIndex] };
+        if (!text) return;
+        
+        const raw = JSON.parse(text);
+        
+        setData((prev) => {
+          if (prev.length === 0) return prev;
 
-        const lastTime = lastCandle.date.getTime();
-        const rawTime = raw.timestamp;
-        const timeDiff = Math.abs(lastTime - rawTime);
-        const fiveMinutes = 1000 * 60 * 5;
+          const updated = [...prev];
+          const lastIndex = updated.length - 1;
+          const lastCandle = { ...updated[lastIndex] };
 
-        if (timeDiff < fiveMinutes) {
-          lastCandle.close = raw.trade_price;
-          lastCandle.volume = lastCandle.volume + raw.trade_volume;
-          updated[lastIndex] = lastCandle;
-        }
+          const lastTime = lastCandle.date.getTime();
+          const rawTime = raw.timestamp;
+          const timeDiff = Math.abs(lastTime - rawTime);
+          
+          // options.unit 대신 unit 사용
+          const intervalMs = getIntervalMs(unit, candleType);
 
-        return updated;
-      });
+          if (timeDiff < intervalMs) {
+            lastCandle.close = raw.trade_price;
+            lastCandle.high = Math.max(lastCandle.high, raw.trade_price);
+            lastCandle.low = Math.min(lastCandle.low, raw.trade_price);
+            lastCandle.volume = lastCandle.volume + raw.trade_volume;
+            
+            updated[lastIndex] = lastCandle;
+          } 
+
+          return updated;
+        });
+
+      } catch (e) {
+        console.error('소켓 데이터 처리 에러', e);
+      }
     };
-
-    const handleOpen = () => {
-      subscribeMarket();
-    };
-
-    const handleMessage = async (event: MessageEvent) => {
-      const raw = await decodeMessage(event);
-      updateLastCandle(raw);
-    };
-
-    socket.onopen = handleOpen;
-    socket.onmessage = handleMessage;
 
     return () => {
       socket.close();
     };
-  }, [options.market, data.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [market, enableWebSocket]); // data는 의존성에서 제외
 
   return {
     data,
     loading,
     error,
-    cache: candleCache,
   };
 };
+
+function getIntervalMs(unit: number | undefined, type: string): number {
+  if (type === 'days') return 24 * 60 * 60 * 1000;
+  if (type === 'weeks') return 7 * 24 * 60 * 60 * 1000;
+  if (type === 'months') return 30 * 24 * 60 * 60 * 1000;
+
+  const minutes = unit ?? 1;
+  return minutes * 60 * 1000;
+}
 
 export default useCandles;

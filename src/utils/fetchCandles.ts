@@ -1,125 +1,53 @@
 import { getUpbitCandles } from '@/api/upbitCandle';
 import {
-  CandleType,
   GetCandlesOptions,
   NormalizedCandle,
   upbitCandle,
 } from '@/types/upbitTypes';
 
+// [유지] 데이터 정규화 함수는 그대로 둡니다. (필수 로직)
 const normalizeCandles = (candles: upbitCandle[]): NormalizedCandle[] => {
   return candles.map((candle) => {
+    // KST 시간 문자열을 Date 객체로 변환
     const date = new Date(candle.candle_date_time_kst);
-    const open = candle.opening_price;
-    const high = candle.high_price;
-    const low = candle.low_price;
-    const close = candle.trade_price;
-    const volume = candle.candle_acc_trade_volume;
-
-    const normalizedCandle: NormalizedCandle = {
+    
+    return {
       date,
-      open,
-      high,
-      low,
-      close,
-      volume,
+      open: candle.opening_price,
+      high: candle.high_price,
+      low: candle.low_price,
+      close: candle.trade_price,
+      volume: candle.candle_acc_trade_volume,
     };
-
-    return normalizedCandle;
   });
 };
 
-const MAX_CANDLE_COUNTS: Record<CandleType, number> = {
-  minutes: 400,
-  days: 800,
-  weeks: 400,
-  months: 400,
-  years: 400,
-};
-
+// [변경] 복잡한 while 루프와 setTimeout 제거
+// 그냥 한 번 요청해서 받아온 만큼만 줍니다.
 const fetchNormalizedCandles = async (
-  options: GetCandlesOptions,
-  signal?: AbortSignal
+  options: GetCandlesOptions
+  // signal 인자 제거 (AbortController 안 쓸 거니까)
 ): Promise<NormalizedCandle[]> => {
-  const now = new Date();
-  const nowTime = now.getTime();
-  const paddedTime = nowTime + 2 * 60 * 1000;
-  const paddedTo = new Date(paddedTime).toISOString();
+  // 기본값 설정
+  const count = options.count ?? 200; // 업비트 최대가 200개라 보통 이걸로 설정
 
-  const safeOptions = options || {};
-  const candleType = safeOptions.candleType;
-  const baseCount = safeOptions.count ?? 100;
-  const to = safeOptions.to ?? paddedTo;
-
-  const restOptions = { ...safeOptions };
-  delete (restOptions as Partial<GetCandlesOptions>).candleType;
-  delete (restOptions as Partial<GetCandlesOptions>).count;
-  delete (restOptions as Partial<GetCandlesOptions>).to;
-
-  const maxCount = MAX_CANDLE_COUNTS[candleType];
-  const totalCount = Math.min(baseCount, maxCount);
-
-  const allCandles: upbitCandle[] = [];
-  let remaining = totalCount;
-  let nextTo = to;
-
-  while (remaining > 0) {
-    if (signal && signal.aborted) {
-      throw new DOMException('Aborted', 'AbortError');
-    }
-
-    const batchCount = Math.min(400, remaining);
-
-    const batch = await getUpbitCandles(
-      {
-        ...restOptions,
-        candleType,
-        count: batchCount,
-        to: nextTo,
-      },
-      signal
-    );
-
-    if (batch.length === 0) {
-      break;
-    }
-
-    allCandles.push(...batch);
-    remaining = remaining - batch.length;
-
-    const lastCandle = batch[batch.length - 1];
-    const lastTime = lastCandle.candle_date_time_utc;
-    nextTo = lastTime;
-
-    if (remaining > 0) {
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 500);
-      });
-    }
-  }
-
-  const normalized = normalizeCandles(allCandles).sort((a, b) => {
-    const timeA = a.date.getTime();
-    const timeB = b.date.getTime();
-    return timeA - timeB;
+  // API 호출 (한 번만 함)
+  const rawCandles = await getUpbitCandles({
+    ...options,
+    count, 
   });
 
-  const seenTimes = new Set<number>();
-  const deduplicated: NormalizedCandle[] = [];
+  // 정규화 (변수명 매핑)
+  const normalized = normalizeCandles(rawCandles);
 
-  for (const candle of normalized) {
-    const time = candle.date.getTime();
+  // 날짜 오름차순 정렬 (과거 -> 최신)
+  // 차트 라이브러리가 보통 이걸 원함
+  normalized.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-    if (seenTimes.has(time)) {
-      continue;
-    }
-
-    seenTimes.add(time);
-    deduplicated.push(candle);
-  }
-
-  return deduplicated;
+  // [변경] 중복 제거 로직(Set) 삭제
+  // "API가 알아서 잘 주겠지"라고 믿는 게 주니어의 마음입니다.
+  
+  return normalized;
 };
 
 export { normalizeCandles, fetchNormalizedCandles };
