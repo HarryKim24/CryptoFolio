@@ -1,116 +1,85 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import client from "@/lib/mongodb";
+import clientPromise from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    const userEmail = session?.user?.email;
-
-    if (!userEmail) {
-      return NextResponse.json(
-        { message: "로그인이 필요합니다" },
-        { status: 401 }
-      );
+    
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
     }
 
-    const db = (await client).db("cryptofolio");
-    const assets = await db
-      .collection("assets")
-      .find({ userEmail })
-      .sort({ createdAt: -1 })
+    const client = await clientPromise;
+    const db = client.db("cryptofolio");
+    const collection = db.collection("assets");
+
+    const assets = await collection
+      .find({ userId: session.user.email })
+      .sort({ date: -1 })
       .toArray();
 
-    return NextResponse.json(assets, { status: 200 });
+    return NextResponse.json(assets);
   } catch (error) {
-    console.error("자산 조회 실패:", error);
-    return NextResponse.json({ message: "서버 오류" }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ message: "서버 에러" }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const userEmail = session?.user?.email;
 
-    if (!userEmail) {
-      return NextResponse.json(
-        { message: "로그인이 필요합니다" },
-        { status: 401 }
-      );
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
     }
 
     const body = await request.json();
-    const { symbol, name, quantity, averagePrice, date, type } = body;
-
-    if (
-      !symbol ||
-      !name ||
-      quantity === undefined ||
-      averagePrice === undefined ||
-      !date ||
-      !type
-    ) {
-      return NextResponse.json({ message: "필수 항목 누락" }, { status: 400 });
+    
+    if (!body.symbol || !body.name || !body.date || !body.type) {
+      return NextResponse.json({ message: "필수 정보가 누락되었습니다." }, { status: 400 });
     }
 
-    const db = (await client).db("cryptofolio");
+    const client = await clientPromise;
+    const db = client.db("cryptofolio");
+    const collection = db.collection("assets");
 
-    const document = {
-      userEmail,
-      symbol,
-      name,
-      quantity,
-      averagePrice,
-      date,
-      type,
+    const newAsset = {
+      ...body,
+      userId: session.user.email,
       createdAt: new Date().toISOString(),
     };
 
-    const result = await db.collection("assets").insertOne(document);
+    const result = await collection.insertOne(newAsset);
 
     return NextResponse.json(
-      { _id: result.insertedId.toString(), ...document },
+      { ...newAsset, _id: result.insertedId }, 
       { status: 201 }
     );
   } catch (error) {
-    console.error("자산 저장 오류:", error);
-    return NextResponse.json(
-      { message: "서버 오류 발생" },
-      { status: 500 }
-    );
+    console.error(error);
+    return NextResponse.json({ message: "자산 추가 실패" }, { status: 500 });
   }
 }
 
-export async function DELETE(_request: NextRequest) {
+export async function DELETE() {
   try {
     const session = await getServerSession(authOptions);
-    const userEmail = session?.user?.email;
 
-    if (!userEmail) {
-      return NextResponse.json(
-        { message: "로그인이 필요합니다" },
-        { status: 401 }
-      );
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
     }
 
-    const db = (await client).db("cryptofolio");
+    const client = await clientPromise;
+    const db = client.db("cryptofolio");
+    const collection = db.collection("assets");
 
-    const result = await db
-      .collection("assets")
-      .deleteMany({ userEmail });
+    await collection.deleteMany({ userId: session.user.email });
 
-    return NextResponse.json(
-      { message: `${result.deletedCount}개의 거래가 삭제되었습니다.` },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "초기화 완료" });
   } catch (error) {
-    console.error("전체 삭제 실패:", error);
-    return NextResponse.json(
-      { message: "서버 오류 발생" },
-      { status: 500 }
-    );
+    console.error(error);
+    return NextResponse.json({ message: "삭제 실패" }, { status: 500 });
   }
 }
