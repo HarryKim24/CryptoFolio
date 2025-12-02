@@ -1,15 +1,10 @@
 import { hashPassword } from "@/lib/auth";
 import client from "@/lib/mongodb";
-import { User } from "@/types/user";
 import { validateUserPayload } from "@/utils/validateRegisterInputs";
 
 export async function POST(request: Request) {
   try {
-    const {
-      email,
-      password,
-      name,
-    }: Pick<User, "email" | "password" | "name"> = await request.json();
+    const { email, password, name } = await request.json();
 
     const validationResult = validateUserPayload(email, password, name);
     if (!validationResult.valid) {
