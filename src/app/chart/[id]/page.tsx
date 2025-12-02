@@ -27,11 +27,9 @@ const ChartPage = () => {
 
   const { isInitialLoading, isInvalidMarket, tab } = useMemo(() => {
     const hasNoMarket = !market;
-    const hasNoTickers = Object.keys(tickers).length === 0;
+    const hasNoTickers = tickers.length === 0;
     const hasNoMarkets = markets.length === 0;
-
     const initialLoading = loading || hasNoMarket || hasNoTickers || hasNoMarkets;
-
     const invalidMarket =
       !initialLoading &&
       (!market.includes("-") || !markets.some((item) => item.market === market));
