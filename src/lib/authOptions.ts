@@ -36,6 +36,8 @@ export const authOptions: AuthOptions = {
           id: user._id.toString(),
           email: user.email || "",
           name: user.name || "",
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
         };
       },
     }),
@@ -49,13 +51,18 @@ export const authOptions: AuthOptions = {
         token.id = user.id;
         token.email = user.email || "";
         token.name = user.name || "";
+        token.createdAt = user.createdAt;
+        token.updatedAt = user.updatedAt;
       }
       return token;
     },
     session: async ({ session, token }) => {
       if (session.user) {
+        session.user.id = token.id as string;
         session.user.email = (token.email || "") as string;
         session.user.name = (token.name || "") as string;
+        session.user.createdAt = token.createdAt as string;
+        session.user.updatedAt = token.updatedAt as string;
       }
       return session;
     },
