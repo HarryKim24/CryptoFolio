@@ -15,6 +15,7 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [shake, setShake] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
   const router = useRouter();
 
   const showError = (message: string) => {
@@ -24,9 +25,7 @@ const LoginPage = () => {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (isLoading) {
-      return;
-    }
+    if (isLoading) return;
 
     if (!email || !password) {
       showError("이메일과 비밀번호를 모두 입력하세요.");

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { User } from "@/types/user";
 import { validateRegisterInputs } from "@/utils/validateRegisterInputs";
 import { triggerError } from "@/utils/triggerError";
 import SubmitButton from "@/components/auth/SubmitButton";
@@ -11,13 +10,14 @@ import AuthForm from "@/components/auth/AuthForm";
 import AuthInput from "@/components/auth/AuthInput";
 
 const RegisterPage = () => {
-  const [email, setEmail] = useState<User["email"]>("");
-  const [name, setName] = useState<User["name"]>("");
-  const [password, setPassword] = useState<User["password"]>("");
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [shake, setShake] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
   const router = useRouter();
 
   const showError = (message: string) => {
@@ -27,9 +27,7 @@ const RegisterPage = () => {
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (isLoading) {
-      return;
-    }
+    if (isLoading) return;
 
     const validationResult = validateRegisterInputs(
       email,
@@ -39,15 +37,9 @@ const RegisterPage = () => {
     );
 
     if (!validationResult.valid) {
-      showError(validationResult.message!);
+      showError(validationResult.message || "입력값을 확인해주세요.");
       return;
     }
-
-    const user: Pick<User, "email" | "password" | "name"> = {
-      email,
-      password,
-      name,
-    };
 
     try {
       setIsLoading(true);
@@ -55,7 +47,11 @@ const RegisterPage = () => {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user),
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+        }),
       });
 
       if (response.status === 201) {
