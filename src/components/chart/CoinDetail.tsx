@@ -46,17 +46,14 @@ const CoinDetail = ({
 
           <div className="mt-1 min-h-[20px]">
             {marketInfo && (
-              <CoinCautionBadge caution={marketInfo.market_event?.caution} />
+              <CoinCautionBadge caution={marketInfo.market_event?.caution} compact={false} />
             )}
           </div>
         </div>
 
         <div className="text-right space-y-0.5 lg:space-y-1 shrink-0 flex items-center">
           <div className="flex flex-col gap-1">
-            <span
-              className="block text-lg md:text-xl lg:text-3xl font-semibold text-white truncate min-h-[1.5rem]"
-              aria-label="price"
-            >
+            <span className="block text-lg md:text-xl lg:text-3xl font-semibold text-white truncate min-h-[1.5rem]">
               {formattedPrice}
             </span>
 
