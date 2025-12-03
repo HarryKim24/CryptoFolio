@@ -121,7 +121,7 @@ const CoinList = ({ initialTab, currentMarket, onClickSameMarket }: Props) => {
         <div className="m-2">
           <input
             type="text"
-            placeholder="코인명/심볼 검색 (초성 가능)"
+            placeholder="코인명/심볼 검색"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-2 py-1 rounded bg-neutral-800 text-neutral-100 text-sm focus:outline-none"
