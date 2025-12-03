@@ -1,8 +1,4 @@
-const PortfolioLayout = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+const PortfolioLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-portfolio-gradient text-neutral-100 pt-16">
       {children}
