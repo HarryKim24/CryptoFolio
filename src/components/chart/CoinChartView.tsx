@@ -32,8 +32,8 @@ const CoinChartView = ({
   unit,
   disableZoom = false,
 }: Props) => {
-  const candlestickOptions: ApexOptions = useMemo(
-    () => ({
+  
+  const candlestickOptions: ApexOptions = useMemo(() => ({
       chart: {
         id: "candlestick-chart",
         type: "candlestick",
@@ -76,12 +76,9 @@ const CoinChartView = ({
           colors: { upward: "#3FB68B", downward: "#F46A6A" },
         },
       },
-    }),
-    [candles, disableZoom]
-  );
+    }), [candles, disableZoom]);
 
-  const volumeOptions: ApexOptions = useMemo(
-    () => ({
+  const volumeOptions: ApexOptions = useMemo(() => ({
       chart: {
         id: "volume-chart",
         type: "bar",
@@ -121,12 +118,10 @@ const CoinChartView = ({
       plotOptions: { bar: { columnWidth: "75%" } },
       grid: { borderColor: "#222" },
       theme: { mode: "dark" },
-    }),
-    []
-  );
+    }), []);
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden rounded-xl shadow">
+    <div className="flex flex-col h-full overflow-hidden rounded-xl shadow">
       <div className="flex-1 bg-[#0b0f19]">
         <ReactApexChart
           key={`${market}-${candleType}-${unit}-price`}
