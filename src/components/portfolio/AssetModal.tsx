@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, FormEvent } from 'react';
-import type { Asset } from '../../types/assetTypes';
 import DatePicker from 'react-datepicker';
 import { ko } from 'date-fns/locale';
 import { format } from 'date-fns';
@@ -15,13 +14,22 @@ type Market = {
   english_name: string;
 };
 
+type AssetInputData = {
+  symbol: string;
+  name: string;
+  quantity: number;
+  averagePrice: number;
+  date: string;
+  type: 'buy' | 'sell';
+};
+
 type AssetModalProps = {
   show: boolean;
   onClose: () => void;
-  onSave: (asset: Omit<Asset, 'userId' | '_id'>) => void;
+  onSave: (asset: AssetInputData) => void;
 };
 
-type AssetInput = {
+type InputState = {
   symbol?: string;
   name?: string;
   quantity?: number;
@@ -30,26 +38,32 @@ type AssetInput = {
   type?: 'buy' | 'sell';
 };
 
-const tradeTypes: Array<'buy' | 'sell'> = ['buy', 'sell'];
+const tradeTypes = ['buy', 'sell'] as const;
 
 const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
   const [marketList, setMarketList] = useState<Market[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [filteredMarkets, setFilteredMarkets] = useState<Market[]>([]);
-  const [input, setInput] = useState<AssetInput>({});
+  
+  const [input, setInput] = useState<InputState>({ type: 'buy' });
 
   useEffect(() => {
     if (show) {
-      fetch('/api/proxy/market?isDetails=true')
-        .then((res) => res.json())
-        .then((data: Market[]) => {
-          const krwMarkets = data.filter((item) =>
-            item.market.startsWith('KRW-')
-          );
+      const fetchMarkets = async () => {
+        try {
+          const res = await fetch('/api/proxy/market?isDetails=true');
+          const data: Market[] = await res.json();
+          
+          const krwMarkets = data.filter((item) => item.market.startsWith('KRW-'));
           setMarketList(krwMarkets);
-        });
+        } catch (error) {
+          console.error("마켓 정보 로딩 실패", error);
+        }
+      };
 
-      setInput({});
+      fetchMarkets();
+
+      setInput({ type: 'buy' });
       setInputValue('');
       setFilteredMarkets([]);
       document.body.style.overflow = 'hidden';
@@ -59,28 +73,53 @@ const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
   }, [show]);
 
   const handleSelect = (market: Market) => {
+    const symbol = market.market.replace('KRW-', '');
     setInput((prev) => ({
       ...prev,
-      symbol: market.market.replace('KRW-', ''),
+      symbol,
       name: market.korean_name,
     }));
-    setInputValue(`${market.korean_name} (${market.market.replace('KRW-', '')})`);
+    setInputValue(`${market.korean_name} (${symbol})`);
     setFilteredMarkets([]);
   };
 
-  const handleQuantityChange = (value: string) => {
-    const parsed = parseFloat(value);
-    setInput((prev) => ({
-      ...prev,
-      quantity: Number.isNaN(parsed) || parsed < 0 ? undefined : parsed,
-    }));
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    
+    setInput((prev) => ({ ...prev, symbol: undefined, name: undefined }));
+
+    if (!value) {
+      setFilteredMarkets([]);
+      return;
+    }
+
+    const lowerValue = value.toLowerCase();
+    const isChosung = /^[ㄱ-ㅎ]+$/.test(value);
+    const chosungValue = isChosung ? getChosung(value) : '';
+
+    const filtered = marketList.filter((item) => {
+      const symbol = item.market.replace('KRW-', '').toLowerCase();
+      const name = item.korean_name;
+      const engName = item.english_name.toLowerCase();
+      const choName = getChosung(name);
+
+      return (
+        name.includes(value) ||
+        engName.includes(lowerValue) ||
+        symbol.includes(lowerValue) ||
+        (isChosung && choName.includes(chosungValue))
+      );
+    });
+
+    setFilteredMarkets(filtered);
   };
 
-  const handleAveragePriceChange = (value: string) => {
+  const handleNumberChange = (field: 'quantity' | 'averagePrice', value: string) => {
     const parsed = parseFloat(value);
     setInput((prev) => ({
       ...prev,
-      averagePrice: Number.isNaN(parsed) || parsed < 0 ? undefined : parsed,
+      [field]: Number.isNaN(parsed) || parsed < 0 ? undefined : parsed,
     }));
   };
 
@@ -91,9 +130,7 @@ const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
     }));
   };
 
-  const totalPrice = (input.quantity ?? 0) * (input.averagePrice ?? 0);
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
 
     const { symbol, name, quantity, averagePrice, date, type } = input;
@@ -103,12 +140,7 @@ const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
       return;
     }
 
-    if (
-      quantity === undefined ||
-      averagePrice === undefined ||
-      !date ||
-      !type
-    ) {
+    if (!quantity || !averagePrice || !date || !type) {
       alert('모든 필드를 올바르게 입력해주세요.');
       return;
     }
@@ -121,16 +153,19 @@ const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
       date,
       type,
     });
+    
     onClose();
   };
 
+  const totalPrice = (input.quantity ?? 0) * (input.averagePrice ?? 0);
+  
   const isFormComplete = Boolean(
     input.symbol &&
-      input.name &&
-      input.quantity !== undefined &&
-      input.averagePrice !== undefined &&
-      input.date &&
-      input.type
+    input.name &&
+    input.quantity !== undefined &&
+    input.averagePrice !== undefined &&
+    input.date &&
+    input.type
   );
 
   return (
@@ -166,12 +201,7 @@ const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
                       ? 'bg-portfolio hover:brightness-105 text-neutral-100'
                       : 'bg-white/10 hover:brightness-105 text-gray-300'
                   }`}
-                  onClick={() =>
-                    setInput((prev) => ({
-                      ...prev,
-                      type: tradeType,
-                    }))
-                  }
+                  onClick={() => setInput((prev) => ({ ...prev, type: tradeType }))}
                 >
                   {tradeType === 'buy' ? '구매' : '매도'}
                 </button>
@@ -184,53 +214,7 @@ const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
                 placeholder="코인 검색"
                 className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 placeholder-neutral-100 focus:outline-none"
                 value={inputValue}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setInputValue(value);
-                  setInput((prev) => ({
-                    ...prev,
-                    symbol: undefined,
-                    name: undefined,
-                  }));
-
-                  const lowerValue = value.toLowerCase();
-                  const isChosungOnly = /^[ㄱ-ㅎ]+$/.test(value);
-                  const choValue = isChosungOnly ? getChosung(value) : null;
-
-                  const filtered = marketList.filter((item) => {
-                    const symbol = item.market.replace('KRW-', '').toLowerCase();
-                    const korean = item.korean_name;
-                    const english = item.english_name.toLowerCase();
-                    const lowerKorean = korean.toLowerCase();
-                    const choKorean = getChosung(korean);
-
-                    return (
-                      lowerKorean.includes(lowerValue) ||
-                      english.includes(lowerValue) ||
-                      symbol.includes(lowerValue) ||
-                      (isChosungOnly &&
-                        choValue !== null &&
-                        choKorean.includes(choValue))
-                    );
-                  });
-
-                  setFilteredMarkets(filtered);
-
-                  const matchedMarket = marketList.find(
-                    (item) =>
-                      value ===
-                      `${item.korean_name} (${item.market.replace('KRW-', '')})`
-                  );
-
-                  if (matchedMarket) {
-                    setInput((prev) => ({
-                      ...prev,
-                      symbol: matchedMarket.market.replace('KRW-', ''),
-                      name: matchedMarket.korean_name,
-                    }));
-                    setFilteredMarkets([]);
-                  }
-                }}
+                onChange={handleSearchChange}
               />
               {filteredMarkets.length > 0 && (
                 <ul className="absolute z-50 w-full bg-portfolio mt-1 rounded-xl shadow max-h-48 overflow-y-auto">
@@ -256,7 +240,7 @@ const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
                   placeholder="수량"
                   className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 pr-10 placeholder-neutral-100 focus:outline-none"
                   value={input.quantity ?? ''}
-                  onChange={(event) => handleQuantityChange(event.target.value)}
+                  onChange={(e) => handleNumberChange('quantity', e.target.value)}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-md text-neutral-100">
                   개
@@ -270,9 +254,7 @@ const AssetModal = ({ show, onClose, onSave }: AssetModalProps) => {
                   placeholder="코인당 가격"
                   className="w-full bg-white/10 text-neutral-100 rounded-xl px-4 py-3 pr-10 placeholder-neutral-100 focus:outline-none"
                   value={input.averagePrice ?? ''}
-                  onChange={(event) =>
-                    handleAveragePriceChange(event.target.value)
-                  }
+                  onChange={(e) => handleNumberChange('averagePrice', e.target.value)}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-md text-neutral-100">
                   원
