@@ -16,6 +16,15 @@ type PortfolioClientProps = {
   userId: string
 }
 
+type AssetInput = {
+  symbol: string;
+  name: string;
+  quantity: number;
+  averagePrice: number;
+  date: string | Date;
+  type?: string;
+}
+
 const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
   const {
     assets,
@@ -35,8 +44,17 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
   const [confirmAllOpen, setConfirmAllOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
-  const handleAddAsset = async (asset: Omit<Asset, 'userId' | '_id'>) => {
-    await addAsset(asset)
+  const handleAddAsset = async (asset: AssetInput) => {
+    const newAsset = {
+        symbol: asset.symbol,
+        name: asset.name,
+        quantity: asset.quantity,
+        averagePrice: asset.averagePrice,
+        date: asset.date,
+        type: (asset.type === 'sell' ? 'sell' : 'buy') as 'buy' | 'sell',
+    };
+
+    await addAsset(newAsset);
   }
 
   const requestDelete = (id: string) => {
