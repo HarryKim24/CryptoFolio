@@ -53,8 +53,6 @@ const CoinListItem = ({ ticker, korean_name, caution, isActive, onClick }: Props
   if (changeRate > 0) colorClass = "text-red-400";
   else if (changeRate < 0) colorClass = "text-blue-400";
 
-  const isCompact = korean_name.length >= 7;
-
   return (
     <div
       onClick={handleClick}
@@ -65,7 +63,7 @@ const CoinListItem = ({ ticker, korean_name, caution, isActive, onClick }: Props
       <div className="max-w-[180px]">
         <div className="flex items-center gap-1 text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
           <span className="truncate text-neutral-100">{korean_name}</span>
-          {caution && <CoinCautionBadge caution={caution} compact={isCompact} />}
+          {caution && <CoinCautionBadge caution={caution} compact={true} />}
         </div>
         <div className="text-sm text-gray-400">{ticker.market}</div>
       </div>

@@ -49,13 +49,11 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
     [market, candleType, unit]
   );
 
-  const { data: candles = [] } = useCandles(requestOptions);
+  const { data: candles = [], loading } = useCandles(requestOptions);
 
   const [ohlcPoints, volumePoints] = useMemo<[ChartPoint[], ChartPoint[]]>(
     () =>
-      (candles as NormalizedCandle[]).reduce<
-        [ChartPoint[], ChartPoint[]]
-      >(
+      (candles as NormalizedCandle[]).reduce<[ChartPoint[], ChartPoint[]]>(
         ([ohlcAccumulator, volumeAccumulator], candle) => {
           const date = new Date(candle.date);
 
@@ -111,27 +109,32 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
           ))
         ) : (
           <div className="invisible flex gap-2">
-            {MINUTE_UNITS.map((minuteUnit) => (
-              <button
-                key={minuteUnit}
-                className="px-2 py-1 text-xs border rounded border-transparent"
-              >
-                {minuteUnit}분
-              </button>
-            ))}
+            <button className="px-2 py-1 text-xs border border-transparent">
+              1분
+            </button>
           </div>
         )}
       </div>
 
-      <CoinChartView
-        market={market}
-        candles={candles as NormalizedCandle[]}
-        ohlc={ohlcPoints}
-        volume={volumePoints}
-        candleType={candleType}
-        unit={unit}
-        disableZoom={disableZoom}
-      />
+      <div className="flex-1 relative min-h-0 w-full">
+        {(loading || candles.length === 0) && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0b0f19]/50 backdrop-blur-[1px]">
+            <span className="text-neutral-300">차트 로딩 중...</span>
+          </div>
+        )}
+
+        <div className="absolute inset-0">
+          <CoinChartView
+            market={market}
+            candles={candles as NormalizedCandle[]}
+            ohlc={ohlcPoints}
+            volume={volumePoints}
+            candleType={candleType}
+            unit={unit}
+            disableZoom={disableZoom}
+          />
+        </div>
+      </div>
     </div>
   );
 };
