@@ -10,96 +10,68 @@ export interface PortfolioStats {
   profitRate: number;
 }
 
-type BuyInfo = {
-  totalBuy: number;
-  quantity: number;
-};
-
-type SellInfo = {
-  totalSell: number;
-  quantity: number;
-};
+interface CoinStat {
+  totalBuyCost: number;
+  buyQuantity: number;
+  totalSellCost: number;
+  sellQuantity: number;
+  holdQuantity: number;
+}
 
 const calculateStats = (
   assets: Asset[],
   priceMap: Record<string, number>
 ): PortfolioStats => {
-  const buyMap = new Map<string, BuyInfo>();
-  const sellMap = new Map<string, SellInfo>();
-  const holdMap = new Map<string, number>();
+  const tempStats: Record<string, CoinStat> = {};
 
-  for (const asset of assets) {
+  assets.forEach((asset) => {
+    if (!tempStats[asset.symbol]) {
+      tempStats[asset.symbol] = {
+        totalBuyCost: 0,
+        buyQuantity: 0,
+        totalSellCost: 0,
+        sellQuantity: 0,
+        holdQuantity: 0,
+      };
+    }
+
+    const stat = tempStats[asset.symbol];
+
     if (asset.type === 'buy') {
-      const existingBuy = buyMap.get(asset.symbol) || {
-        totalBuy: 0,
-        quantity: 0,
-      };
-
-      existingBuy.totalBuy =
-        existingBuy.totalBuy + asset.quantity * asset.averagePrice;
-      existingBuy.quantity = existingBuy.quantity + asset.quantity;
-
-      buyMap.set(asset.symbol, existingBuy);
-
-      const currentHoldQuantity = holdMap.get(asset.symbol) ?? 0;
-      const nextHoldQuantity = currentHoldQuantity + asset.quantity;
-      holdMap.set(asset.symbol, nextHoldQuantity);
+      stat.totalBuyCost += asset.quantity * asset.averagePrice;
+      stat.buyQuantity += asset.quantity;
+      stat.holdQuantity += asset.quantity;
+    } else if (asset.type === 'sell') {
+      stat.totalSellCost += asset.quantity * asset.averagePrice;
+      stat.sellQuantity += asset.quantity;
+      stat.holdQuantity -= asset.quantity;
     }
-
-    if (asset.type === 'sell') {
-      const existingSell = sellMap.get(asset.symbol) || {
-        totalSell: 0,
-        quantity: 0,
-      };
-
-      existingSell.totalSell =
-        existingSell.totalSell + asset.quantity * asset.averagePrice;
-      existingSell.quantity = existingSell.quantity + asset.quantity;
-
-      sellMap.set(asset.symbol, existingSell);
-
-      const currentHoldQuantity = holdMap.get(asset.symbol) ?? 0;
-      const nextHoldQuantity = currentHoldQuantity - asset.quantity;
-      holdMap.set(asset.symbol, nextHoldQuantity);
-    }
-  }
+  });
 
   let totalBuy = 0;
   let realisedProfit = 0;
   let unrealisedProfit = 0;
   let evaluation = 0;
 
-  for (const entry of buyMap.entries()) {
-    const symbol = entry[0];
-    const buyInfo = entry[1];
+  Object.keys(tempStats).forEach((symbol) => {
+    const stat = tempStats[symbol];
+    
+    const avgBuyPrice = stat.buyQuantity > 0 ? stat.totalBuyCost / stat.buyQuantity : 0;
 
-    const buyCost = buyInfo.totalBuy;
-    const buyQuantity = buyInfo.quantity;
+    totalBuy += stat.totalBuyCost;
 
-    const sellInfo = sellMap.get(symbol);
-    const holdQuantity = holdMap.get(symbol) ?? 0;
-
-    const safeQuantity = buyQuantity || 1;
-    const averageBuyPrice = buyCost / safeQuantity;
-
-    totalBuy = totalBuy + buyCost;
-
-    if (sellInfo) {
-      const realisedForSymbol =
-        sellInfo.totalSell - averageBuyPrice * sellInfo.quantity;
-      realisedProfit = realisedProfit + realisedForSymbol;
+    if (stat.sellQuantity > 0) {
+      realisedProfit += stat.totalSellCost - (avgBuyPrice * stat.sellQuantity);
     }
 
-    if (holdQuantity > 0) {
+    if (stat.holdQuantity > 0) {
       const currentPrice = priceMap[symbol] ?? 0;
-      const currentEvaluation = currentPrice * holdQuantity;
-      const unrealisedForSymbol =
-        (currentPrice - averageBuyPrice) * holdQuantity;
-
-      evaluation = evaluation + currentEvaluation;
-      unrealisedProfit = unrealisedProfit + unrealisedForSymbol;
+      const currentVal = currentPrice * stat.holdQuantity;
+      
+      evaluation += currentVal;
+      unrealisedProfit += (currentPrice - avgBuyPrice) * stat.holdQuantity;
     }
-  }
+  });
 
   const allTimeProfit = realisedProfit + unrealisedProfit;
   let profitRate = 0;
@@ -108,7 +80,7 @@ const calculateStats = (
     profitRate = (allTimeProfit / totalBuy) * 100;
   }
 
-  const stats: PortfolioStats = {
+  return {
     evaluation,
     costBasis: totalBuy,
     totalBuy,
@@ -117,8 +89,6 @@ const calculateStats = (
     allTimeProfit,
     profitRate,
   };
-
-  return stats;
 };
 
 export { calculateStats };
