@@ -6,21 +6,22 @@ import type { PortfolioStats } from '@/utils/calculateStats'
 
 type AssetSummaryProps = {
   stats: PortfolioStats | null
+  isLoading?: boolean
 }
 
-const AssetSummary = ({ stats }: AssetSummaryProps) => {
+const AssetSummary = ({ stats, isLoading = false }: AssetSummaryProps) => {
   const animatedProfit = useAnimatedNumber(stats?.allTimeProfit ?? 0, {
-    duration: 2000,
+    duration: 1500,
   })
 
-  if (!stats) {
+  if (isLoading || !stats) {
     return (
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full text-neutral-100">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full text-neutral-100 animate-pulse">
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="w-full bg-white/5 rounded-xl shadow p-4 animate-pulse h-[68px]" />
-          <div className="w-full bg-white/5 rounded-xl shadow p-4 animate-pulse h-[68px]" />
+          <div className="w-full bg-white/5 rounded-xl shadow p-4 h-[68px]" />
+          <div className="w-full bg-white/5 rounded-xl shadow p-4 h-[68px]" />
         </div>
-        <div className="w-full bg-white/5 rounded-xl shadow p-4 animate-pulse h-[124px] lg:h-[152px]" />
+        <div className="w-full bg-white/5 rounded-xl shadow p-4 h-[124px] lg:h-[152px]" />
       </section>
     )
   }
@@ -60,6 +61,7 @@ const AssetSummary = ({ stats }: AssetSummaryProps) => {
             {Math.floor(animatedProfit).toLocaleString()} 원
           </div>
         </div>
+        
         <div className="text-xs mt-1 text-gray-300">
           <div className="flex justify-between lg:text-base">
             <span>실현 수익</span>

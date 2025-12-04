@@ -4,7 +4,7 @@ import { useState } from 'react'
 import AssetSummary from '@/components/portfolio/AssetSummary'
 import AssetTable from '@/components/portfolio/AssetTable'
 import AssetModal from '@/components/portfolio/AssetModal'
-import AssetDisturibution from '@/components/portfolio/AssetDisturibution'
+import AssetDistribution from '@/components/portfolio/AssetDisturibution'
 import AssetPerformance from '@/components/portfolio/AssetPerformance'
 import ConfirmModal from '@/components/portfolio/ConfirmModal'
 import EmptyPortfolioModal from '@/components/portfolio/EmptyPortfolioModal'
@@ -31,6 +31,7 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
     stats,
     distribution,
     priceMap,
+    isLoading,
     showEmptyModal,
     isAdding,
     addAsset,
@@ -80,7 +81,7 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
     <div className="p-6 space-y-6 text-neutral-100 max-w-screen-2xl mx-auto lg:px-20">
       <div className="flex flex-col xs:px-20 lg:px-0 lg:flex-row items-stretch gap-6">
         <div className="w-full lg:w-5/6">
-          <AssetSummary stats={stats} />
+          <AssetSummary stats={stats} isLoading={isLoading} />
         </div>
         <div className="w-full lg:w-1/6 flex flex-col justify-end">
           <div className="mt-auto">
@@ -99,10 +100,10 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
 
       <div className="flex flex-col lg:flex-row w-full items-center overflow-x-auto gap-6 lg:gap-0 px-0 xs:px-20 lg:px-0">
         <div className="flex-none min-w-[320px] w-full lg:w-1/2 lg:pr-3">
-          <AssetDisturibution allocation={distribution} />
+          <AssetDistribution allocation={distribution} isLoading={isLoading} />
         </div>
         <div className="flex-none min-w-[320px] w-full lg:w-1/2 lg:pl-3">
-          <AssetPerformance assets={assets} priceMap={priceMap} />
+          <AssetPerformance assets={assets} priceMap={priceMap} isLoading={isLoading} />
         </div>
       </div>
 
@@ -117,6 +118,7 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
           assets={assets}
           onDelete={requestDelete}
           onDeleteAll={() => setConfirmAllOpen(true)}
+          isLoading={isLoading}
         />
       </div>
 

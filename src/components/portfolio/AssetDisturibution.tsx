@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { motion } from 'framer-motion';
@@ -14,6 +13,7 @@ type AllocationItem = {
 
 type AssetDistributionProps = {
   allocation: AllocationItem[];
+  isLoading?: boolean;
 };
 
 const COLORS = [
@@ -30,18 +30,7 @@ const COLORS = [
   '#94a3b8',
 ];
 
-const AssetDisturibution = ({ allocation }: AssetDistributionProps) => {
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setIsReady(true);
-    }, 300);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, []);
+const AssetDistribution = ({ allocation, isLoading = false }: AssetDistributionProps) => {
 
   const total = allocation.reduce((sum, item) => sum + item.value, 0);
   const sortedAllocation = [...allocation].sort((a, b) => b.value - a.value);
@@ -74,25 +63,9 @@ const AssetDisturibution = ({ allocation }: AssetDistributionProps) => {
     },
   };
 
-  if (!isReady) {
+  if (isLoading) {
     return (
-      <div className="bg-white/5 rounded-xl shadow p-4 h-[400px] animate-pulse flex flex-col overflow-hidden">
-        <div className="h-7 w-20 mb-2" />
-        <div className="flex-1 w-full overflow-x-auto overflow-y-hidden">
-          <div className="flex items-center gap-8 flex-col md:flex-row w-max mx-auto">
-            <div className="flex items-center justify-center w-[300px] h-[300px] flex-shrink-0">
-              <div className="h-[300px] w-[300px] bg-white/10 rounded-full" />
-            </div>
-            <div className="flex items-center justify-center flex-shrink-0 min-w-[200px]">
-              <div className="flex flex-col space-y-2 w-fit">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="h-4 w-[160px]" />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div className="bg-white/5 rounded-xl shadow p-4 h-[400px] animate-pulse flex flex-col overflow-hidden" />
     );
   }
 
@@ -140,4 +113,4 @@ const AssetDisturibution = ({ allocation }: AssetDistributionProps) => {
   );
 };
 
-export default AssetDisturibution;
+export default AssetDistribution;

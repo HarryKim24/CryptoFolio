@@ -31,13 +31,14 @@ export const usePortfolioAssets = (initialAssets: Asset[], userId: string) => {
   const [stats, setStats] = useState<PortfolioStats | null>(null);
   const [distribution, setDistribution] = useState<DistributionItem[]>([]);
   const [priceMap, setPriceMap] = useState<PriceMap>({});
+  
   const [isLoading, setIsLoading] = useState(true);
+  
   const [showEmptyModal, setShowEmptyModal] = useState(initialAssets.length === 0);
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     const updatePortfolio = async () => {
-      setIsLoading(true);
 
       if (assets.length === 0) {
         setPriceMap({});
