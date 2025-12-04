@@ -4,7 +4,7 @@ import { useState } from 'react'
 import AssetSummary from '@/components/portfolio/AssetSummary'
 import AssetTable from '@/components/portfolio/AssetTable'
 import AssetModal from '@/components/portfolio/AssetModal'
-import AssetDistribution from '@/components/portfolio/AssetDisturibution'
+import AssetDisturibution from '@/components/portfolio/AssetDisturibution'
 import AssetPerformance from '@/components/portfolio/AssetPerformance'
 import ConfirmModal from '@/components/portfolio/ConfirmModal'
 import EmptyPortfolioModal from '@/components/portfolio/EmptyPortfolioModal'
@@ -99,7 +99,7 @@ const PortfolioClient = ({ initialAssets, userId }: PortfolioClientProps) => {
 
       <div className="flex flex-col lg:flex-row w-full items-center overflow-x-auto gap-6 lg:gap-0 px-0 xs:px-20 lg:px-0">
         <div className="flex-none min-w-[320px] w-full lg:w-1/2 lg:pr-3">
-          <AssetDistribution allocation={distribution} />
+          <AssetDisturibution allocation={distribution} />
         </div>
         <div className="flex-none min-w-[320px] w-full lg:w-1/2 lg:pl-3">
           <AssetPerformance assets={assets} priceMap={priceMap} />

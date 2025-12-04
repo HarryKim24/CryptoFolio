@@ -30,7 +30,7 @@ const COLORS = [
   '#94a3b8',
 ];
 
-const AssetDistribution = ({ allocation }: AssetDistributionProps) => {
+const AssetDisturibution = ({ allocation }: AssetDistributionProps) => {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -140,4 +140,4 @@ const AssetDistribution = ({ allocation }: AssetDistributionProps) => {
   );
 };
 
-export default AssetDistribution;
+export default AssetDisturibution;
