@@ -17,12 +17,12 @@ type SettingsClientProps = {
 
 const SettingsClient = ({ session }: SettingsClientProps) => {
   const [isEditing, setIsEditing] = useState(false)
-  const [localUser, setLocalUser] = useState<LocalUserState>(() => ({
+  const [localUser, setLocalUser] = useState<LocalUserState>({
     name: session.user?.name ?? '',
     email: session.user?.email ?? '',
     createdAt: session.user?.createdAt,
     updatedAt: session.user?.updatedAt,
-  }))
+  })
 
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
