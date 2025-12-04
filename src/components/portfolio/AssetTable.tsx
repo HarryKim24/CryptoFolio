@@ -7,9 +7,17 @@ type AssetTableProps = {
   assets: Asset[]
   onDelete: (id: string) => void
   onDeleteAll: () => void
+  isLoading?: boolean
 }
 
-const AssetTable = ({ assets, onDelete, onDeleteAll }: AssetTableProps) => {
+const AssetTable = ({ assets, onDelete, onDeleteAll, isLoading = false }: AssetTableProps) => {
+  
+  if (isLoading) {
+    return (
+      <div className="bg-white/5 rounded-xl shadow p-4 flex flex-col min-h-[160px] max-h-[500px] overflow-hidden animate-pulse" />
+    )
+  }
+
   const hasAssets = assets.length > 0
   const sortedAssets = [...assets].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()

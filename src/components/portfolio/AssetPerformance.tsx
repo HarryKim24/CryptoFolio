@@ -8,11 +8,31 @@ import { calculateAssetsPerformance } from '@/utils/calculateAssetsPerformance'
 interface Props {
   assets: Asset[]
   priceMap: Record<string, number>
+  isLoading?: boolean
 }
 
-const AssetPerformance = ({ assets, priceMap }: Props) => {
+const AssetPerformance = ({ assets, priceMap, isLoading = false }: Props) => {
+  
+  if (isLoading) {
+    return (
+      <div className="bg-white/5 rounded-xl shadow p-4 h-[400px] flex flex-col overflow-hidden animate-pulse" />
+    )
+  }
+
   const data = calculateAssetsPerformance(assets, priceMap)
   const sortedData = [...data].sort((a, b) => b.profit - a.profit)
+
+  if (sortedData.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="bg-white/5 rounded-xl shadow p-4 h-[400px] flex flex-col items-center justify-center text-gray-400"
+      >
+      </motion.div>
+    )
+  }
 
   return (
     <motion.div
@@ -36,38 +56,34 @@ const AssetPerformance = ({ assets, priceMap }: Props) => {
             </tr>
           </thead>
           <tbody>
-            {sortedData.map((item, index) => (
-              <tr key={index} className="border-t border-gray-400">
-                <td className="py-2 pr-2 pl-2 truncate">
-                  {item.symbol} - {item.name}
-                </td>
-                <td className="py-2 pr-2 text-right">
-                  {formatNumberForDisplay(item.quantity)}
-                </td>
-                <td className="py-2 pr-2 text-right">
-                  {formatPrice(item.averagePrice)} 원
-                </td>
-                <td className="py-2 pr-2 text-right">
-                  {formatPrice(item.currentPrice)} 원
-                </td>
-                <td
-                  className={`py-2 pr-2 text-right ${
-                    item.profit >= 0 ? 'text-green-400' : 'text-red-400'
-                  }`}
-                >
-                  {item.profit >= 0 ? '+' : ''}
-                  {Math.floor(item.profit).toLocaleString()} 원
-                </td>
-                <td
-                  className={`py-2 pr-2 text-right ${
-                    item.rate >= 0 ? 'text-green-400' : 'text-red-400'
-                  }`}
-                >
-                  {item.rate >= 0 ? '+' : ''}
-                  {item.rate.toFixed(2)}%
-                </td>
-              </tr>
-            ))}
+            {sortedData.map((item, index) => {
+              const isProfit = item.profit >= 0;
+              const colorClass = isProfit ? 'text-green-400' : 'text-red-400';
+              const sign = isProfit ? '+' : '';
+
+              return (
+                <tr key={index} className="border-t border-gray-400">
+                  <td className="py-2 pr-2 pl-2 truncate">
+                    {item.symbol} - {item.name}
+                  </td>
+                  <td className="py-2 pr-2 text-right">
+                    {formatNumberForDisplay(item.quantity)}
+                  </td>
+                  <td className="py-2 pr-2 text-right">
+                    {formatPrice(item.averagePrice)} 원
+                  </td>
+                  <td className="py-2 pr-2 text-right">
+                    {formatPrice(item.currentPrice)} 원
+                  </td>
+                  <td className={`py-2 pr-2 text-right ${colorClass}`}>
+                    {sign}{Math.floor(item.profit).toLocaleString()} 원
+                  </td>
+                  <td className={`py-2 pr-2 text-right ${colorClass}`}>
+                    {sign}{item.rate.toFixed(2)}%
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
