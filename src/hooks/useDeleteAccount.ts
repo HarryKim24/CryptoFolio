@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 import { signOut } from "next-auth/react";
 
 type ErrorController = {
@@ -8,8 +7,8 @@ type ErrorController = {
 
 type UseDeleteAccountParams = {
   password: string;
-  setPassword: Dispatch<SetStateAction<string>>;
-  setShowModal: Dispatch<SetStateAction<boolean>>;
+  setPassword: (value: string) => void;
+  setShowModal: (value: boolean) => void;
   errorController: ErrorController;
 };
 
@@ -19,32 +18,28 @@ export const useDeleteAccount = ({
   setShowModal,
   errorController,
 }: UseDeleteAccountParams) => {
+  
   const handleDeleteAccount = async () => {
-    const trimmed = password.trim();
-
-    if (!trimmed) {
+    if (!password.trim()) {
       errorController.trigger("비밀번호를 입력하세요.");
       return;
     }
 
     try {
-      const body = JSON.stringify({ password: trimmed });
-
       const response = await fetch("/api/settings/delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body,
+        body: JSON.stringify({ password: password.trim() }),
       });
 
-      const isInvalid = !response.ok;
-
-      if (isInvalid) {
+      if (!response.ok) {
         errorController.trigger("잘못된 비밀번호를 입력했습니다.");
         return;
       }
 
       alert("탈퇴 완료. 메인 페이지로 이동합니다.");
       await signOut({ callbackUrl: "/" });
+      
     } catch (error) {
       console.error(error);
       errorController.trigger("회원 탈퇴 중 오류 발생");
