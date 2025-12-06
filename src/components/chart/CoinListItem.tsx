@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import type { Ticker, CautionType } from "@/types/upbitTypes";
 import CoinCautionBadge from "./CautionBadge";
 
@@ -38,6 +39,30 @@ const formatVolume = (volume: number, market: string) => {
 
 const CoinListItem = ({ ticker, korean_name, caution, isActive, onClick }: Props) => {
   const router = useRouter();
+  
+  const [flash, setFlash] = useState<"up" | "down" | null>(null);
+  const prevPriceRef = useRef(ticker.trade_price);
+
+  useEffect(() => {
+    const currentPrice = ticker.trade_price;
+    const prevPrice = prevPriceRef.current;
+
+    if (currentPrice !== prevPrice) {
+      if (currentPrice > prevPrice) {
+        setFlash("up");
+      } else if (currentPrice < prevPrice) {
+        setFlash("down");
+      }
+
+      prevPriceRef.current = currentPrice;
+
+      const timer = setTimeout(() => {
+        setFlash(null);
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [ticker.trade_price]);
 
   const handleClick = () => {
     if (isActive) {
@@ -53,12 +78,22 @@ const CoinListItem = ({ ticker, korean_name, caution, isActive, onClick }: Props
   if (changeRate > 0) colorClass = "text-red-400";
   else if (changeRate < 0) colorClass = "text-blue-400";
 
+  let borderClass = "border-2";
+  
+  if (flash === "up") {
+    borderClass += " border-red-500/50";
+  } else if (flash === "down") {
+    borderClass += " border-blue-500/50";
+  } else {
+    borderClass += " border-transparent";
+  }
+
+  const bgClass = isActive ? "bg-white/10" : "hover:bg-white/5";
+
   return (
     <div
       onClick={handleClick}
-      className={`flex justify-between items-start px-2 py-1 rounded cursor-pointer hover:ring-1 ring-white/10 hover:bg-white/5 ${
-        isActive ? "bg-white/10" : ""
-      }`}
+      className={`flex justify-between items-start px-2 py-1 rounded cursor-pointer ${bgClass} ${borderClass}`}
     >
       <div className="max-w-[180px]">
         <div className="flex items-center gap-1 text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
@@ -69,7 +104,7 @@ const CoinListItem = ({ ticker, korean_name, caution, isActive, onClick }: Props
       </div>
 
       <div className="text-right whitespace-nowrap">
-        <div className="text-base text-neutral-100">
+        <div className={`text-base ${flash === 'up' ? 'text-red-400' : flash === 'down' ? 'text-blue-400' : 'text-neutral-100'}`}>
           {formatPrice(ticker.trade_price, ticker.market)}
         </div>
         <div className={`text-sm ${colorClass}`}>
