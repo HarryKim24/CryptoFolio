@@ -1,28 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import type React from 'react';
+import { useEffect } from 'react';
 import axios from 'axios';
-import type { Market, Ticker as RestTicker } from '@/types/upbitTypes';
+import type { Market, Ticker } from '@/types/upbitTypes';
 import { useUpbitTickerStore } from '@/stores/upbitTickerStore';
-
-const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
-
-type Ticker = RestTicker;
-
-type WsTicker = Omit<Ticker, 'market'> & { code: string };
-
-const toCommonTicker = (ticker: WsTicker | RestTicker): Ticker => {
-  if ('code' in ticker) {
-    const { code, ...rest } = ticker;
-    return {
-      ...rest,
-      market: code,
-    } as Ticker;
-  }
-  
-  return ticker;
-};
 
 export const UpbitTickerProvider = ({
   children,
@@ -30,10 +11,8 @@ export const UpbitTickerProvider = ({
   children: React.ReactNode;
 }) => {
   const markets = useUpbitTickerStore((state) => state.markets);
-  const { setMarkets, setLoading, setTickers, updateTicker } = useUpbitTickerStore();
+  const { setMarkets, setLoading, setTickers } = useUpbitTickerStore();
 
-  const wsRef = useRef<WebSocket | null>(null);
-  
   useEffect(() => {
     let isMounted = true;
 
@@ -70,69 +49,25 @@ export const UpbitTickerProvider = ({
       try {
         const codes = markets.map((m) => m.market).join(',');
         
-        const response = await axios.get<RestTicker[]>('/api/proxy/ticker', {
+        const response = await axios.get<Ticker[]>('/api/proxy/ticker', {
           params: { markets: codes },
         });
 
-        const cleanData = response.data.map((item) => toCommonTicker(item));
-        
-        setTickers(cleanData);
+        setTickers(response.data);
         setLoading(false);
       } catch (err) {
-        console.error('Ticker 폴링 에러:', err);
+        console.error('Ticker 조회 에러:', err);
       }
     };
 
     fetchTickers();
+
     const intervalId = setInterval(fetchTickers, 1000);
-
-    if (enableWebSocket) {
-      if (wsRef.current) wsRef.current.close();
-
-      const socket = new WebSocket('wss://api.upbit.com/websocket/v1');
-      wsRef.current = socket;
-      socket.binaryType = 'blob'; 
-
-      socket.onopen = () => {
-        const codes = markets.map((m) => m.market);
-        const message = JSON.stringify([
-          { ticket: 'ticker-list' },
-          { type: 'ticker', codes, isOnlyRealtime: true }
-        ]);
-        socket.send(message);
-      };
-
-      socket.onmessage = async (event) => {
-        try {
-          let text = '';
-          if (event.data instanceof Blob) {
-            text = await event.data.text();
-          } else {
-            text = event.data as string;
-          }
-
-          if (!text) return;
-
-          const rawTicker = JSON.parse(text) as WsTicker;
-          const ticker = toCommonTicker(rawTicker);
-
-          updateTicker(ticker);
-          
-        } catch (e) {
-          console.error('WS 파싱 에러', e);
-        }
-      };
-      
-      socket.onerror = (e) => console.error('WS Error', e);
-    }
 
     return () => {
       clearInterval(intervalId);
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
     };
-  }, [markets, setTickers, updateTicker, setLoading]); 
+  }, [markets, setTickers, setLoading]); 
 
   return <>{children}</>;
-}
+};
