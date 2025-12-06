@@ -13,7 +13,6 @@ type ChartPoint = { x: Date; y: number | [number, number, number, number] };
 
 type Props = {
   market: string;
-  disableZoom?: boolean;
 };
 
 const CANDLE_TYPES: CandleType[] = [
@@ -34,7 +33,7 @@ const CANDLE_TYPE_LABELS: Record<CandleType, string> = {
   years: "년",
 };
 
-const CoinChart = ({ market, disableZoom = false }: Props) => {
+const CoinChart = ({ market }: Props) => {
   const [candleType, setCandleType] = useState<CandleType>("days");
   const [unit, setUnit] = useState<number>(1);
   const count = 200;
@@ -131,7 +130,6 @@ const CoinChart = ({ market, disableZoom = false }: Props) => {
             volume={volumePoints}
             candleType={candleType}
             unit={unit}
-            disableZoom={disableZoom}
           />
         </div>
       </div>

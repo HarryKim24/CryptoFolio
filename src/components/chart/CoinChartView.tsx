@@ -20,7 +20,6 @@ type Props = {
   volume: ChartPoint[];
   candleType: CandleType;
   unit: number;
-  disableZoom?: boolean;
 };
 
 const CoinChartView = ({
@@ -30,7 +29,6 @@ const CoinChartView = ({
   volume,
   candleType,
   unit,
-  disableZoom = false,
 }: Props) => {
   
   const candlestickOptions: ApexOptions = useMemo(() => ({
@@ -39,7 +37,7 @@ const CoinChartView = ({
         type: "candlestick",
         background: "#0b0f19",
         toolbar: { show: false },
-        zoom: { enabled: !disableZoom },
+        zoom: { enabled: false },
       },
       xaxis: {
         type: "datetime",
@@ -76,7 +74,7 @@ const CoinChartView = ({
           colors: { upward: "#3FB68B", downward: "#F46A6A" },
         },
       },
-    }), [candles, disableZoom]);
+    }), [candles]);
 
   const volumeOptions: ApexOptions = useMemo(() => ({
       chart: {
