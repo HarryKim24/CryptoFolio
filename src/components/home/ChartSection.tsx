@@ -101,7 +101,7 @@ function ChartSection() {
           onToggleView={() => {}}
         />
         <div className="flex-1 relative min-h-0">
-          {showChart ? <CoinChart market={market} disableZoom /> : <ChartLoading />}
+          {showChart ? <CoinChart market={market} /> : <ChartLoading />}
         </div>
       </div>
 
