@@ -1,57 +1,49 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+gsap.registerPlugin(ScrollTrigger);
 
 const ScrollScene = () => {
   useEffect(() => {
-    const sections = gsap.utils.toArray<HTMLElement>('.panel');
-    const layers = gsap.utils.toArray<HTMLElement>('.bg-global');
+    const sections = gsap.utils.toArray<HTMLElement>(".panel");
+    const layers = gsap.utils.toArray<HTMLElement>(".bg-global");
 
     if (!sections.length || !layers.length) return;
 
     const ctx = gsap.context(() => {
       const count = Math.min(sections.length, layers.length);
 
-      sections.slice(0, count).forEach((section, index) => {
-        const layer = layers[index];
+      for (let i = 0; i < count - 1; i++) {
+        const currentLayer = layers[i];
+        const nextLayer = layers[i + 1];
+        const triggerSection = sections[i + 1];
 
-        gsap.set(layer, { zIndex: index });
+        gsap.set(nextLayer, { zIndex: i + 1 });
 
-        gsap.to(layer, {
-          opacity: 1,
-          duration: 1.2,
-          ease: 'power2.out',
-          immediateRender: false,
+        gsap.timeline({
           scrollTrigger: {
-            trigger: section,
-            start: 'top center',
-            end: 'bottom center',
-            scrub: 0.5,
-            toggleActions: 'play reverse play reverse',
+            trigger: triggerSection,
+            start: "top center",
+            end: "bottom center",
+            scrub: true,
           },
-        });
-
-        if (index > 0) {
-          gsap.to(layers[index - 1], {
+        })
+          .to(currentLayer, {
             opacity: 0,
-            duration: 1,
-            ease: 'power2.inOut',
-            immediateRender: false,
-            scrollTrigger: {
-              trigger: section,
-              start: 'top center',
-              end: 'bottom center',
-              scrub: 0.5,
+            ease: "power2.out",
+          })
+          .to(
+            nextLayer,
+            {
+              opacity: 1,
+              ease: "power2.out",
             },
-          });
-        }
-      });
+            "<"
+          );
+      }
     });
 
     return () => ctx.revert();
