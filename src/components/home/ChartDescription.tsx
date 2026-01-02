@@ -19,10 +19,9 @@ const ChartDescription = () => {
 
       gsap.fromTo(
         element,
-        { y: 0, opacity: 0 },
+        { y: -100 },
         {
-          y: -200,
-          opacity: 1,
+          y: -400,
           ease: 'none',
           scrollTrigger: {
             trigger: element,

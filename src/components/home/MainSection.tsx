@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { motion, useInView } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useAnimatedNumber } from '@/utils/animatedNumber';
+import { useEffect, useRef, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { motion, useInView } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useAnimatedNumber } from "@/utils/animatedNumber";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,30 +18,25 @@ const useUpbitStats = () => {
 
     const fetchMarketData = async () => {
       try {
-        const res = await fetch('/api/proxy/market?isDetails=false');
-        if (!res.ok) {
-          throw new Error(`업비트 API 오류: ${res.status}`);
-        }
+        const res = await fetch("/api/proxy/market?isDetails=false");
+        if (!res.ok) throw new Error(`업비트 API 오류: ${res.status}`);
 
         const data = await res.json();
         if (!Array.isArray(data) || cancelled) return;
 
         const markets = data.map((item: { market: string }) => item.market);
-        const assets = new Set(markets.map((m: string) => m.split('-')[1]));
+        const assets = new Set(markets.map((m: string) => m.split("-")[1]));
 
         setStats({
           marketCount: markets.length,
           assetCount: assets.size,
         });
       } catch (error) {
-        if (!cancelled) {
-          console.error('데이터 로드 실패:', error);
-        }
+        if (!cancelled) console.error("데이터 로드 실패:", error);
       }
     };
 
     fetchMarketData();
-
     return () => {
       cancelled = true;
     };
@@ -87,7 +82,8 @@ function MainSection() {
 
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const statRef = useRef<HTMLDivElement | null>(null);
-  const isInView = useInView(statRef, { amount: 0.5 });
+
+  const isInView = useInView(statRef, { amount: 0.6 });
 
   const animatedAssetCount = useAnimatedNumber(isInView ? assetCount : 0, {
     duration: 2000,
@@ -100,37 +96,81 @@ function MainSection() {
   });
 
   useEffect(() => {
-    if (!sectionRef.current) return;
+    const el = sectionRef.current;
+    if (!el) return;
 
     const ctx = gsap.context(() => {
-      const section = sectionRef.current;
-      if (!section) return;
-
-      gsap.to(section, {
-        opacity: 0,
-        scale: 5,
-        ease: 'power2.out',
-        transformOrigin: 'center center',
-        scrollTrigger: {
-          trigger: section,
-          start: 'center center',
-          end: 'bottom top',
-          scrub: 0.2,
+      ScrollTrigger.create({
+        trigger: el,
+        start: "center center",
+        end: "bottom top",
+        onUpdate: (self) => {
+          const p = self.progress;
+          gsap.set(el, {
+            opacity: 1 - p,
+            scale: 1 + p * 4,
+            transformOrigin: "center center",
+          });
         },
       });
     }, sectionRef);
 
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
+  const mainTitleMotion = useMemo(
+    () => ({
+      initial: { opacity: 0, scale: 6 },
+      animate: { opacity: 1, scale: 1 },
+      transition: {
+        duration: 0.9,
+        ease: "easeOut" as const,
+      },
+    }),
+    []
+  );
+
+  const subTextMotion = useMemo(
+    () => ({
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      transition: {
+        duration: 0.8,
+        delay: 0.6,
+        ease: "easeOut" as const,
+      },
+    }),
+    []
+  );
+
+  const statMotion = useMemo(
+    () => ({
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      transition: {
+        duration: 0.7,
+        delay: 0.8,
+        ease: "easeOut" as const,
+      },
+    }),
+    []
+  );
+
+  const buttonMotion = useMemo(
+    () => ({
+      initial: { opacity: 0, y: 8 },
+      animate: { opacity: 1, y: 0 },
+      transition: {
+        duration: 0.7,
+        delay: 0.9,
+        ease: "easeOut" as const,
+      },
+    }),
+    []
+  );
+
   function handleMainAction() {
-    if (session) {
-      router.push('/portfolio');
-    } else {
-      router.push('/login');
-    }
+    router.push(session ? "/portfolio" : "/login");
   }
 
   return (
@@ -141,30 +181,24 @@ function MainSection() {
       >
         <div className="space-y-6 pt-32 pb-48">
           <motion.h1
-            initial={{ opacity: 0, scale: 20 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: 'easeOut' }}
+            {...mainTitleMotion}
             className="text-3xl md:text-4xl font-bold leading-tight"
           >
             사용자 중심 암호화폐 자산 포트폴리오 플랫폼
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, ease: 'easeOut', delay: 1 }}
+            {...subTextMotion}
             className="text-neutral-300 text-sm md:text-lg"
           >
             암호화폐 가격을 실시간으로 조회하고,
-            <br className="hidden md:block" /> 트렌드를 분석하여 나만의 맞춤형 포트폴리오를
-            만들어보세요.
+            <br className="hidden md:block" />
+            트렌드를 분석하여 나만의 맞춤형 포트폴리오를 만들어보세요.
           </motion.p>
 
           <motion.div
             ref={statRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 1, ease: 'easeOut' }}
+            {...statMotion}
             className="flex items-center justify-center gap-2 xs:gap-20 mt-12"
           >
             <StatItem count={animatedAssetCount} label="Digital Assets" />
@@ -172,16 +206,14 @@ function MainSection() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 1, ease: 'easeOut' }}
+            {...buttonMotion}
             className="flex flex-col xs:flex-row items-center justify-center gap-4 mt-12"
           >
-            <ActionButton onClick={() => router.push('/chart/KRW-BTC')}>
+            <ActionButton onClick={() => router.push("/chart/KRW-BTC")}>
               차트 확인하기
             </ActionButton>
             <ActionButton onClick={handleMainAction}>
-              {session ? '내 포트폴리오' : '로그인'}
+              {session ? "내 포트폴리오" : "로그인"}
             </ActionButton>
           </motion.div>
         </div>
